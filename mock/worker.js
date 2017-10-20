@@ -22,12 +22,10 @@ const routerCreateFun = (configResulte) => {
         //延迟
         server[type](url, (req, res) => {
 
-            const resulteData = fs.readFileSync(__dirname + dataPath, 'utf-8');
+            const resulteData = fs.readFileSync(path.resolve('mock') + dataPath, 'utf-8');
 
             setTimeout(() => {
 
-                const resulteData = fs.readFileSync(__dirname + dataPath, 'utf-8');
-            
                 res.send(JSON.parse(resulteData))
 
             }, delay)
@@ -38,7 +36,7 @@ const routerCreateFun = (configResulte) => {
         //普通情况
         server[type](url, (req, res) => {
 
-            const resulteData = fs.readFileSync(__dirname + dataPath, 'utf-8');
+            const resulteData = fs.readFileSync(path.resolve('mock') + dataPath, 'utf-8');
             
             res.send(JSON.parse(resulteData))
 
@@ -59,11 +57,11 @@ server.use(middlewares)
 server.use(router)
 
 server.listen(3001, () => {
-    //console.log('mock server has start')
+    console.log('mock server has restart')
 })
 
 //watch config.js file 
-const watchedFile = path.resolve('mock/config');
+// const watchedFile = path.resolve('mock/config');
 // fs.watch(watchedFile, (err, file) => {
 
 // 	//console.log('trigger watch and will restart mock server ...')

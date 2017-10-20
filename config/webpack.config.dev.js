@@ -104,6 +104,7 @@ module.exports = {
             config: path.resolve('src/config'),
             public: path.resolve('public/'),
             scss: path.resolve('src/scss_mixin/scss/'),
+            scss_mixin: path.resolve('src/scss_mixin/'),
         },
         plugins: [
             // Prevents users from importing files from outside of src/ (or node_modules/).
