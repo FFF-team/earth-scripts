@@ -62,7 +62,41 @@ const flexibleStr = (function(){
     return fs.readFileSync('node_modules/lm-flexible/build/changeRem-min.js', 'utf-8');
 })();
 
-const cdnConfig = require(path.resolve('config/cdnPath'));
+let cdnConfig = null;
+try{
+    cdnConfig = require(path.resolve('config/cdnPath'));
+}catch(e){
+    console.log('================config warning================');
+    console.log('\n' + "hi man, you should add cdnPath.js in config" + '\n');
+    console.log('================config warning================');
+
+    cdnConfig = {
+        prodJsCDN: '.',
+        prodCssCDN: '.',
+        prodImgCDN: '.',
+        prodMediaCDN: '.'
+    };
+}
+
+
+let aliasConfig = null;
+try{
+    aliasConfig = require(path.resolve('config/alias'));
+}catch(e){
+    console.log('================config warning================');
+    console.log('\n' + "hi man, you should add alias.js in config" + '\n');
+    console.log('================config warning================');
+
+    aliasConfig = {
+        commons: path.resolve('src/components_common/'),
+        tools: path.resolve('src/tools/'),
+        api: path.resolve('src/api/'),
+        config: path.resolve('src/config'),
+        public: path.resolve('public/'),
+        scss: path.resolve('src/scss_mixin/scss/'),
+        scss_mixin: path.resolve('src/scss_mixin/'),
+    };
+}
 
 // config after eject: we're in ./config/
 module.exports = {
@@ -81,6 +115,7 @@ module.exports = {
     resolveApp: resolveApp,
 
     flexibleStr: flexibleStr,
+    aliasConfig: aliasConfig,
 
     // todo: 自定义生产环境中build输出位置及cdn地址
     appBuild: resolveApp('build'), // build输出位置

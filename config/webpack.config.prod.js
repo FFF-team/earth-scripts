@@ -149,17 +149,7 @@ module.exports = {
     // `web` extension prefixes have been added for better support
     // for React Native Web.
     extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-    alias: {
-
-      commons: path.resolve('src/components_common/'),
-      tools: path.resolve('src/tools/'),
-      api: path.resolve('src/api/'),
-      config: path.resolve('src/config'),
-      public: path.resolve('public/'),
-      scss: path.resolve('src/scss_mixin/scss/'),
-      scss_mixin: path.resolve('src/scss_mixin/'),
-
-    },
+    alias: paths.aliasConfig,
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
       // This often causes confusion because we only process files within src/ with babel.
