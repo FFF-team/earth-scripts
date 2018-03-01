@@ -11,6 +11,14 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getClientEnvironment = require('./env');
 const paths = require('./paths');
+const webpackMerge = require('webpack-merge');
+const fs = require('fs');
+const _ = require('lodash');
+
+// import customerConfig
+const customConfigPath = path.resolve('./config/webpack.config.dev.js');
+const customConfig = fs.existsSync(customConfigPath) ? require(customConfigPath) : {};
+
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
@@ -54,7 +62,7 @@ paths.entriesMap['vendor'] = [
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
-module.exports = {
+const defaultConfig =  {
     // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
     // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
     devtool: 'cheap-module-source-map',
@@ -62,6 +70,7 @@ module.exports = {
     // This means they will be the "root" imports that are included in JS bundle.
     // The first two entry points enable "hot" CSS and auto-refreshes for JS.
     entry: paths.entriesMap,
+    externals: {},
     output: {
         // Next line is not used in dev but WebpackDevServer crashes without it:
         path: paths.appBuild,
@@ -262,6 +271,8 @@ module.exports = {
         new InterpolateHtmlPlugin(env.raw),
         // Generates an `index.html` file with the <script> injected.
         ...htmlWebpackPluginMap,
+        // HtmlWebpackExternalsPlugin
+        ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
 
         new webpack.optimize.CommonsChunkPlugin({
             name: "vendor"
@@ -309,3 +320,53 @@ module.exports = {
         hints: false,
     },
 };
+
+const newConfig = webpackMerge({
+
+    customizeArray(a, b, key) {
+
+        if (key === 'plugins') {
+            let uniques = [
+                'InterpolateHtmlPlugin',
+                'HtmlWebpackPlugin',
+                'HtmlWebpackExternalsPlugin',
+                'CommonsChunkPlugin',
+                'NamedModulesPlugin',
+                'DefinePlugin',
+                'HotModuleReplacementPlugin',
+                'CaseSensitivePathsPlugin',
+                'WatchMissingNodeModulesPlugin'
+            ];
+            return [
+                ...a,
+                ..._.differenceWith(
+                    b, a, plugin => uniques.indexOf(plugin.constructor && plugin.constructor.name) >= 0
+                )
+            ]
+        }
+        // Fall back to default merge
+        return undefined;
+    },
+    customizeObject(a, b, key) {
+
+        if (key === 'externals') {
+
+            let newExternals = {};
+            _.forEach(b, (v, k) => {
+                newExternals[k] = _.omit(v, ['entry', 'files'])
+            });
+
+            return newExternals
+        }
+
+        let frozenKeys = ['entry', 'output', 'resolve', 'module', 'node', 'performance']
+        if (frozenKeys.indexOf(key) >= 0) {
+            return a
+        }
+
+        // Fall back to default merge
+        return undefined;
+    }
+})(defaultConfig, customConfig);
+
+module.exports = newConfig;

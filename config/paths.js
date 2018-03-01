@@ -9,6 +9,7 @@ const glob = require('glob');
 // https://github.com/facebookincubator/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
+const pagesPath = 'src/pages/*';
 
 const envPublicUrl = process.env.PUBLIC_URL;
 
@@ -38,7 +39,7 @@ const entriesFunc = function(globPath) {
     return entries;
 };
 
-let entriesMap = entriesFunc('src/pages/*');
+let entriesMap = entriesFunc(pagesPath);
 
 const getPublicUrl = appPackageJson =>
 envPublicUrl || require(appPackageJson).homepage;
@@ -113,6 +114,7 @@ module.exports = {
     publicUrl: getPublicUrl(resolveApp('package.json')),
     servedPath: getServedPath(resolveApp('package.json')),
     resolveApp: resolveApp,
+    pages: pagesPath,
 
     flexibleStr: flexibleStr,
     aliasConfig: aliasConfig,

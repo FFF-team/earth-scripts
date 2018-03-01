@@ -13,6 +13,14 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
+const webpackMerge = require('webpack-merge');
+const fs = require('fs');
+const _ = require('lodash');
+const glob = require('glob');
+
+// import customerConfig
+const customConfigPath = path.resolve('config/webpack.config.prod.js');
+const customConfig = fs.existsSync(customConfigPath) ? require(customConfigPath) : {};
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -109,7 +117,7 @@ paths.entriesMap['vendor'] = [
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
-module.exports = {
+const defaultConfig = {
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
@@ -117,6 +125,7 @@ module.exports = {
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the polyfills and the app code.
   entry: paths.entriesMap,
+  externals: {},
   output: {
     // The build folder.
     path: paths.appBuild,
@@ -229,7 +238,8 @@ module.exports = {
                       options: {
                         importLoaders: 1,
                         minimize: true,
-                        sourceMap: shouldUseSourceMap,
+                        sourceMap: false
+                        // sourceMap: shouldUseSourceMap,
                       },
                     },
                     {
@@ -271,7 +281,8 @@ module.exports = {
                           options: {
                             importLoaders: 2,
                             minimize: true,
-                            sourceMap: shouldUseSourceMap,
+                            sourceMap: false,
+                            // sourceMap: shouldUseSourceMap,
                           },
                         },
                         {
@@ -285,11 +296,11 @@ module.exports = {
                               autoprefixer({
                                 browsers: [
                                   '>1%',
-                                  'last 4 versions',
+                                  'last 0 versions',
                                   'Firefox ESR',
                                   'not ie < 9', // React doesn't support IE8 anyway
                                 ],
-                                flexbox: 'no-2009',
+                                // flexbox: 'no-2009',
                               }),
                             ],
                           },
@@ -341,6 +352,8 @@ module.exports = {
     new InterpolateHtmlPlugin(env.raw),
     // Generates an `index.html` file with the <script> injected.
     ...htmlWebpackPluginMap,
+    // externals plugin
+    ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
     // 将公共包和webpack bootstrap从业务代码总分离
     new webpack.HashedModuleIdsPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
@@ -375,7 +388,11 @@ module.exports = {
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
     new ExtractTextPlugin({
       filename: cssFilename,
+      allChunks: glob.sync(paths.pages).length > 1
     }),
+    ...(process.env.ENABLE_BUNDLE_ANALYZE === 'true' ?
+          [new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)()] :
+          []),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
@@ -428,3 +445,59 @@ module.exports = {
     tls: 'empty',
   },
 };
+
+const newConfig = webpackMerge({
+
+    customizeArray(a, b, key) {
+        if (key === 'entry.vendor') {
+            if (_.isArray(b)) {
+                return _.uniq([...a, ...b])
+            }
+            return a
+        }
+
+        if (key === 'plugins') {
+            let uniques = [
+                'CdnPathWebpackPlugin',
+                'InterpolateHtmlPlugin',
+                'HtmlWebpackPlugin',
+                'HtmlWebpackExternalsPlugin',
+                'HashedModuleIdsPlugin',
+                'CommonsChunkPlugin',
+                'DefinePlugin',
+                'BundleAnalyzerPlugin'
+            ];
+
+            return [
+                ...a,
+                ..._.differenceWith(
+                    b, a, plugin => uniques.indexOf(plugin.constructor && plugin.constructor.name) >= 0
+                )
+            ]
+        }
+        // Fall back to originalConfig
+        return a;
+    },
+    customizeObject(a, b, key) {
+
+        if (key === 'externals') {
+
+            let newExternals = {};
+            _.forEach(b, (v, k) => {
+                newExternals[k] = _.omit(v, ['entry', 'files'])
+            });
+
+            return newExternals
+        }
+
+        let frozenKeys = ['output', 'resolve', 'module', 'node', 'bail', 'devtool'];
+        if (frozenKeys.indexOf(key) >= 0) {
+            return a
+        }
+
+        // Fall back to default merging
+        return undefined;
+    }
+})(defaultConfig, customConfig);
+
+module.exports = newConfig;
