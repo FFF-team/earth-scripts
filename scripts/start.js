@@ -21,7 +21,6 @@ const webpack = require('webpack');
 const exec = require('child_process').exec;
 const WebpackDevServer = require('webpack-dev-server');
 const clearConsole = require('react-dev-utils/clearConsole');
-const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const {
   choosePort,
   createCompiler,
@@ -32,21 +31,42 @@ const openBrowser = require('react-dev-utils/openBrowser');
 const paths = require('../config/paths');
 const config = require('../config/webpack.config.dev');
 const createDevServerConfig = require('../config/webpackDevServer.config');
+const path = require('path');
+const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
+const _ = require('lodash');
+
+const checkPagesRequired = require('./tools').checkPagesRequired;
+const resolveApp = require('./tools').resolveApp;
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+if (!checkPagesRequired(paths.allPages)) {
   process.exit(1);
 }
+
+console.log('earth-scripts')
 
 // Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 //auto start mock server
-require('./mock')
+const customerMock = require(paths.appPackageJson).mockRoot;
+if (customerMock) {
+    const customerMockPath = resolveApp(`mock/${customerMock}`);
+    if (checkRequiredFiles([customerMockPath])) {
+        console.log(chalk.green('\n custom mock is running! \n'));
+        require('./mock').start(customerMockPath);
+    } else {
+        console.log(chalk.yellow(`\n mock warning: \n missing mock/${customerMock}, start default mockServer\n\n`));
+        require('./mock').start();
+    }
+} else {
+    console.log(chalk.green('\n default mock is running! \n'));
+    require('./mock').start();
+}
 
 //todo 优化
 // if (process.platform === 'win32') {
@@ -81,6 +101,7 @@ choosePort(HOST, DEFAULT_PORT)
       urls.lanUrlForConfig
     );
     const devServer = new WebpackDevServer(compiler, serverConfig);
+    const publicPath = _.get(config, ['output', 'publicPath']);
     // Launch WebpackDevServer.
     devServer.listen(port, HOST, err => {
       if (err) {
@@ -90,7 +111,12 @@ choosePort(HOST, DEFAULT_PORT)
         // clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
-      openBrowser(urls.localUrlForBrowser + 'index.html');
+      // 默认取第一个html打开
+      openBrowser(
+          urls.localUrlForBrowser +
+          publicPath.substring(1) +
+          `${paths.allPages[0]}.html`
+      )
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function(sig) {

@@ -14,6 +14,7 @@ const paths = require('./paths');
 const webpackMerge = require('webpack-merge');
 const fs = require('fs');
 const _ = require('lodash');
+const util = require('./util');
 
 // import customerConfig
 const customConfigPath = path.resolve('./config/webpack.config.dev.js');
@@ -31,7 +32,7 @@ const publicUrl = '';
 const env = getClientEnvironment(publicUrl);
 
 // import filenames config
-const fileNames = require(path.resolve('config/filenames')).dev;
+const fileNames = util.getFilenames(customConfig);
 
 const htmlWebpackPluginMap = (function(){
     let map = [];
@@ -104,7 +105,7 @@ const defaultConfig =  {
         // `web` extension prefixes have been added for better support
         // for React Native Web.
         extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-        alias: paths.aliasConfig,
+        alias: util.getAliasConfig(),
         plugins: [
             // Prevents users from importing files from outside of src/ (or node_modules/).
             // This often causes confusion because we only process files within src/ with babel.
@@ -359,7 +360,18 @@ const newConfig = webpackMerge({
             return newExternals
         }
 
-        let frozenKeys = ['entry', 'output', 'resolve', 'module', 'node', 'performance']
+        if (key === 'output') {
+            return _.merge(
+                a,
+                _.omit(b, 'filenames'),
+                {
+                    filename: fileNames.js || b.filename,
+                    chunkFilename: fileNames.jsChunk || b.chunkFilename
+                }
+            )
+        }
+
+        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance']
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }

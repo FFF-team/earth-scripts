@@ -12,11 +12,12 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
-const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
+// const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
 const webpackMerge = require('webpack-merge');
 const fs = require('fs');
 const _ = require('lodash');
 const glob = require('glob');
+const util = require('./util');
 
 // import customerConfig
 const customConfigPath = path.resolve('config/webpack.config.prod.js');
@@ -44,7 +45,9 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 }
 
 // import filenames config
-const fileNames = require(path.resolve('config/filenames')).prod;
+const fileNames = util.getFilenames(customConfig);
+// import cnd path
+const cdnPaths = util.getCdnPath(customConfig);
 
 // Note: defined here because it will be used more than once.
 const cssFilename = fileNames.css;
@@ -59,20 +62,20 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
   : {};
 
 // img option
-const imgOption = paths.prodImgCDN ?
+const imgOption = cdnPaths && cdnPaths.img ?
     {
         limit: 10000,
         name: fileNames.img,
-        publicPath: paths.prodImgCDN + '/'
+        publicPath: cdnPaths.img + '/'
     } : {
         limit: 10000,
         name: fileNames.img,
     };
 // media option
-const mediaOption = paths.prodMediaCDN ?
+const mediaOption = cdnPaths && cdnPaths.media ?
     {
         name: fileNames.media,
-        publicPath: paths.prodMediaCDN + '/'
+        publicPath: cdnPaths.media + '/'
     } : {
         name: fileNames.media
     };
@@ -158,7 +161,7 @@ const defaultConfig = {
     // `web` extension prefixes have been added for better support
     // for React Native Web.
     extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-    alias: paths.aliasConfig,
+    alias: util.getAliasConfig(),
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
       // This often causes confusion because we only process files within src/ with babel.
@@ -339,11 +342,7 @@ const defaultConfig = {
   },
   plugins: [
     // cdn配置
-    new CdnPathWebpackPlugin({
-      runtimeCdnPath: [paths.prodJsCDN], // js动态生成<script src='xxxx'>
-      assetsJsCdnPath: [paths.prodJsCDN], // html js路径替换
-      assetsCssCdnPath: [paths.prodCssCDN], // html css路径替换
-    }),
+    ...(cdnPaths ? [require('./common/cdnPathWebpackPlugin')(cdnPaths)] : []),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
@@ -490,7 +489,21 @@ const newConfig = webpackMerge({
             return newExternals
         }
 
-        let frozenKeys = ['output', 'resolve', 'module', 'node', 'bail', 'devtool'];
+        if (key === 'output') {
+            let newOutput = _.omit(b, 'filenames', 'publicPath');
+            newOutput.publicPath = _.isString(b.publicPath) ? b.publicPath : publicPath;
+
+            return _.merge(
+                a,
+                newOutput,
+                {
+                    filename: fileNames.js || b.filename,
+                    chunkFilename: fileNames.jsChunk || b.chunkFilename
+                }
+            )
+        }
+
+        let frozenKeys = ['resolve', 'module', 'node', 'bail', 'devtool'];
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }

@@ -7,6 +7,32 @@ const paths = require('./paths');
 
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 const host = process.env.HOST || '0.0.0.0';
+const isBrowserRouter = process.env.BROWSER_ROUTER === 'true';
+
+let historyMiddleware = null;
+
+if (isBrowserRouter) {
+    const history = require('connect-history-api-fallback');
+
+    const getRewritesByPages = (pages) => {
+        let rewrites = [];
+        pages.map((page) => {
+            // {from: /^\/index\/?(?=\/|$)|(\/index.html)/, to: '/index.html'}
+            // ^\/learn\/?(?=\/|$)
+            rewrites.push({
+                from: new RegExp(`^\\/${page}\\/?(?=\\/|$)|(\\/${page}.html)`),
+                to: `${config.output.publicPath}${page}.html`
+            })
+        });
+        return rewrites
+    };
+
+    historyMiddleware = history({
+        rewrites: getRewritesByPages(paths.allPages),
+        verbose: false // logger
+    })
+}
+
 
 module.exports = function(proxy, allowedHost) {
   return {
@@ -88,6 +114,8 @@ module.exports = function(proxy, allowedHost) {
       // it used the same host and port.
       // https://github.com/facebookincubator/create-react-app/issues/2272#issuecomment-302832432
       app.use(noopServiceWorkerMiddleware());
+
+      historyMiddleware && app.use(historyMiddleware)
     },
   };
 };
