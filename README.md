@@ -10,8 +10,17 @@ webpack.config.dev.js
 module.exports = {
     // todo: 支持output, externals, plugins，其他的字段都会被忽略用默认的
     output: {
+        // 作用及配置方式参见webpack官方文档对publicPath的说明
         // 注： 确保 publicPath 总是以斜杠(/)开头和结尾
-        publicPath: '' // 作用参见webpack官方文档对publicPath的说明
+        publicPath: '',
+        // 将原来的config/filenames.js配置到这里
+        filenames: {
+            js: 'static/js/[name].js',
+            jsChunk: 'static/js/[name].chunk.js',
+            css: '', // 在<style>中，无需配置
+            img: 'static/img/[name].[hash:8].[ext]',
+            media: 'static/media/[name].[hash:8].[ext]'
+        }
     },
     externals: {
         echarts : {
@@ -46,14 +55,25 @@ webpack.config.prod.js
 module.exports = {
     // todo: 支持output，entry.vendor, plugins，其他的字段都会被忽略
     output: {
-        // 字符串形式。资源用统一的cdn路径。注：末尾需要加'/'
+        // 字符串形式。
+        // 作用及配置方式参见webpack官方文档对publicPath的说明
+        // 资源用统一的cdn路径。
+        // 注：末尾需要加'/'
         publicPath: 'https://xxx.xxx.cdn/',
         // or 对象形式。不同资源用不同的cdn
-        publicPath: {
-            js: 'https://x1.xxx.cdn',
-            css: 'https://x2.xxx.cdn',
-            img: 'https://x3.xxx.cdn',
-            media: 'https://x4.xxx.cdn'
+        // publicPath: {
+        //    js: 'https://x1.xxx.cdn',
+        //    css: 'https://x2.xxx.cdn',
+        //    img: 'https://x3.xxx.cdn',
+        //    media: 'https://x4.xxx.cdn'
+        // }，
+        // 将原来的config/filenames.js配置到这里
+        filenames: {
+             js: 'static/js/[name].js',
+             jsChunk: 'static/js/[name].chunk.js',
+             css: '', // 在<style>中，无需配置
+             img: 'static/img/[name].[hash:8].[ext]',
+             media: 'static/media/[name].[hash:8].[ext]'
         }
     }
     entry: {
@@ -69,7 +89,7 @@ module.exports = {
             files: ['index.html', 'test.html'] // 适用于哪个文件
         },
         jquery: {
-            root: "jQuery", // import jQuery from 'jquery'中的jQuery
+            root: "jQuery", // 暴露给window的变量，例window.jQuery。 使用：import jQuery from 'jquery'
             entry: { // cdn地址
                 path: 'http://code.jquery.com/jquery-3.3.1.min.js',
                 type: 'js',
