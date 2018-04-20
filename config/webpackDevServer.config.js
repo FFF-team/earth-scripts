@@ -19,8 +19,10 @@ if (isBrowserRouter) {
         pages.map((page) => {
             // {from: /^\/index\/?(?=\/|$)|(\/index.html)/, to: '/index.html'}
             // ^\/learn\/?(?=\/|$)
+            let publicPathRegExp = config.output.publicPath.substring(1).split('/').join('\\/');
+
             rewrites.push({
-                from: new RegExp(`^\\/${page}\\/?(?=\\/|$)|(\\/${page}.html)`),
+                from: new RegExp(`^\\/${publicPathRegExp}${page}\\/?(?=\\/|$)|(\\/${publicPathRegExp}${page}.html)`),
                 to: `${config.output.publicPath}${page}.html`
             })
         });

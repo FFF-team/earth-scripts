@@ -79,13 +79,21 @@ function getCdnPath(webpackConfig) {
 }
 
 function getAliasConfig() {
-    let aliasConfig = {};
+    let aliasConfig = {
+        commons: path.resolve('src/components_common/'),
+        tools: path.resolve('src/tools/'),
+        api: path.resolve('src/api/'),
+        config: path.resolve('src/config'),
+        public: path.resolve('public/'),
+        scss: path.resolve('src/scss_mixin/scss/'),
+        scss_mixin: path.resolve('src/scss_mixin/'),
+    };
 
 
     try{
         aliasConfig = require(path.resolve('config/alias'));
     }catch(e){
-        console.log(chalk.yellow('\n' + "hi man, you should add alias in config" + '\n'));
+        console.log(chalk.yellow('\n' + "hi man, you should add alias.js in config" + '\n'));
     }
 
 

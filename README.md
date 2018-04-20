@@ -114,7 +114,11 @@ production环境下使用.env.production
 
 例：
 ```
+dev环境下配置：
 HOST=3001 // 自定义端口号
+BROWSER_ROUTER=true // 是否使用BrowserRouter
+
+prod环境下配置：
 ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
 
 ```
@@ -143,3 +147,14 @@ http://localhost:3000/index.html/[browerRouter内容]
  http://localhost:3000/index/[browerRouter内容]
  ```
 
+需要在Router配置中加basename： publicPath(如果设置) + pageName
+```
+
+// publicPath： '/abc/'
+// 当前pagename： 'pay.html'
+
+<Router basename='/abc/pay'>
+  ....
+</Router>
+
+```
