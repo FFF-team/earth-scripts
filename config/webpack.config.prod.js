@@ -161,7 +161,7 @@ const defaultConfig = {
     // `web` extension prefixes have been added for better support
     // for React Native Web.
     extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-    alias: util.getAliasConfig(),
+    alias: util.getAliasConfig(customConfig),
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
       // This often causes confusion because we only process files within src/ with babel.

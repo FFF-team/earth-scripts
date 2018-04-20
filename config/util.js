@@ -14,7 +14,7 @@ function getFilenames(webpackConfig, filenamesConfig) {
     }
 
     // deprecated
-    console.log(chalk.yellow('\n config/filenames.js is deprecated, please use webpackconfig.output.filenames instead \n'));
+    log(chalk.yellow('\n config/filenames.js is deprecated, please use webpackconfig.output.filenames instead \n'));
 
     try {
         const env = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
@@ -57,7 +57,7 @@ function getCdnPath(webpackConfig) {
 
 
     // deprecated
-    console.log(chalk.yellow('\n config/cdnPath.js is deprecated, please use webpackconfig.output.publicPath instead \n'));
+    log(chalk.yellow('\n config/cdnPath.js is deprecated, please use webpackconfig.output.publicPath instead \n'));
     try{
         cdnConfig = require(path.resolve('config/cdnPath'));
         return {
@@ -70,7 +70,7 @@ function getCdnPath(webpackConfig) {
 
     // show missing error
     if (_.isEmpty(publicPath)) {
-        console.log(chalk.red('webpackconfig.output.publicPath is missing!'));
+        log(chalk.red('webpackconfig.output.publicPath is missing!'));
         process.exit(1)
     }
 
@@ -78,8 +78,8 @@ function getCdnPath(webpackConfig) {
 
 }
 
-function getAliasConfig() {
-    let aliasConfig = {
+function getAliasConfig(webpackConfig) {
+    let defaultConfig = {
         commons: path.resolve('src/components_common/'),
         tools: path.resolve('src/tools/'),
         api: path.resolve('src/api/'),
@@ -89,15 +89,21 @@ function getAliasConfig() {
         scss_mixin: path.resolve('src/scss_mixin/'),
     };
 
+    let alias = _.get(webpackConfig, ['resolve', 'alias']);
 
-    try{
-        aliasConfig = require(path.resolve('config/alias'));
-    }catch(e){
-        console.log(chalk.yellow('\n' + "hi man, you should add alias.js in config" + '\n'));
+    if (_.isEmpty(alias)) {
+        alias = defaultConfig;
+
+        log(chalk.yellow('\n ' + "alias.js in config is deprecated. You can use alias in webpackconfig.resolve.alias." + '\n'));
+
+        try{
+            alias = require(path.resolve('config/alias'));
+        }catch(e){
+        }
     }
 
 
-    return aliasConfig
+    return alias
 
 }
 
@@ -110,6 +116,10 @@ function ensureSlash(path, needsSlash) {
     } else {
         return path;
     }
+}
+
+function log(msg) {
+    console.log(msg)
 }
 
 module.exports = {

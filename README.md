@@ -1,3 +1,13 @@
+#### config
+* polyfill.js
+
+
+* alias.js `deprecated, webpackConfig.resolve.alias代替, 说明如下`
+* cdnPath.js  `deprecated, webpackConfig.output.publicPath代替, 说明如下`
+* filenames.js  `deprecated, webpackConfig.output.publicPath代替, 说明如下`
+
+
+
 #### 扩展webpack配置
 
 在项目下建立config/webpack.config.dev.js 或者 config/webpack.config.prod.js来修改默认webpack配置
@@ -10,8 +20,8 @@ webpack.config.dev.js
 module.exports = {
     // todo: 支持output, externals, plugins，其他的字段都会被忽略用默认的
     output: {
-        // 作用及配置方式参见webpack官方文档对publicPath的说明
         // 注： 确保 publicPath 总是以斜杠(/)开头和结尾
+        // https://webpack.js.org/guides/public-path/
         publicPath: '/abc/',
         // 将原来的config/filenames.js配置到这里
         filenames: {
@@ -22,6 +32,9 @@ module.exports = {
             media: 'static/media/[name].[hash:8].[ext]'
         }
     },
+    resolve: {
+        alias: {...} // https://webpack.js.org/configuration/resolve/#resolve-alias
+    }
     externals: {
         echarts : {
             root: "echarts", // 指向全局变量
@@ -56,7 +69,7 @@ module.exports = {
     // todo: 支持output，entry.vendor, plugins，其他的字段都会被忽略
     output: {
         // 字符串形式。
-        // 作用及配置方式参见webpack官方文档对publicPath的说明
+        // https://webpack.js.org/guides/public-path/
         // 资源用统一的cdn路径。
         publicPath: 'https://xxx.xxx.cdn',
         // or 对象形式。不同资源用不同的cdn
@@ -78,6 +91,9 @@ module.exports = {
     entry: {
         vendor: ['immutable'],
     },
+    resolve: {
+        alias: {...} // 同上
+    }
     externals: {
         echarts : {
             root: "echarts", // 指向全局变量
