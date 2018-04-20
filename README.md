@@ -12,7 +12,7 @@ module.exports = {
     output: {
         // 作用及配置方式参见webpack官方文档对publicPath的说明
         // 注： 确保 publicPath 总是以斜杠(/)开头和结尾
-        publicPath: '',
+        publicPath: '/abc/',
         // 将原来的config/filenames.js配置到这里
         filenames: {
             js: 'static/js/[name].js',
@@ -58,8 +58,7 @@ module.exports = {
         // 字符串形式。
         // 作用及配置方式参见webpack官方文档对publicPath的说明
         // 资源用统一的cdn路径。
-        // 注：末尾需要加'/'
-        publicPath: 'https://xxx.xxx.cdn/',
+        publicPath: 'https://xxx.xxx.cdn',
         // or 对象形式。不同资源用不同的cdn
         // publicPath: {
         //    js: 'https://x1.xxx.cdn',
