@@ -66,7 +66,7 @@ const imgOption = cdnPaths && cdnPaths.img ?
     {
         limit: 10000,
         name: fileNames.img,
-        publicPath: cdnPaths.img + '/'
+        publicPath: util.ensureSlash(cdnPaths.img, true)
     } : {
         limit: 10000,
         name: fileNames.img,
@@ -75,7 +75,7 @@ const imgOption = cdnPaths && cdnPaths.img ?
 const mediaOption = cdnPaths && cdnPaths.media ?
     {
         name: fileNames.media,
-        publicPath: cdnPaths.media + '/'
+        publicPath: util.ensureSlash(cdnPaths.media, true)
     } : {
         name: fileNames.media
     };
@@ -491,7 +491,7 @@ const newConfig = webpackMerge({
 
         if (key === 'output') {
             let newOutput = _.omit(b, 'filenames', 'publicPath');
-            newOutput.publicPath = _.isString(b.publicPath) ? b.publicPath : publicPath;
+            newOutput.publicPath = _.isString(b.publicPath) ? util.ensureSlash(b.publicPath, true) : publicPath;
 
             return _.merge(
                 a,

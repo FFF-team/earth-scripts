@@ -366,7 +366,8 @@ const newConfig = webpackMerge({
                 _.omit(b, 'filenames'),
                 {
                     filename: fileNames.js || b.filename,
-                    chunkFilename: fileNames.jsChunk || b.chunkFilename
+                    chunkFilename: fileNames.jsChunk || b.chunkFilename,
+                    publicPath: b.publicPath ? util.ensureSlash(b.publicPath, true) : publicPath
                 }
             )
         }
