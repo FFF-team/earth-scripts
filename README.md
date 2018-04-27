@@ -55,7 +55,7 @@ module.exports = {
         }
     },
     cssModule: {
-        exclude: ['path'] // 不需要css module的文件
+        exclude: ['node_modules,', 'src/static'] // 不需要css module的文件
         name: '[name]__[local]-[hash:base64:5]' // class命名方式
     },
     plugins: [
