@@ -78,11 +78,6 @@ function cssLoaders(customConfig) {
         enable
     } = cssModuleConfig(customConfig);
 
-    console.log(cssModuleLoader({
-        exclude,
-        name
-    }))
-
     return enable ?
         cssModuleLoader({
             exclude,

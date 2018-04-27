@@ -1,5 +1,7 @@
-#### config
+### config
 * polyfill.js
+* webpack.config.dev.js
+* webpack.config.prod.js
 
 
 * alias.js `deprecated, webpackConfig.resolve.alias代替, 说明如下`
@@ -8,7 +10,7 @@
 
 
 
-#### 扩展webpack配置
+### 扩展webpack配置
 
 在项目下建立config/webpack.config.dev.js 或者 config/webpack.config.prod.js来修改默认webpack配置
 
@@ -21,7 +23,6 @@ module.exports = {
     // todo: 支持output, externals, plugins，其他的字段都会被忽略用默认的
     output: {
         // 注： 确保 publicPath 总是以斜杠(/)开头和结尾
-        // https://webpack.js.org/guides/public-path/
         publicPath: '/abc/',
         // 将原来的config/filenames.js配置到这里
         filenames: {
@@ -33,7 +34,7 @@ module.exports = {
         }
     },
     resolve: {
-        alias: {...} // https://webpack.js.org/configuration/resolve/#resolve-alias
+        alias: {...}
     }
     externals: {
         echarts : {
@@ -73,7 +74,6 @@ module.exports = {
     // todo: 支持output，entry.vendor, plugins，其他的字段都会被忽略
     output: {
         // 字符串形式。
-        // https://webpack.js.org/guides/public-path/
         // 资源用统一的cdn路径。
         publicPath: 'https://xxx.xxx.cdn',
         // or 对象形式。不同资源用不同的cdn
@@ -124,7 +124,18 @@ module.exports = {
 
 ```
 
-#### 使用.env
+##### 相关资料
+
+ * css module
+    * [css module](https://github.com/css-modules/css-modules)
+
+    * [CSS Modules 详解及 React 中实践](https://github.com/camsong/blog/issues/5)
+
+ * [webpack alias](https://webpack.js.org/configuration/resolve/#resolve-alias)
+
+ * [webpack publicPath](https://webpack.js.org/guides/public-path/)
+
+### 使用.env
 
 项目根目录下添加.env.development或.env.production文件
 
@@ -143,7 +154,7 @@ ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
 
 ```
 
-#### 自定义mock server
+### 自定义mock server
 
 package.json增加字段:
 ```
