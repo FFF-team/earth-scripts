@@ -1,6 +1,5 @@
 'use strict';
 
-const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -14,14 +13,12 @@ const paths = require('./paths');
 const getClientEnvironment = require('./env');
 // const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
 const webpackMerge = require('webpack-merge');
-const fs = require('fs');
 const _ = require('lodash');
 const glob = require('glob');
 const util = require('./util');
 
 // import customerConfig
-const customConfigPath = path.resolve('config/webpack.config.prod.js');
-const customConfig = fs.existsSync(customConfigPath) ? require(customConfigPath) : {};
+const customConfig = util.getCustomConfig('prod');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -229,7 +226,9 @@ const defaultConfig = {
           // tags. If you use code splitting, however, any async bundles will still
           // use the "style" loader inside the async code so CSS from them won't be
           // in the main CSS file.
-          {
+            // css loader
+            ...require('./cssLoaders/prod')(customConfig, extractTextPluginOptions),
+          /*{
             test: /\.css$/,
             loader: ExtractTextPlugin.extract(
               Object.assign(
@@ -270,9 +269,10 @@ const defaultConfig = {
               )
             ),
             // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },
+          },*/
           //scss-loader
-          {
+            ...require('./scssLoaders/prod')(customConfig, extractTextPluginOptions),
+          /*{
             test: /\.scss$/,
             loader: ExtractTextPlugin.extract(
                 Object.assign(
@@ -320,7 +320,7 @@ const defaultConfig = {
                 )
             ),
             // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },
+          },*/
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader don't uses a "test" so it will catch all modules
@@ -511,6 +511,6 @@ const newConfig = webpackMerge({
         // Fall back to default merging
         return undefined;
     }
-})(defaultConfig, customConfig);
+})(defaultConfig, _.omit(customConfig, 'cssModule'));
 
 module.exports = newConfig;

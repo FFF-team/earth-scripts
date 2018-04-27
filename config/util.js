@@ -1,11 +1,44 @@
 const _ = require('lodash');
 const path = require('path');
 const chalk = require('chalk');
+const fs = require('fs');
+const resolveApp = require('../tools').resolveApp;
 
 // 兼容旧写法
 
+/**
+ * get custom config. webpack.config.[env].js
+ * @param env  'dev' | 'prod'
+ *
+ * @return {object}
+ */
+function getCustomConfig(env) {
+    const customConfigPath = path.resolve(`./config/webpack.config.${env}.js`);
+    return fs.existsSync(customConfigPath) ? require(customConfigPath) : {}
+}
 
-function getFilenames(webpackConfig, filenamesConfig) {
+/**
+ * get filenames from config.output.filenames or config/filenames.js
+ *
+ * @param webpackConfig
+ * {
+ *      ...,
+ *      output: {
+ *          filenames: {
+ *              js: 'static/js/[name].js',
+ *              jsChunk: 'static/js/[name].chunk.js',
+ *              css: '', // 在<style>中，无需配置
+ *              img: 'static/img/[name].[hash:8].[ext]',
+ *              media: 'static/media/[name].[hash:8].[ext]'
+ *          }
+ *
+ *      },
+ *      ...
+ * }
+ *
+ * @return {object} filenames
+ */
+function getFilenames(webpackConfig) {
 
     let filenames = _.get(webpackConfig, ['output', 'filenames']);
 
@@ -31,6 +64,30 @@ function getFilenames(webpackConfig, filenamesConfig) {
 
 }
 
+/**
+ * get publicPath from config.output.publicPath or config/cndPath.js
+ *
+ * @param webpackConfig
+ * {
+ *      ...,
+ *      output: {
+ *          // string
+ *          publicPath: 'path'
+ *          // or obj (only prod)
+ *          publicPath: {
+ *            js: 'path',
+ *            css: 'path',
+ *            img: 'path',
+ *            media: 'path'
+ *          }
+ *
+ *      },
+ *      ...
+ * }
+ *
+ *
+ * @return {*} publicPath [object | null]
+ */
 function getCdnPath(webpackConfig) {
 
     const defaultPublicPath = '.';
@@ -78,6 +135,22 @@ function getCdnPath(webpackConfig) {
 
 }
 
+/**
+ * get alias from config.resolve.alias or config/alias.js
+ *
+ * @param webpackConfig
+ * {
+ *     ...,
+ *     resolve: {
+ *         alias: {
+ *            // custom config
+ *         }
+ *     },
+ *     ...
+ * }
+ *
+ * @return {object} alias
+ */
 function getAliasConfig(webpackConfig) {
     let defaultConfig = {
         commons: path.resolve('src/components_common/'),
@@ -107,6 +180,98 @@ function getAliasConfig(webpackConfig) {
 
 }
 
+/**
+ * get cssModule from config.cssModule
+ *
+ * @param webpackConfig
+ * {
+ *     ...,
+ *     cssModule: {
+           exclude: 'src/static',
+           name: '[name]__[local]-[hash:base64:5]'
+       },
+       ...
+ * }
+ *
+ * @return {object}
+ * {
+ *     exclude: 'path',
+ *     name: '',
+ *     enable: false / true
+ * }
+ */
+function getCssModuleConfig(webpackConfig) {
+    let cssModule = _.get(webpackConfig, 'cssModule');
+
+    if (_.isEmpty(cssModule)) {
+        return {
+            exclude: '',
+            name: '',
+            enable: false
+        }
+    }
+
+
+    let excludePath;
+
+    if (_.isArray(cssModule.exclude)) {
+        excludePath = cssModule.exclude.map((path) => resolveApp(path))
+        // fs.existsSync(resolveApp(cssModule.exclude)) ? resolveApp(cssModule.exclude) : ''
+    } else {
+        excludePath = resolveApp(cssModule.exclude)
+    }
+
+    return {
+        exclude: excludePath,
+        name: cssModule.name || '[name]__[local]-[hash:base64:5]',
+        enable: true
+    }
+}
+
+
+/**
+ * 向loader中merge数据。
+ * 注：针对use有特殊处理
+ *
+ * retLoaders(对象)(对象 | 数组对象)
+ *
+ * eg: retLoaders({a: '1'})({b: 's'}) -> {a: '1', b: 's'}
+ *
+ *     retLoaders(
+ *        {a: '1', use: ['u1', 'u2']}
+ *     )([
+ *        {b: '2', use: [1, 'u3']} // use特殊处理，表示在index为1处插入'u3'
+ *     ])
+ *     ->
+ *     [{a: '1', b: '1', use: ['u1', 'u3', 'u2']}]
+ *
+ *
+ * @param original
+ * @return {function(*): *} arr为对象则返回对象，arr为数组则返回数组
+ */
+function mergeLoaders(original) {
+    return (arr) => {
+
+        function merge(srcV, objV) {
+            return _.mergeWith(srcV, objV, (a, b, key) => {
+                if (_.isArray(b) && _.isArray(a) && key === 'use') {
+                    const r = a.slice();
+                    r.splice(b[0], 0, b[1]).valueOf();
+                    return r
+                }
+            })
+        }
+
+        if (_.isArray(arr)) {
+            return  arr.map((v) => merge(Object.assign({}, original), v))
+        }
+
+        return merge(Object.assign({}, original), arr)
+
+
+    }
+}
+
 function ensureSlash(path, needsSlash) {
     const hasSlash = path.endsWith('/');
     if (hasSlash && !needsSlash) {
@@ -123,9 +288,13 @@ function log(msg) {
 }
 
 module.exports = {
+    getCustomConfig,
     getFilenames,
     getCdnPath,
     getAliasConfig,
+
+    getCssModuleConfig,
+    mergeLoaders,
 
     ensureSlash
 };

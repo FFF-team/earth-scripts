@@ -31,12 +31,11 @@ const openBrowser = require('react-dev-utils/openBrowser');
 const paths = require('../config/paths');
 const config = require('../config/webpack.config.dev');
 const createDevServerConfig = require('../config/webpackDevServer.config');
-const path = require('path');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const _ = require('lodash');
 
-const checkPagesRequired = require('./tools').checkPagesRequired;
-const resolveApp = require('./tools').resolveApp;
+const checkPagesRequired = require('../tools').checkPagesRequired;
+const resolveApp = require('../tools').resolveApp;
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
@@ -46,7 +45,7 @@ if (!checkPagesRequired(paths.allPages)) {
   process.exit(1);
 }
 
-console.log('earth-scripts')
+// console.log('earth-scripts')
 
 // Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;

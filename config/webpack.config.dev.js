@@ -1,6 +1,5 @@
 'use strict';
 
-const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -17,8 +16,7 @@ const _ = require('lodash');
 const util = require('./util');
 
 // import customerConfig
-const customConfigPath = path.resolve('./config/webpack.config.dev.js');
-const customConfig = fs.existsSync(customConfigPath) ? require(customConfigPath) : {};
+const customConfig = util.getCustomConfig('dev');
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -173,75 +171,9 @@ const defaultConfig =  {
                     // "style" loader turns CSS into JS modules that inject <style> tags.
                     // In production, we use a plugin to extract that CSS to a file, but
                     // in development "style" loader enables hot editing of CSS.
-                    {
-                        test: /\.css$/,
-                        use: [
-                            require.resolve('style-loader'),
-                            {
-                                loader: require.resolve('css-loader'),
-                                options: {
-                                    importLoaders: 1,
-                                },
-                            },
-                            {
-                                loader: require.resolve('postcss-loader'),
-                                options: {
-                                    // Necessary for external CSS imports to work
-                                    // https://github.com/facebookincubator/create-react-app/issues/2677
-                                    ident: 'postcss',
-                                    plugins: () => [
-                                        require('postcss-flexbugs-fixes'),
-                                        autoprefixer({
-                                            browsers: [
-                                                '>1%',
-                                                'last 0 versions',
-                                                'Firefox ESR',
-                                                'not ie < 9', // React doesn't support IE8 anyway
-                                            ]
-                                        }),
-                                    ],
-                                },
-                            },
-                        ],
-                    },
+                    ...require('./cssLoaders/dev')(customConfig),
                     // sass-loader
-                    {
-                        test: /\.scss$/,
-                        use: [
-                            require.resolve('style-loader'),
-                            {
-                                loader: require.resolve('css-loader'),
-                                options: {
-                                    importLoaders: 2,
-                                },
-                            },
-                            {
-                                loader: require.resolve('postcss-loader'),
-                                options: {
-                                    // Necessary for external CSS imports to work
-                                    // https://github.com/facebookincubator/create-react-app/issues/2677
-                                    ident: 'postcss',
-                                    plugins: () => [
-                                        require('postcss-flexbugs-fixes'),
-                                        autoprefixer({
-                                            browsers: [
-                                                '>1%',
-                                                'last 0 versions',
-                                                'Firefox ESR',
-                                                'not ie < 9', // React doesn't support IE8 anyway
-                                            ]
-                                        }),
-                                    ],
-                                },
-                            },
-                            {
-                                loader: "sass-loader",
-                                options: {
-                                    includePaths: ["src/"]
-                                }
-                            }
-                        ]
-                    },
+                    ...require('./scssLoaders/dev')(customConfig),
                     // "file" loader makes sure those assets get served by WebpackDevServer.
                     // When you `import` an asset, you get its (virtual) filename.
                     // In production, they would get copied to the `build` folder.
@@ -380,6 +312,6 @@ const newConfig = webpackMerge({
         // Fall back to default merge
         return undefined;
     }
-})(defaultConfig, customConfig);
+})(defaultConfig, _.omit(customConfig, 'cssModule'));
 
 module.exports = newConfig;
