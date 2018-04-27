@@ -53,6 +53,10 @@ module.exports = {
             files: ['index.html'] // 适用于哪个文件
         }
     },
+    cssModule: {
+        exclude: ['path'] // 不需要css module的文件
+        name: '[name]__[local]-[hash:base64:5]' // class命名方式
+    },
     plugins: [
         // 可添加额外的plugins。如果添加的plugin在默认plugin里有，则会忽略
     ]
@@ -112,6 +116,7 @@ module.exports = {
             files: ['index.html'] // 适用于哪个文件
         }
     },
+    cssModule: {} // 同上
     plugins: [
         // 可添加额外的plugins。如果添加的plugin在默认plugin里有，则会忽略
     ]
