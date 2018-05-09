@@ -4,9 +4,40 @@
 * webpack.config.prod.js
 
 
-* alias.js `deprecated, webpackConfig.resolve.alias代替, 说明如下`
-* cdnPath.js  `deprecated, webpackConfig.output.publicPath代替, 说明如下`
-* filenames.js  `deprecated, webpackConfig.output.publicPath代替, 说明如下`
+* alias.js `deprecated, webpackConfig.resolve.alias代替`
+   ```
+   module.exports = {
+     moduleName: '/path-to-module/xx'
+   }
+   ```
+* cdnPath.js  `deprecated, webpackConfig.output.publicPath代替`
+   ```
+   module.exports = {
+     prodJsCDN: 'http://j1.cdn.com',
+     prodCssCDN: 'http://c1.cdn.com',
+     prodImgCDN: 'http://img1.cdn.com',
+     prodMediaCDN: 'http://media1.cdn.com'
+   }
+   ```
+* filenames.js  `deprecated, webpackConfig.output.publicPath代替`
+   ```
+   module.exports = {
+     dev: {
+          js: 'static/js/[name].js',
+          jsChunk: 'static/js/[name].chunk.js',
+          css: '', // 在<style>中，无需配置
+          img: 'static/img/[name].[hash:8].[ext]',
+          media: 'static/media/[name].[hash:8].[ext]'
+     },
+     prod: {
+         js: `static/js/[name].[chunkhash:8].js`,
+         jsChunk: `static/js/[name].[chunkhash:8].chunk.js`,
+         css: `static/css/[name].[chunkhash:8].css`,
+         img: `static/img/[name].[chunkhash:8].[ext]`,
+         media: `static/media/[name].[chunkhash:8].[ext]`
+     }
+   }
+   ```
 
 
 
@@ -56,7 +87,7 @@ module.exports = {
     },
     cssModule: {
         exclude: ['node_modules,', 'src/static'] // 不需要css module的文件
-        name: '[name]__[local]-[hash:base64:5]' // class命名方式
+        localIdentName: '[name]__[local]-[hash:base64:5]' // class命名方式
     },
     plugins: [
         // 可添加额外的plugins。如果添加的plugin在默认plugin里有，则会忽略
