@@ -33,18 +33,16 @@ const normalLoader = () => {
 };
 
 
-const cssModuleLoader = ({exclude, name}) => {
+const cssModuleLoader = ({exclude, config}) => {
 
     return exclude ?
         mergeLoaders(base)([
             {
                 exclude: exclude,
                 use: [1,
-                    css_loader({
-                        importLoaders: 1,
-                        module: true,
-                        localIdentName: name
-                    })
+                    css_loader(
+                        Object.assign({importLoaders: 1, module: true,}, config)
+                    )
                 ]
             },
             {
@@ -59,11 +57,9 @@ const cssModuleLoader = ({exclude, name}) => {
         mergeLoaders(base)([
             {
                 use: [1,
-                    css_loader({
-                        importLoaders: 1,
-                        module: true,
-                        localIdentName: name
-                    }),]
+                    css_loader(
+                        Object.assign({importLoaders: 1, module: true,}, config)
+                    )]
             }
         ])
 };
@@ -74,14 +70,14 @@ function cssLoaders(customConfig) {
 
     const {
         exclude,
-        name,
+        config,
         enable
     } = cssModuleConfig(customConfig);
 
     return enable ?
         cssModuleLoader({
             exclude,
-            name
+            config
         }) :
         normalLoader()
 

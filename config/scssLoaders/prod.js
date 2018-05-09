@@ -47,7 +47,7 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
                             use: use
                         })
                     )
-                },
+                }
             )
         })
 
@@ -92,20 +92,21 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
         ]*/
     };
 
-    const cssModuleLoader = ({exclude, name}) => {
+    const cssModuleLoader = ({exclude, config}) => {
 
         return exclude ?
             getRets([
                 {
                     exclude: exclude,
-                    use: [0, css_loader({
-                        importLoaders: 2,
-                        minimize: true,
-                        sourceMap: false,
-                        module: true,
-                        localIdentName: name
-                        // sourceMap: shouldUseSourceMap,
-                    })]
+                    use: [0, css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )]
                 },
                 {
                     include: exclude,
@@ -119,92 +120,18 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
             ]) :
             getRets([
                 {
-                    use: [0, css_loader({
-                        importLoaders: 2,
-                        minimize: true,
-                        sourceMap: false,
-                        module: true,
-                        localIdentName: name
-                        // sourceMap: shouldUseSourceMap,
-                    })]
+                    use: [0, css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )]
                 }
             ])
 
-        /*return exclude ? [
-            {
-                test: /\.scss$/,
-                exclude: exclude,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 2,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    module: true,
-                                    localIdentName: name
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                                scss_loader
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            },
-            {
-                test: /\.scss$/,
-                include: exclude,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 2,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                                scss_loader
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            }
-        ] : [
-            {
-                test: /\.scss$/,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 2,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    module: true,
-                                    localIdentName: name
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                                scss_loader
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            }
-        ]*/
     };
 
 
@@ -212,14 +139,14 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
 
     const {
         exclude,
-        name,
+        config,
         enable
     } = cssModuleConfig(customConfig);
 
     return enable ?
         cssModuleLoader({
             exclude,
-            name
+            config
         }) :
         normalLoader()
 

@@ -90,7 +90,7 @@ function getFilenames(webpackConfig) {
  */
 function getCdnPath(webpackConfig) {
 
-    const defaultPublicPath = '.';
+    const defaultPublicPath = '';
     const publicPath = _.get(webpackConfig, ['output', 'publicPath']);
 
     let cdnConfig = {};
@@ -221,10 +221,18 @@ function getCssModuleConfig(webpackConfig) {
         excludePath = resolveApp(cssModule.exclude)
     }
 
+    const getLocalIdent = cssModule.getLocalIdent ? {getLocalIdent: cssModule.getLocalIdent} : {};
+
+
     return {
         exclude: excludePath,
-        name: cssModule.name || '[name]__[local]-[hash:base64:5]',
-        enable: true
+        enable: true,
+        config: Object.assign(
+            getLocalIdent,
+            {
+                localIdentName: cssModule.localIdentName || cssModule.name || '[folder]__[local]-[hash:base64:5]',
+            }
+        )
     }
 }
 

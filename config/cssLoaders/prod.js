@@ -63,7 +63,7 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
                 minimize: true,
                 sourceMap: false,
                 // sourceMap: shouldUseSourceMap,
-            }),]
+            })]
         }])
         /*return [
             {
@@ -90,20 +90,23 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
         ]*/
     };
 
-    const cssModuleLoader = ({exclude, name}) => {
+    const cssModuleLoader = ({exclude, config}) => {
 
         return exclude ?
             getRets([
                 {
                     exclude: exclude,
-                    use: [0, css_loader({
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: false,
-                        module: true,
-                        localIdentName: name
-                        // sourceMap: shouldUseSourceMap,
-                    })]
+                    use: [0,
+                        css_loader(
+                            Object.assign({
+                                importLoaders: 1,
+                                minimize: true,
+                                sourceMap: false,
+                                module: true,
+                                // sourceMap: shouldUseSourceMap,
+                            }, config)
+                        )
+                    ]
                 },
                 {
                     include: exclude,
@@ -118,102 +121,31 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
             getRets([
                 {
                     use: [0,
-                        css_loader({
-                            importLoaders: 1,
-                            minimize: true,
-                            sourceMap: false,
-                            module: true,
-                            localIdentName: name
-                            // sourceMap: shouldUseSourceMap,
-                        }),]
+                        css_loader(
+                            Object.assign({
+                                importLoaders: 1,
+                                minimize: true,
+                                sourceMap: false,
+                                module: true,
+                                // sourceMap: shouldUseSourceMap,
+                            }, config)
+                        )]
                 }
             ])
 
-        /*return exclude ? [
-            {
-                test: /\.css$/,
-                exclude: exclude,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 1,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    module: true,
-                                    localIdentName: name
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            },
-            {
-                test: /\.css$/,
-                include: exclude,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 1,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            }
-        ] : [
-            {
-                test: /\.css$/,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 1,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    module: true,
-                                    localIdentName: name
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            }
-        ]*/
     };
 
 
     const {
         exclude,
-        name,
+        config,
         enable
     } = cssModuleConfig(customConfig);
 
     return enable ?
         cssModuleLoader({
             exclude,
-            name
+            config
         }) :
         normalLoader()
 
