@@ -58,16 +58,6 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
     { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
 
-// img option
-const imgOption = cdnPaths && cdnPaths.img ?
-    {
-        limit: 10000,
-        name: fileNames.img,
-        publicPath: util.ensureSlash(cdnPaths.img, true)
-    } : {
-        limit: 10000,
-        name: fileNames.img,
-    };
 // media option
 const mediaOption = cdnPaths && cdnPaths.media ?
     {
@@ -199,21 +189,9 @@ const defaultConfig = {
         oneOf: [
           // "url" loader works just like "file" loader but it also embeds
           // assets smaller than specified size as data URLs to avoid requests.
-          {
-            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-            loader: require.resolve('url-loader'),
-            options: Object.assign(imgOption),
-          },
+            ...require('./imgLoaders/prod')(customConfig),
           // Process JS with Babel.
-          {
-            test: /\.(js|jsx)$/,
-            include: paths.appSrc,
-            loader: require.resolve('babel-loader'),
-            options: {
-
-              compact: true,
-            },
-          },
+            ...require('./jsLoaders/prod'),
           // The notation here is somewhat confusing.
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.

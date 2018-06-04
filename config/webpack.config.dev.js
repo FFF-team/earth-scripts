@@ -145,27 +145,9 @@ const defaultConfig =  {
                     // "url" loader works like "file" loader except that it embeds assets
                     // smaller than specified limit in bytes as data URLs to avoid requests.
                     // A missing `test` is equivalent to a match.
-                    {
-                        test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-                        loader: require.resolve('url-loader'),
-                        options: {
-                            limit: 10000,
-                            name: fileNames.img,
-                        },
-                    },
+                    ...require('./imgLoaders/dev')(customConfig),
                     // Process JS with Babel.
-                    {
-                        test: /\.(js|jsx)$/,
-                        include: paths.appSrc,
-                        loader: require.resolve('babel-loader'),
-                        options: {
-
-                            // This is a feature of `babel-loader` for webpack (not Babel itself).
-                            // It enables caching results in ./node_modules/.cache/babel-loader/
-                            // directory for faster rebuilds.
-                            cacheDirectory: true,
-                        },
-                    },
+                    ...require('./jsLoaders/dev'),
                     // "postcss" loader applies autoprefixer to our CSS.
                     // "css" loader resolves paths in CSS and adds assets as dependencies.
                     // "style" loader turns CSS into JS modules that inject <style> tags.

@@ -1,6 +1,6 @@
 {
   "name": "earth-scripts",
-  "version": "0.1.10",
+  "version": "0.2.0",
   "description": "earth for node script",
   "bin": {
     "earth-scripts": "./index.js"
@@ -63,6 +63,6 @@
     "whatwg-fetch": "2.0.3"
   },
   "homepage": "https://github.com/FFF-team/earth-scripts#readme",
-  "_from": "earth-scripts@0.1.7",
+  "_from": "earth-scripts@0.2.0",
   "_resolved": "http://registry.npm.taobao.org/earth-scripts/download/earth-scripts-0.1.7.tgz"
 }
