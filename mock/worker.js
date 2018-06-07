@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const jsonServer = require('json-server')
-const server = jsonServer.create()
-const router = jsonServer.router('db.json')
-const middlewares = jsonServer.defaults()
-const configResultes = require('./transform')
+const jsonServer = require('json-server');
+const server = jsonServer.create();
+// const router = jsonServer.router('db.json')
+const middlewares = jsonServer.defaults();
+const configResultes = require('./transform');
 
 const routerCreateFun = (configResulte) => {
 
@@ -53,8 +53,8 @@ configResultes.forEach((item) => {
 })
 
 server.use(jsonServer.bodyParser)
-server.use(middlewares)
-server.use(router)
+server.use(middlewares);
+// server.use(router)
 
 server.listen(3001, () => {
     console.log('mock server has restart')
