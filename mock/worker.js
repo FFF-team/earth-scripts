@@ -52,7 +52,7 @@ configResultes.forEach((item) => {
 
 })
 
-server.use(jsonServer.bodyParser)
+server.use(jsonServer.bodyParser);
 server.use(middlewares);
 // server.use(router)
 

@@ -51,20 +51,23 @@ if (!checkPagesRequired(paths.allPages)) {
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-//auto start mock server
-const customerMock = require(paths.appPackageJson).mockRoot;
-if (customerMock) {
-    const customerMockPath = resolveApp(`mock/${customerMock}`);
-    if (checkRequiredFiles([customerMockPath])) {
-        console.log(chalk.green('\n custom mock is running! \n'));
-        require('./mock').start(customerMockPath);
+// start mock server depends `npm run start -- stopmock`
+const isStopmock = process.argv.slice(2).find((v) => v === 'stopmock' );
+if (!isStopmock) {
+    const customerMock = require(paths.appPackageJson).mockRoot;
+    if (customerMock) {
+        const customerMockPath = resolveApp(`mock/${customerMock}`);
+        if (checkRequiredFiles([customerMockPath])) {
+            console.log(chalk.green('\n custom mock is running! \n'));
+            require('./mock').start(customerMockPath);
+        } else {
+            console.log(chalk.yellow(`\n mock warning: \n missing mock/${customerMock}, start default mockServer\n\n`));
+            require('./mock').start();
+        }
     } else {
-        console.log(chalk.yellow(`\n mock warning: \n missing mock/${customerMock}, start default mockServer\n\n`));
+        console.log(chalk.green('\n default mock is running! \n'));
         require('./mock').start();
     }
-} else {
-    console.log(chalk.green('\n default mock is running! \n'));
-    require('./mock').start();
 }
 
 //todo 优化
