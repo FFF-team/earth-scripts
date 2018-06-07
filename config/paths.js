@@ -50,7 +50,7 @@ function getServedPath(appPackageJson) {
 
 //add flexible
 const flexibleStr = (function(){
-    return fs.readFileSync('node_modules/lm-flexible/build/changeRem-min.js', 'utf-8');
+    return fs.readFileSync('node_modules/earth-scripts/node_modules/lm-flexible/build/changeRem-min.js', 'utf-8');
 })();
 
 // config after eject: we're in ./config/
