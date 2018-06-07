@@ -5,6 +5,8 @@ const server = jsonServer.create();
 // const router = jsonServer.router('db.json')
 const middlewares = jsonServer.defaults();
 const configResultes = require('./transform');
+const paths = require('../config/paths');
+const localMockPort = require('../tools').getLocalMockPort(require(paths.appPackageJson).proxy);
 
 const routerCreateFun = (configResulte) => {
 
@@ -56,9 +58,9 @@ server.use(jsonServer.bodyParser);
 server.use(middlewares);
 // server.use(router)
 
-server.listen(3001, () => {
+server.listen(localMockPort || 3001, () => {
     console.log('mock server has restart')
-})
+});
 
 //watch config.js file 
 // const watchedFile = path.resolve('mock/config');

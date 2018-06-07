@@ -21,7 +21,22 @@ const checkPagesRequired = (allPagesName) => {
     return true
 };
 
+/**
+ * get port from `package.json` proxy
+ * @param proxy
+ */
+const getLocalMockPort = (proxy) => {
+
+    const ip = require('ip').address().replace(/\./g, '\\.');
+
+    const proxyMatch = new RegExp(`https*://(localhost|127\\.0\\.0\\.1|${ip}):(\\d+)`).exec(proxy);
+
+    return proxyMatch ? proxyMatch[2] : ''
+
+};
+
 module.exports = {
     checkPagesRequired,
-    resolveApp
+    resolveApp,
+    getLocalMockPort
 };

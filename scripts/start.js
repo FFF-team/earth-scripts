@@ -36,6 +36,7 @@ const _ = require('lodash');
 
 const checkPagesRequired = require('../tools').checkPagesRequired;
 const resolveApp = require('../tools').resolveApp;
+const localMockPort = require('../tools').getLocalMockPort(require(paths.appPackageJson).proxy);
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
@@ -65,8 +66,10 @@ if (!isStopmock) {
             require('./mock').start();
         }
     } else {
-        console.log(chalk.green('\n default mock is running! \n'));
-        require('./mock').start();
+        if (localMockPort) {
+            console.log(chalk.green('\n default mock is running! \n'));
+            require('./mock').start();
+        }
     }
 }
 
