@@ -53,7 +53,7 @@ const htmlWebpackPluginMap = (function(){
 })();
 
 paths.entriesMap['vendor'] = [
-    require.resolve(path.resolve('config/polyfills')),
+    require.resolve('./polyfills'),
     require.resolve('react-error-overlay'),
 ];
 
