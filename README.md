@@ -185,6 +185,15 @@ ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
 
 ```
 
+### mock server
+
+npm run start在"proxy"的地址是localhost、127.0.0.1、本机ip时会启动mockserver，port为配置的端口号。
+否则不会在本机启动mock server
+
+```
+”proxy”: “http://localhost:3001/“
+```
+
 ### 自定义mock server
 
 package.json增加字段:
@@ -193,6 +202,8 @@ package.json增加字段:
 ```
 
 server.js为mock文件夹下自定义的mock server启动文件。如果不配置，则用默认的server
+
+可通过 **npm run start -- stopmock**在dev环境下不启用mock
 
 ### dev环境下browserRouter优化
 
