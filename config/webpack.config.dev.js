@@ -11,12 +11,11 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getClientEnvironment = require('./env');
 const paths = require('./paths');
 const webpackMerge = require('webpack-merge');
-const fs = require('fs');
 const _ = require('lodash');
 const util = require('./util');
 
 // import customerConfig
-const customConfig = util.getCustomConfig('dev');
+const customConfig = require('../config-user/webpack');
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -30,7 +29,7 @@ const publicUrl = '';
 const env = getClientEnvironment(publicUrl);
 
 // import filenames config
-const fileNames = util.getFilenames(customConfig);
+const fileNames = customConfig.filenames;
 
 const htmlWebpackPluginMap = (function(){
     let map = [];
@@ -103,7 +102,7 @@ const defaultConfig =  {
         // `web` extension prefixes have been added for better support
         // for React Native Web.
         extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-        alias: util.getAliasConfig(customConfig),
+        alias: customConfig.alias,
         plugins: [
             // Prevents users from importing files from outside of src/ (or node_modules/).
             // This often causes confusion because we only process files within src/ with babel.
@@ -294,6 +293,6 @@ const newConfig = webpackMerge({
         // Fall back to default merge
         return undefined;
     }
-})(defaultConfig, _.omit(customConfig, 'cssModule'));
+})(defaultConfig, _.omit(customConfig.webpackConfig, 'cssModule'));
 
 module.exports = newConfig;

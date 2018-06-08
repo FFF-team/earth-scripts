@@ -1,4 +1,3 @@
-const cssModuleConfig = require('../util').getCssModuleConfig;
 const mergeLoaders = require('../util').mergeLoaders;
 
 const postcss_loader = require('../common/loaders/postcss');
@@ -116,7 +115,7 @@ function scssLoaders(customConfig) {
         exclude,
         config,
         enable
-    } = cssModuleConfig(customConfig);
+    } = customConfig.cssModule;
 
     return enable ?
         cssModuleLoader({

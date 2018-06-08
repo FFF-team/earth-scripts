@@ -1,4 +1,3 @@
-const getFilenames = require('../util').getFilenames;
 const url_loader = require('../common/loaders/url');
 
 function imgLoaders(customConfig) {
@@ -8,7 +7,7 @@ function imgLoaders(customConfig) {
             loader: url_loader,
             options: {
                 limit: 10000,
-                name: getFilenames(customConfig).img,
+                name: customConfig.filenames.img,
             },
         }
     ]

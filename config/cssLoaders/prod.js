@@ -7,10 +7,6 @@ const _ = require('lodash');
 
 const mergeLoaders = require('../util').mergeLoaders;
 
-const cssModuleConfig = require('../util').getCssModuleConfig;
-
-
-
 
 function cssLoaders(customConfig, extractTextPluginOptions) {
 
@@ -140,7 +136,7 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
         exclude,
         config,
         enable
-    } = cssModuleConfig(customConfig);
+    } = customConfig.cssModule;
 
     return enable ?
         cssModuleLoader({

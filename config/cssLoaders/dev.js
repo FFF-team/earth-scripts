@@ -1,5 +1,3 @@
-const cssModuleConfig = require('../util').getCssModuleConfig;
-
 const postcss_loader = require('../common/loaders/postcss');
 const css_loader = require('../common/loaders/css');
 const style_loader = require('../common/loaders/style');
@@ -72,7 +70,7 @@ function cssLoaders(customConfig) {
         exclude,
         config,
         enable
-    } = cssModuleConfig(customConfig);
+    } = customConfig.cssModule;
 
     return enable ?
         cssModuleLoader({
