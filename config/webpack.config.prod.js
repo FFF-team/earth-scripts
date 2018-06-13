@@ -98,7 +98,7 @@ const htmlWebpackPluginMap = (function(){
 })();
 
 paths.entriesMap['vendor'] = [
-    require.resolve('./polyfills'),
+    require.resolve(path.resolve('config/polyfills')),
     'react', 'react-dom', 'prop-types',
     'react-router',
     'classnames'
