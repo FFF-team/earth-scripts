@@ -5,12 +5,14 @@ const fs = require('fs');
 const url = require('url');
 const glob = require('glob');
 const ensureSlash = require('./util').ensureSlash;
+const isSinglePage = require('../tools').isSinglePage;
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebookincubator/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 const pagesPath = 'src/pages/*';
+const singlePagePath = 'src/index.js';
 
 const envPublicUrl = process.env.PUBLIC_URL;
 
@@ -29,7 +31,7 @@ const entriesFunc = function(globPath) {
     return entries;
 };
 
-let entriesMap = entriesFunc(pagesPath);
+let entriesMap = isSinglePage() ? {index: resolveApp(singlePagePath)} : entriesFunc(pagesPath);
 
 const getPublicUrl = appPackageJson =>
 envPublicUrl || require(appPackageJson).homepage;

@@ -12,7 +12,7 @@ const checkPagesRequired = (allPagesName) => {
         page = allPagesName[i];
         if (!checkRequiredFiles([
                 resolveApp(`public/${page}.html`),
-                resolveApp(`src/pages/${page}/index.js`)
+                isSinglePage() ? resolveApp('src/index.js') : resolveApp(`src/pages/${page}/index.js`)
             ])
         ) {
             return false
@@ -35,8 +35,12 @@ const getLocalMockPort = (proxy) => {
 
 };
 
+const isSinglePage = () => !fs.existsSync(resolveApp(`src/pages/`));
+
+
 module.exports = {
     checkPagesRequired,
     resolveApp,
-    getLocalMockPort
+    getLocalMockPort,
+    isSinglePage
 };
