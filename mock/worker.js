@@ -48,14 +48,15 @@ const routerCreateFun = (configResulte) => {
 
 };
 
+server.use(jsonServer.bodyParser);
+server.use(middlewares);
+
 configResultes.forEach((item) => {
 
     routerCreateFun(item)
 
-})
+});
 
-server.use(jsonServer.bodyParser);
-server.use(middlewares);
 // server.use(router)
 
 server.listen(localMockPort || 3001, () => {
