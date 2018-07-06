@@ -9,7 +9,7 @@ function imgLoaders(customConfig) {
     const imgOption = cdnPath && cdnPath.img ?
         {
             limit: 10000,
-            name: cdnPath.img,
+            name: filenames.img,
             publicPath: util.ensureSlash(cdnPath.img, true)
         } : {
             limit: 10000,
