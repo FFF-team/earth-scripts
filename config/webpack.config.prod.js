@@ -461,6 +461,11 @@ const newConfig = webpackMerge({
 
             let newExternals = {};
             _.forEach(b, (v, k) => {
+                // fix: externals直接传string
+                if (_.isString(v)) {
+                    newExternals[k] = v;
+                    return;
+                }
                 newExternals[k] = _.omit(v, ['entry', 'files'])
             });
 
