@@ -68,7 +68,7 @@ const defaultConfig =  {
     // This means they will be the "root" imports that are included in JS bundle.
     // The first two entry points enable "hot" CSS and auto-refreshes for JS.
     entry: paths.entriesMap,
-    externals: {},
+    externals: customConfig.externals,
     output: {
         // Next line is not used in dev but WebpackDevServer crashes without it:
         path: paths.appBuild,
@@ -146,7 +146,7 @@ const defaultConfig =  {
                     // A missing `test` is equivalent to a match.
                     ...require('./imgLoaders/dev')(customConfig),
                     // Process JS with Babel.
-                    ...require('./jsLoaders/dev'),
+                    ...require('./jsLoaders/dev')(),
                     // "postcss" loader applies autoprefixer to our CSS.
                     // "css" loader resolves paths in CSS and adds assets as dependencies.
                     // "style" loader turns CSS into JS modules that inject <style> tags.
@@ -186,7 +186,7 @@ const defaultConfig =  {
         // Generates an `index.html` file with the <script> injected.
         ...htmlWebpackPluginMap,
         // HtmlWebpackExternalsPlugin
-        ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
+        ...require('./common/htmlWebpackExternalsPlugin')(customConfig._origin.externals),
 
         new webpack.optimize.CommonsChunkPlugin({
             name: "vendor"
@@ -263,21 +263,6 @@ const newConfig = webpackMerge({
     },
     customizeObject(a, b, key) {
 
-        if (key === 'externals') {
-
-            let newExternals = {};
-            _.forEach(b, (v, k) => {
-                // fix: externals直接传string
-                if (_.isString(v)) {
-                    newExternals[k] = v;
-                    return;
-                }
-                newExternals[k] = _.omit(v, ['entry', 'files'])
-            });
-
-            return newExternals
-        }
-
         if (key === 'output') {
             return _.merge(
                 a,
@@ -290,7 +275,7 @@ const newConfig = webpackMerge({
             )
         }
 
-        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance']
+        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance', 'externals'];
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }
@@ -298,6 +283,6 @@ const newConfig = webpackMerge({
         // Fall back to default merge
         return undefined;
     }
-})(defaultConfig, _.omit(customConfig.webpackConfig, 'cssModule'));
+})(defaultConfig, customConfig._origin);
 
 module.exports = newConfig;

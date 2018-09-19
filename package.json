@@ -14,6 +14,10 @@
   "bugs": {
     "url": "https://github.com/FFF-team/earth-scripts/issues"
   },
+  "peerDependencies": {
+    "react": ">=15.6.1",
+    "react-dom": ">=15.6.1"
+  },
   "dependencies": {
     "autoprefixer": "7.1.2",
     "babel-core": "6.25.0",
@@ -67,9 +71,27 @@
     "webpack-dev-server": "2.7.1",
     "webpack-manifest-plugin": "1.2.1",
     "webpack-merge": "4.1.1",
-    "whatwg-fetch": "2.0.3"
+    "whatwg-fetch": "2.0.3",
+    "cheerio": "^1.0.0-rc.2",
+    "http-proxy": "^1.17.0",
+    "ignore-styles": "^5.0.1",
+    "jsdom": "^12.0.0",
+    "koa": "^2.5.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-compress": "^3.0.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
+    "nodemon": "^1.18.4",
+    "pm2": "^3.0.4",
+    "string-to-stream": "^1.1.1",
+    "webpack-node-externals": "^1.7.2",
+    "winston": "^3.1.0",
+    "winston-daily-rotate-file": "^3.3.2"
   },
   "homepage": "https://github.com/FFF-team/earth-scripts#readme",
   "_from": "earth-scripts@1.0.5",
-  "_resolved": "http://registry.npm.taobao.org/earth-scripts/download/earth-scripts-1.0.5.tgz"
+  "_resolved": "http://registry.npm.taobao.org/earth-scripts/download/earth-scripts-1.0.5.tgz",
+  "devDependencies": {
+
+  }
 }

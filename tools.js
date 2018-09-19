@@ -38,9 +38,40 @@ const getLocalMockPort = (proxy) => {
 const isSinglePage = () => !fs.existsSync(resolveApp(`src/pages/`));
 
 
+// TODO: console 统一写法
+const chalk = require('chalk');
+
+const clog = {
+
+    prefix: chalk.blue('[earth-scripts] '),
+
+    get ssr () {
+        this.prefix = chalk.blue('[earth-scripts:ssr] ');
+        return clog;
+    },
+    get client() {
+        this.prefix = chalk.blue('[earth-scripts:client] ');
+        return clog;
+    },
+    info: (msg) => {
+        console.log(clog.prefix + chalk.green(msg))
+    },
+    warn: (msg) => {
+        console.log(clog.prefix + chalk.yellow(msg))
+    },
+    error: (msg) => {
+        console.log(clog.prefix + chalk.red(msg))
+    },
+    log: (msg) => {
+        console.log(clog.prefix + msg)
+    }
+}
+
+
 module.exports = {
     checkPagesRequired,
     resolveApp,
     getLocalMockPort,
-    isSinglePage
+    isSinglePage,
+    clog
 };

@@ -115,7 +115,7 @@ const defaultConfig = {
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the polyfills and the app code.
   entry: paths.entriesMap,
-  externals: {},
+  externals: customConfig.externals,
   output: {
     // The build folder.
     path: paths.appBuild,
@@ -191,7 +191,7 @@ const defaultConfig = {
           // assets smaller than specified size as data URLs to avoid requests.
             ...require('./imgLoaders/prod')(customConfig),
           // Process JS with Babel.
-            ...require('./jsLoaders/prod'),
+            ...require('./jsLoaders/prod')(),
           // The notation here is somewhat confusing.
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.
@@ -330,7 +330,7 @@ const defaultConfig = {
     // Generates an `index.html` file with the <script> injected.
     ...htmlWebpackPluginMap,
     // externals plugin
-    ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
+    ...require('./common/htmlWebpackExternalsPlugin')(customConfig._origin.externals),
     // 将公共包和webpack bootstrap从业务代码总分离
     new webpack.HashedModuleIdsPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
@@ -457,21 +457,6 @@ const newConfig = webpackMerge({
     },
     customizeObject(a, b, key) {
 
-        if (key === 'externals') {
-
-            let newExternals = {};
-            _.forEach(b, (v, k) => {
-                // fix: externals直接传string
-                if (_.isString(v)) {
-                    newExternals[k] = v;
-                    return;
-                }
-                newExternals[k] = _.omit(v, ['entry', 'files'])
-            });
-
-            return newExternals
-        }
-
         if (key === 'output') {
             let newOutput = _.omit(b, 'filenames', 'publicPath');
             newOutput.publicPath = _.isString(b.publicPath) ? util.ensureSlash(b.publicPath, true) : publicPath;
@@ -486,7 +471,7 @@ const newConfig = webpackMerge({
             )
         }
 
-        let frozenKeys = ['resolve', 'module', 'node', 'bail', 'devtool'];
+        let frozenKeys = ['resolve', 'module', 'node', 'bail', 'devtool', 'externals'];
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }
@@ -494,6 +479,6 @@ const newConfig = webpackMerge({
         // Fall back to default merging
         return undefined;
     }
-})(defaultConfig, _.omit(customConfig.webpackConfig, 'cssModule'));
+})(defaultConfig, customConfig._origin);
 
 module.exports = newConfig;

@@ -241,7 +241,49 @@ function getCssModuleConfig(webpackConfig) {
     }
 }
 
+/**
+ * get externals for webpack from config.externals
 
+ * @param webpackConfig
+ *{
+ *     ...,
+ *     externals: {
+ *          jquery: {
+ *              root: '_',
+ *              entry: {
+ *                  ...
+ *              },
+ *              files: [...,...]
+ *          },
+ *          library2: 'library2'
+ *      },
+ *      ...
+ * }
+ *
+ *
+ * @return {object}
+ * {
+ *     jquery: {
+ *         root: '_'
+ *     },
+ *     library2: 'library2'
+ * }
+ */
+function getExternals(webpackConfig) {
+    const externals = _.get(webpackConfig, 'externals');
+
+    let newExternals = {};
+    _.forEach(externals, (v, k) => {
+        // fix: externals直接传string
+        if (_.isString(v)) {
+            newExternals[k] = v;
+            return;
+        }
+        newExternals[k] = _.omit(v, ['entry', 'files'])
+    });
+
+    return newExternals
+}
 
 
 function log(msg) {
@@ -249,11 +291,11 @@ function log(msg) {
 }
 
 module.exports = {
-    webpackConfig: webpackConfig,
+    _origin: webpackConfig,
 
     filenames: getFilenames(webpackConfig),
     cdnPath: getCdnPath(webpackConfig),
     alias: getAliasConfig(webpackConfig),
     cssModule: getCssModuleConfig(webpackConfig),
-    externals: webpackConfig.externals
+    externals: getExternals(webpackConfig)
 };
