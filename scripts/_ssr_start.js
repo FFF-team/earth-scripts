@@ -5,6 +5,8 @@ const console = require('../tools').clog.ssr;
 // 开发环境下用nodemon
 const nodemon = require('nodemon');
 
+
+
 nodemon({
     script: path.resolve('_server/dist/main.generated.js'),
     ext: 'js json',

@@ -59,6 +59,7 @@ module.exports = {
             clientSrc: path.resolve('src'),
             // 指向根目录_server
             rootServer: path.resolve('_server'),
+            'earth-scripts': path.resolve('node_modules/earth-scripts')
         }, alias)
     },
     module: {

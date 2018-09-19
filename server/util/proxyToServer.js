@@ -73,7 +73,8 @@ function proxyToServer(req, res, {
 
                             resolve({
                                 headers: proxyRes.headers,
-                                body: buffer.toString()
+                                body: buffer.toString(),
+                                status: proxyRes.statusCode
                             });
 
                         })
@@ -84,7 +85,8 @@ function proxyToServer(req, res, {
                         // 返回body, headers数据
                         resolve({
                             headers: proxyRes.headers,
-                            body: body.toString()
+                            body: body.toString(),
+                            status: proxyRes.statusCode
                         })
 
                     }

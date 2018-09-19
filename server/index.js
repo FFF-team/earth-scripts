@@ -40,7 +40,7 @@ router.use('/sockjs-node', (ctx, next) => {
 // Serve static assets
 router.use('/static', staticRouter());
 // api
-router.use(`/${DEF.proxyApiPrefix}`, apiRouter.routes());
+router.use(`${DEF.proxyApiPrefix}`, apiRouter.routes());
 // page
 router.use(pageRouter.routes());
 

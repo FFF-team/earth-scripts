@@ -1,19 +1,24 @@
 const Router = require('koa-router');
-
 const router = new Router();
+
 const proxyToServer = require('../util/proxyToServer');
 const logger = require('../util/logger');
 const errorBody = require('../util/error').resBody;
 const RES_CODE = require('../util/error').RES_CODE;
-const CUS_COMFIG = require('rootServer/config');
+const {selfHandleResponseApi} = require('../def');
 
-let cusRouter = null;
+
+let cusRouter = () => {};
 
 try {
     cusRouter = require('rootServer/router/api')
 } catch (e) {
-    router.all('/:name/:other*', async (ctx, next) => {
+    cusRouter = require('./_api')
+}
 
+module.exports = router;
+
+router.all('/:name/:other*', async (ctx, next) => {
 
         // 请求透传
         // 不手动处理请求结果，无法设置额gzip压缩
@@ -30,18 +35,17 @@ try {
         //         console.log(e)
         //     });
 
-        // 自己处理请求结果
-        // todo: 错误单独提出
         let ret = {};
         try {
             ret = await proxyToServer(ctx.req, ctx.res, {
-                selfHandleResponse : CUS_COMFIG.selfHandleResponseApi || true,
+                selfHandleResponse: selfHandleResponseApi || true,
                 headers: {
                     ip: '',
                     'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
                 }
             })
-        } catch(e) {
+        } catch (e) {
+            // 代理失败
             logger.error(e.stack);
             ret = {
                 headers: {},
@@ -51,21 +55,23 @@ try {
 
         try {
             ctx.set(ret.headers);
-        } catch(e) {
+        } catch (e) {
             ctx.set({});
             logger.error(e.stack);
         }
 
 
+        ctx.status = ret.status || 200;
+
         if (!ret.body) {
-            ctx.body = errorBody(RES_CODE.PTS_EMPTYBODY, '数据返回空');
+            ctx.body = '';
             return next()
         }
 
 
         try {
 
-            // todo: 为了标识代理成功，在返回结果中追加__fns（means: from node server）, 没问题后可以去掉这段逻辑，
+            // todo: 为了标识代理成功，在返回结果中追加__fns（means: from node server)
             ctx.body = Object.assign(
                 {},
                 typeof ret.body === 'string' ? JSON.parse(ret.body) : ret.body,
@@ -76,13 +82,13 @@ try {
             ctx.body = ret.body
         }
 
+        next()
 
-        return next()
-
-
-    });
-}
-
-module.exports = cusRouter || router;
+    },
+    cusRouter,
+    () => {
+        return
+    }
+);
 
 

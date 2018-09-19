@@ -1,18 +1,31 @@
 const console = require('../tools').clog.ssr;
 console.info(`current environment: development`);
 
+
 /**
+ * 0. init
  * 1. webpack watch
  * 2. nodemon start server
  */
-require('./_ssr-watch')()
-    .then((ret) => {
 
-        require('./_ssr_start')
+const ssrStart = async () => {
+    await require('./_ssr_init')();
 
-    }, () => {
-        console.log('watch fail')
-    });
+    try {
+        await require('./_ssr-watch')();
+    } catch (e) {
+        console.log('watch fail');
+        return;
+    }
+
+    require('./_ssr_start')
+
+};
+
+ssrStart();
+
+
+
 
 
 
