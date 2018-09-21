@@ -79,7 +79,8 @@ app.use(gzip({
     threshold: 1024 // response小于 1k 不压缩(默认就是1024)
 }));
 app.use(router.routes());
-app.use(router.allowedMethods());
+// todo: allowedMethods
+// app.use(router.allowedMethods());
 
 
 app.on("error",(err,ctx)=>{//捕获异常记录错误日志

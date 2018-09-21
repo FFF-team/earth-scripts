@@ -236,3 +236,8 @@ http://localhost:3000/index.html/[browerRouter内容]
 </Router>
 
 ```
+.env.development添加配置：
+
+```
+BROWSER_ROUTER=true
+```
