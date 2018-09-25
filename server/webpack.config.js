@@ -12,14 +12,14 @@ const imgLoaders = require('../config/imgLoaders/prod');
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
-let nodeModules = {};
-fs.readdirSync('node_modules')
-    .filter(function(x) {
-        return ['.bin'].indexOf(x) === -1;
-    })
-    .forEach(function(mod) {
-        nodeModules[mod] = 'commonjs ' + mod;
-    });
+// let nodeModules = {};
+// fs.readdirSync('node_modules')
+//     .filter(function(x) {
+//         return ['.bin'].indexOf(x) === -1;
+//     })
+//     .forEach(function(mod) {
+//         nodeModules[mod] = 'commonjs ' + mod;
+//     });
 
 // TODO: 其他形式
 const EARTH_SERVER_PATH = path.resolve(__dirname);
@@ -73,7 +73,7 @@ module.exports = {
                     {
                         test: /\.(js|jsx)$/,
                         exclude: [
-                            /node_modules/,
+                            /node_modules\/(?!earth-scripts)/
                         ],
                         include: [
                             EARTH_SERVER_PATH,
