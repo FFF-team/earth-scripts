@@ -6,6 +6,12 @@ global.document = require('./fakeObject/document');
 global.window = require('./fakeObject/window');
 global.navigator = window.navigator;
 
+// 标识正在使用ssr
+process.env.IS_SERVER = 'true';
+
+// client和server端通用的fetch
+require('isomorphic-unfetch');
+
 const console = require('../tools').clog;
 
 const Koa = require('koa');

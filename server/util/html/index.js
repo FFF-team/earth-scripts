@@ -11,6 +11,8 @@ const pageStream = require('./stream');
 const logger = require('../logger');
 const maxMem = require('../../def').maxMem;
 const console = require('../../../tools').clog.ssr;
+const getInitialData = require('../../util/getInitialData');
+const enhanceApp = require('./enhanceApp');
 
 
 const osBusy = require('./osCheck');
@@ -25,29 +27,12 @@ const ReactDomRenderMethod = (() => {
     }
 })();
 
+const getStorePath = (pageList, currentPage) => {
+    const ret =  pageList.filter((v, i) => v.indexOf(currentPage) > -1);
+    return ret.length ? ret[0] : null
+}
+
 let context = {};
-
-const AppWithRouter = (page, req, isBrowserRouter) => {
-    const App = getAppForPage(page);
-
-    if (isBrowserRouter) {
-        return (
-            <StaticRouter
-                basename={`/${page}`}
-                location={req.url}
-                context={context}
-            >
-                <App/>
-            </StaticRouter>
-        )
-    }
-
-    return (
-        <StaticRouter context={context}>
-            <App/>
-        </StaticRouter>
-    )
-};
 
 /**
  * const htmlObj = await new Html(req, page).init({
@@ -67,14 +52,31 @@ class Html {
         this.req = ctx.request;
         this.option = {};
         this.ctx = ctx;
+        this.app = null;
 
         this._store = null;
+        // 保存初始数据
+        this.__PRELOADED_STATE__ = {
+            pageProps: {},
+            store: {}
+        };
         this._$html = '';
     }
 
-    init(option) {
+    async init(option) {
+        const App = getAppForPage(this.page);
+        const html = await readFile(this.page).catch((err) => {
+            console.error('GET FILE ERROR: ' + err);
+        });
+
+        // save option
         this.option = option;
-        return this.__initHtml
+        // get initialData for app
+        this.app = await this.__enhanceApp(App);
+        // parse html
+        this._$html = cheerio.load(html || '');
+
+        return this
     }
 
 
@@ -82,13 +84,17 @@ class Html {
 
         if (!this.option.ssr) return this;
 
+        // todo: get store
+        // todo: better
+        const context = require.context(`clientSrc/pages/`, true, /store.js/);
+        const storePath = getStorePath(context.keys(), this.page);
+
+        if (!storePath) return this;
+
+        store = context(storePath).default;
+
         this._store = store;
-
-        const initState = `window.__PRELOADED_STATE__ = ${JSON.stringify(store.getState()).replace(/</g, '\\\u003c')}`
-
-        // 将initState塞进head
-        this._$html('head').append(`<script>${initState}</script>`);
-
+        this.__PRELOADED_STATE__.store = store.getState();
 
         return this
     }
@@ -139,19 +145,25 @@ class Html {
      * @return {*}
      * @private
      */
-    get __initHtml() {
+    // get __initHtml() {
+    //
+    //     if (this._$html) return this._$html;
+    //
+    //     return (async () => {
+    //         const html = await readFile(this.page).catch((err) => {
+    //             console.error('GET FILE ERROR: ' + err);
+    //         });
+    //
+    //
+    //         this._$html = cheerio.load(html || '');
+    //         return this
+    //     })()
+    // }
 
-        if (this._$html) return this._$html;
-
-        return (async () => {
-            const html = await readFile(this.page).catch((err) => {
-                console.error('GET FILE ERROR: ' + err);
-            });
-            this._$html = cheerio.load(html || '');
-            return this
-        })()
-    }
-
+    /**
+     * !ssr时直接输出
+     * @private
+     */
     __renderToString() {
         this.ctx.set('Content-Type', 'text/html; charset=utf-8');
         this.ctx.status = 200;
@@ -159,7 +171,7 @@ class Html {
     }
 
     /**
-     * stream渲染结果
+     * ssr时stream输出
      * @param pageMarkup
      * @private
      */
@@ -171,8 +183,11 @@ class Html {
         const _$ = this._$html;
 
 
+        // 将initState塞进head
+        const initState = `window.__PRELOADED_STATE__ = ${JSON.stringify(this.__PRELOADED_STATE__).replace(/</g, '\\\u003c')}`
+        this._$html('head').append(`<script>${initState}</script>`);
+        // 移除root
         _$('#root').remove();
-
 
 
         const  htmlWriter = new pageStream({
@@ -208,6 +223,23 @@ class Html {
     }
 
     /**
+     * 包装App，获取初始数据
+     * @param App
+     * @return {Promise<*>}
+     * @private
+     */
+    async __enhanceApp(App) {
+        const initialProps = await getInitialData(App, this.ctx);
+        this.__PRELOADED_STATE__.pageProps = initialProps;
+        const EnhancedApp = enhanceApp({
+            initialData: initialProps
+        })(App);
+        // const EnhancedApp = App;
+
+        return EnhancedApp
+    }
+
+    /**
      * 使用redux情况
      * ReactDomRenderMethod(App)
      * @return {*}
@@ -221,9 +253,12 @@ class Html {
             console.log('react-redux is missing')
         }
 
+
+        const appWithRouter = this.__appWithRouter();
+
         return ReactDomRenderMethod(
             <Provider store={this._store}>
-                {AppWithRouter(this.page, this.req, this.option.browserRouter)}
+                {appWithRouter}
             </Provider>
         );
     }
@@ -237,11 +272,32 @@ class Html {
     __getPageMarkup() {
 
         return ReactDomRenderMethod(
-            AppWithRouter(this.page, this.req, this.option.browserRouter)
+            this.__appWithRouter()
         );
     }
 
 
+    __appWithRouter() {
+        const App = this.app;
+
+        if (this.option.browserRouter) {
+            return (
+                <StaticRouter
+                    basename={`/${this.page}`}
+                    location={this.req.url}
+                    context={context}
+                >
+                    <App/>
+                </StaticRouter>
+            )
+        }
+
+        return (
+            <StaticRouter context={context}>
+                <App/>
+            </StaticRouter>
+        )
+    }
 
 
 }
