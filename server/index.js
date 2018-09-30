@@ -15,40 +15,21 @@ require('isomorphic-unfetch');
 const console = require('../tools').clog;
 
 const Koa = require('koa');
-const Router = require('koa-router');
-
 const bodyParser = require('koa-bodyparser');
 const gzip = require('koa-compress');
 
 const app = new Koa();
-const router = new Router();
 
-
-const staticRouter = require('./middleware/static');
 const performance = require('./middleware/performance');
-const apiRouter = require('./router/api');
-const pageRouter = require('./router/page');
+const router = require('./router');
 
 const logger = require('./util/logger');
 const config = require('./env');
-const DEF = require('./def');
-
 
 // todo: 缓存 redis
 // todo: 性能问题
 
 app.proxy = true;
-
-// dev环境下针对webpack的热更新接口直接404返回
-router.use('/sockjs-node', (ctx, next) => {
-    ctx.status = 404;
-});
-// Serve static assets
-router.use('/static', staticRouter());
-// api
-router.use(`${DEF.proxyApiPrefix}`, apiRouter.routes());
-// page
-router.use(pageRouter.routes());
 
 app.use(performance());
 
@@ -67,7 +48,6 @@ app.use(async (ctx, next) => {
 // app.use(conditional());
 // app.use(etag());
 
-// 不需要bodyParser
 app.use(bodyParser());
 app.use((ctx, next) => {
     // 开启了bodyparser
@@ -123,28 +103,4 @@ process.env["NODE_CONFIG_DIR"] = require('path').resolve(__dirname, "../env/");
 // const etag = require('./middleware/etag');
 
 
-
-
-
-
-
-
 */
-
-
-
-
-// monitor({
-//     title: 'user_center',
-//     port: 18001, // 端口号
-//     backup: 'backup_zips',// 备份文件夹名
-//     deploydir: '/',//要部署的git路径下的文件目录
-//     keepBackupNumb: 5, // 保存之前几个备份
-//     username: 'admin',
-//     password: 'admin123',
-//     ignoreBackup: ['.git'],
-//     // restartCommond: `npm run ssr:deployTest`,
-//     restartCommond: `npm run ssr:deployTest`,
-//     mailList: 'kenghongyan@58ganji.com',//邮件发送列表逗号分隔多个，（发生错误手动发送报警邮件）
-//     gitPath: 'http://igit.58corp.com/58finance_fe_baseService_m/user_center.git'
-// });

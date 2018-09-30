@@ -6,19 +6,23 @@ const logger = require('../util/logger');
 const errorBody = require('../util/error').resBody;
 const RES_CODE = require('../util/error').RES_CODE;
 const {selfHandleResponseApi} = require('../def');
+const config = require('../env');
+const {getCusProxyRouter} = require('../context')
 
 
-let cusRouter = () => {};
-
-try {
-    cusRouter = require('rootServer/router/api')
-} catch (e) {
-    cusRouter = require('./_api')
-}
+const defaultRouter = getCusProxyRouter('index.js')
 
 module.exports = router;
 
-router.all('/:name/:other*', async (ctx, next) => {
+router.all('/:name/:other*',
+    async (ctx, next) => {
+        const cusRouter = getCusProxyRouter(ctx.params.name) || defaultRouter;
+        if (cusRouter && cusRouter.apiProxyBefore) {
+            await cusRouter.apiProxyBefore(ctx);
+        }
+        await next()
+    },
+    async (ctx, next) => {
 
         // 请求透传
         // 不手动处理请求结果，无法设置额gzip压缩
@@ -34,7 +38,7 @@ router.all('/:name/:other*', async (ctx, next) => {
         //     .catch((e) => {
         //         console.log(e)
         //     });
-
+        const params = ctx.params;
         let ret = {};
         try {
             ret = await proxyToServer(ctx.req, ctx.res, {
@@ -42,7 +46,8 @@ router.all('/:name/:other*', async (ctx, next) => {
                 headers: {
                     ip: '',
                     'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
-                }
+                },
+                target: `${ctx.app_proxyServer || config.get('proxy')}/${params.name}/${params.other}`,
             })
         } catch (e) {
             // 代理失败
@@ -85,7 +90,13 @@ router.all('/:name/:other*', async (ctx, next) => {
         next()
 
     },
-    cusRouter,
+    async (ctx, next) => {
+        const cusRouter = getCusProxyRouter(ctx.params.name) || defaultRouter;
+        if (cusRouter && cusRouter.apiProxyReceived) {
+            await cusRouter.apiProxyReceived(ctx);
+        }
+        await next()
+    },
     () => {
         return
     }

@@ -9,6 +9,7 @@ const ssrWatch =  () => {
         const compiler = webpack(config,
             (err, stats) => {
                 if (err || stats.hasErrors()) {
+                    console.log(err)
                     console.log('webpack compiler error')
                     process.exit(1);
                     // Handle errors here
@@ -30,10 +31,11 @@ const ssrWatch =  () => {
                 return;
             }
 
-            console.log(stats.toString({
-                chunks: false,  // Makes the build much quieter
-                colors: true    // Shows colors in the console
-            }));
+            console.log('==== webpack compile end ===');
+            // console.log(stats.toString({
+            //     chunks: false,  // Makes the build much quieter
+            //     colors: true    // Shows colors in the console
+            // }));
 
             resolve(true);
 

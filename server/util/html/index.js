@@ -13,6 +13,7 @@ const maxMem = require('../../def').maxMem;
 const console = require('../../../tools').clog.ssr;
 const getInitialData = require('../../util/getInitialData');
 const enhanceApp = require('./enhanceApp');
+const {getStoreByPage} = require('../../context')
 
 
 const osBusy = require('./osCheck');
@@ -27,10 +28,6 @@ const ReactDomRenderMethod = (() => {
     }
 })();
 
-const getStorePath = (pageList, currentPage) => {
-    const ret =  pageList.filter((v, i) => v.indexOf(currentPage) > -1);
-    return ret.length ? ret[0] : null
-}
 
 let context = {};
 
@@ -86,12 +83,11 @@ class Html {
 
         // todo: get store
         // todo: better
-        const context = require.context(`clientSrc/pages/`, true, /store.js/);
-        const storePath = getStorePath(context.keys(), this.page);
+        const _store = getStoreByPage(this.page);
 
-        if (!storePath) return this;
+        if (!_store) return this;
 
-        store = context(storePath).default;
+        store = _store.default;
 
         this._store = store;
         this.__PRELOADED_STATE__.store = store.getState();

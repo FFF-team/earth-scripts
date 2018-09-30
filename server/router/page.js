@@ -9,13 +9,14 @@ const pagesMap = getPagesMap(fs.readdirSync(require('../env').get('pagesPath')))
 let pageLogic = () => {};
 
 try {
-    pageLogic = require('rootServer/router/page')
+    pageLogic = require('rootServer/page')
 } catch (e) {
     pageLogic = require('./_page')
 }
 
 
-router.get('/:page/:others*', async (ctx, next) => {
+router.get('/:page/:others*',
+    async (ctx, next) => {
 
         const page = ctx.params && ctx.params.page;
 
