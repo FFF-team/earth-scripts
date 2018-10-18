@@ -54,6 +54,8 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 // start mock server depends `npm run start -- stopmock`
 const isStopmock = process.argv.slice(2).find((v) => v === 'stopmock' );
+const isServer = process.env.IS_SERVER === 'true';
+
 if (!isStopmock) {
     const customerMock = require(paths.appPackageJson).mockRoot;
     if (customerMock) {
@@ -117,11 +119,16 @@ choosePort(HOST, DEFAULT_PORT)
       }
       console.log(chalk.cyan('Starting the development server...\n'));
       // 默认取第一个html打开
+      // todo: better
+      if (isServer) {
+          return;
+      }
       openBrowser(
           urls.localUrlForBrowser +
           publicPath.substring(1) +
           `${paths.allPages[0]}.html`
       )
+
     });
 
     ['SIGINT', 'SIGTERM'].forEach(function(sig) {

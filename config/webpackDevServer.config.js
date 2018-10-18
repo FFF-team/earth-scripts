@@ -11,7 +11,7 @@ const isBrowserRouter = process.env.BROWSER_ROUTER === 'true';
 
 let historyMiddleware = null;
 
-if (isBrowserRouter) {
+if (isBrowserRouter && process.env.IS_SERVER !== 'true') {
     const history = require('connect-history-api-fallback');
 
     const getRewritesByPages = (pages) => {

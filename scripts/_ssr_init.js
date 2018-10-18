@@ -8,7 +8,7 @@ const { existsSync, readFileSync, writeFileSync } = require('fs');
 
 const init = async () => {
     await mkdirp(resolve('_server/dist'));
-    await mkdirp(resolve('_server/router'));
+    await mkdirp(resolve('_server/log'));
 
     if (!existsSync(resolve('_server/def.js'))) {
         await cp(
@@ -17,12 +17,6 @@ const init = async () => {
         )
     }
 
-    if (!existsSync(resolve('_server/page.js'))) {
-        await cp(
-            join(__dirname, '../server/router/_page.js'),
-            resolve('_server/page.js')
-        )
-    }
 
 };
 

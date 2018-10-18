@@ -1,5 +1,4 @@
 const path = require("path");
-const fs = require('fs');
 const webpack = require('webpack');
 const alias = require(path.resolve('config/alias'));
 const nodeExternals = require('webpack-node-externals');
@@ -7,40 +6,40 @@ const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');
 
 
-// const jsLoaders = require('earth-scripts/config/jsLoaders/dev');
-
-process.env.BABEL_ENV = 'development';
-process.env.NODE_ENV = 'development';
-
-// let nodeModules = {};
-// fs.readdirSync('node_modules')
-//     .filter(function(x) {
-//         return ['.bin'].indexOf(x) === -1;
-//     })
-//     .forEach(function(mod) {
-//         nodeModules[mod] = 'commonjs ' + mod;
-//     });
-
 // TODO: 其他形式
 const EARTH_SERVER_PATH = path.resolve(__dirname);
 const CLIENT_PATH = path.resolve('src');
+
+const dev = process.env.NODE_ENV === 'development';
 
 
 module.exports = {
     // The configuration for the server-side rendering
     name: "server-side rendering",
-    entry: path.join(__dirname, "./index.js"),
+    // todo: entry是数组编译会有问题？？？？
+    entry: {
+        /*'main': [
+            // "webpack/hot/poll?1000",
+            require.resolve("./index.js")
+        ]*/
+        'main': require.resolve("./index.js")
+    },
+    devtool: dev ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
     target: "node",
     output: {
-        path: path.resolve("_server"),
-        filename: "./dist/[name].generated.js",
+        path: path.resolve("_server/dist"),
+        filename: "./[name].generated.js",
         libraryTarget: "commonjs2",
         publicPath: '/',
+        hotUpdateChunkFilename: './[id].[hash].hot-update.js',
+        hotUpdateMainFilename: './[hash].hot-update.json'
     },
-    // externals: /^[a-z\-0-9]+$/,
     externals: [
         nodeExternals({
-            whitelist: [/^earth-scripts/]
+            whitelist: [
+                // "webpack/hot/poll?1000",
+                /^earth-scripts\/server/
+            ]
         }),
         customConfig.externals
     ],
@@ -50,15 +49,15 @@ module.exports = {
     resolve: {
         extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
         alias: Object.assign({
-            window$: path.resolve(__dirname, 'fakeObject/window.js'),
-            document$: path.resolve(__dirname, 'fakeObject/document'),
+            'window$': path.resolve(__dirname, 'fakeObject/window.js'),
+            'document$': path.resolve(__dirname, 'fakeObject/document'),
 
             // 指向根目录下package.json
-            rootPackage: path.resolve('package.json'),
+            'rootPackage': path.resolve('package.json'),
             // 指向client端代码
-            clientSrc: path.resolve('src'),
+            'clientSrc': path.resolve('src'),
             // 指向根目录_server
-            rootServer: path.resolve('_server'),
+            'rootServer': path.resolve('_server'),
             'earth-scripts': path.resolve('node_modules/earth-scripts')
         }, alias)
     },
@@ -108,6 +107,10 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.NamedModulesPlugin(),
+        // new webpack.NamedModulesPlugin(),
+        // new webpack.HotModuleReplacementPlugin(),
+        // new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
             window : 'window',
             document: 'document'

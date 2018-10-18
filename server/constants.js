@@ -20,4 +20,6 @@ module.exports = {
     // proxy_api  api可以自定义
     // 需要代理的地址都以api开头，例如/api/send/xxx
     PROXY_API_FILENAME_PREFIX: 'proxy_',
+    CLIENT_BUILD_PATH: path.resolve('_server/build'),
+    PAGE_PATH: path.resolve('src/pages/*')
 };

@@ -16,8 +16,6 @@ module.exports = {
     getCustomDef:
         (name = 'def.js') =>
             _getContext(require.context('rootServer', false, /def\.js/), name),
-    getCustomRouter: (name) =>
-        _getContext(require.context(`rootServer/router/`, false, /\.js/), name),
     getStoreByPage:
         (name) =>
             _getContext(require.context(`clientSrc/pages/`, true, /store.js/), name),
@@ -26,5 +24,8 @@ module.exports = {
             _getContext(require.context(`clientSrc/pages`, true, /containers\/App\.js/), name),
     getCusProxyRouter:
         (name) =>
-            _getContext(require.context(`rootServer/`, true, /^\.\/proxy_.*\.js$/), name)
+            _getContext(require.context(`rootServer/`, true, /^\.\/proxy_.*\.js$/), name),
+    getCusPageRouter:
+        (name) =>
+            _getContext(require.context(`rootServer/page`, false, /\.js$/), name)
 };

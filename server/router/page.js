@@ -1,38 +1,26 @@
-const fs = require('fs');
 const Router = require('koa-router');
-
-const router = new Router();
-
-const getPagesMap = require('../util/getPagesMap');
-const pagesMap = getPagesMap(fs.readdirSync(require('../env').get('pagesPath')));
-
-let pageLogic = () => {};
-
-try {
-    pageLogic = require('rootServer/page')
-} catch (e) {
-    pageLogic = require('./_page')
-}
+const html = require('earth-scripts/server/util/html');
 
 
-router.get('/:page/:others*',
-    async (ctx, next) => {
+module.exports = (page) => {
 
-        const page = ctx.params && ctx.params.page;
+    const router = new Router();
 
-        if (page && pagesMap[page]) {
+    router.get('*',
+        // page middleware
+        async (ctx, next) => {
+
+            const htmlObj = await new html(ctx, page).init({
+                ssr: true,
+                browserRouter: true
+            }).catch(() => {console.log('page get file error')});
+
+            htmlObj.injectStore().render();
+
+
             return next()
-        } else {
-            ctx.body = `page:[${page}] 404, you can try ${Object.keys(pagesMap)[0]}.`;
         }
+    );
 
-    },
-
-    // page middleware
-    pageLogic,
-    () => {
-        return
-    }
-);
-
-module.exports = router;
+    return router
+};

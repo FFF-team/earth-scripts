@@ -4,6 +4,8 @@ const {
     SELF_HANDLE_RESPONSE,
     PROXY_PATH,
     LOCAL_SERVER,
+    CLIENT_BUILD_PATH,
+    PAGE_PATH
 } = require('./constants');
 
 const {getCustomDef} = require('./context')
@@ -29,6 +31,8 @@ module.exports = {
     },
     maxMem: '300M',
     appPath: SSR_ENTRY_PATH,
+    clientBuildPath: CLIENT_BUILD_PATH,
+    pagePath: PAGE_PATH,
 
     // below can config
     // 代理到的server地址

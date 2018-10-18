@@ -35,7 +35,7 @@ const htmlWebpackPluginMap = (function(){
     let map = [];
     for(let k in paths.entriesMap){
         paths.entriesMap[k] = [
-            require.resolve('react-dev-utils/webpackHotDevClient'),
+            require.resolve('./clientHotReload/webpackHotDevClient'),
             paths.entriesMap[k]
         ];
         map.push(

@@ -4,12 +4,12 @@ const Router = require('koa-router');
 
 const apiRouter = require('./api');
 const pageRouter = require('./page');
-const staticRouter = require('../middleware/static');
 
-const console = require('../../tools').clog.ssr;
+const getPagesMap = require('../util/getPagesMap');
+const pagesMap = getPagesMap();
 const {PROXY_API_FILENAME_PREFIX} = require('../constants');
-const {getCustomRouter} = require('../context')
-
+const {getCusPageRouter} = require('../context');
+const router = new Router();
 
 /**
  * {
@@ -49,50 +49,30 @@ const getProxyApi = () => {
 
 
 
-const router = new Router();
-
 // proxyToServer path
-let proxyApiConfig = getProxyApi();
-// custom router
-let cusApiArr = [];
+const proxyApiConfig = getProxyApi();
 
 
 
-
-
-try {
-    cusApiArr = fs.readdirSync(path.resolve('_server/router/'))
-} catch (e) {
-    console.info('you can define your own api in router/api/')
-}
-
-
-
-// dev环境下针对webpack的热更新接口直接404返回
-// todo: more
-router.use('/sockjs-node', (ctx, next) => {
-    ctx.status = 404;
+router.get('/favicon.ico', (ctx, next) => {
+    ctx.status = 200;
+    ctx.body = ''
 });
 
-// Serve static assets
-router.use('/static', staticRouter());
 
-// api
+// proxy api
 router.use(`/${proxyApiConfig.root}`, apiRouter.routes());
 
-// other
-cusApiArr.forEach((filename) => {
-    const path = filename.replace(/\.js/, '');
-    const _router = getCustomRouter(filename);
-
-    // other
-    _router && router.use(`/${path}`, _router.routes());
-});
 
 // page
-router.use(pageRouter.routes());
-
-
+Object.keys(pagesMap).forEach((page) => {
+    const _router = getCusPageRouter(`${page}.js`);
+    if (_router) {
+        router.use(`/${page}`, getCusPageRouter(`${page}.js`).routes())
+    } else {
+        router.use(`/${page}`, pageRouter(page).routes())
+    }
+});
 
 
 

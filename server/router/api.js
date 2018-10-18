@@ -87,7 +87,17 @@ router.all('/:name/:other*',
             ctx.body = ret.body
         }
 
-        next()
+
+        // save to log
+        logger.info(`
+        proxy-to-path: ${ctx.path}, 
+        status: ${ctx.status},  
+        ${ctx.method}: ${JSON.stringify(ctx.request.body)}
+        response: ${typeof ctx.body === 'object' ? JSON.stringify(ctx.body) : ctx.body}
+        `
+        );
+
+        await next()
 
     },
     async (ctx, next) => {

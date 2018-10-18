@@ -21,7 +21,7 @@ const commonOption = {
     zippedArchive: true,
     maxSize: '20m',
     maxFiles: '14d'
-}
+};
 
 const logger = createLogger({
     // level: 'info',
@@ -34,6 +34,7 @@ const logger = createLogger({
         myFormat
     ),
     transports: [
+        new winston.transports.Console({ level: 'error' }),
         // new winston.transports.Console(),
         //
         // - Write to all logs with level `info` and below to `combined.log`

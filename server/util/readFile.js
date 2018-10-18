@@ -22,7 +22,7 @@ const readFile = async (page) => {
 const readFromBuildFile = (page) => {
     return new Promise((resolve, reject) => {
 
-        const filePath = require('../env').get('pagesPath');
+        const filePath = require('../def').clientBuildPath;
 
         fs.readFile(path.resolve(filePath, `${page}.html`), 'utf8', (err, data) => {
 

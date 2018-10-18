@@ -9,7 +9,15 @@ module.exports = () => {
 
         const end = new Date();
 
-        logger.info(`path: ${ctx.path}, status: ${ctx.status},  time usage: ${end - start}ms`)
+        // todo: 有些接口输出时已经被gzip过，如何打日志
+        // todo: html stream如何打日志
+        // todo: best practice
+        logger.info(`
+        path: ${ctx.path}, 
+        status: ${ctx.status},  
+        time usage: ${end - start}ms 
+        `
+        )
 
 
 

@@ -1,18 +1,22 @@
 /**
- * 筛选.html的文件
- * @param pagesArr fs.readdirSync的结果[]
+ * 从src/pages下拿到文件名
  * @return {*} {a: a.html}
  *
  * todo: more 异常处理
  */
-function getPagesMap(pagesArr) {
+function getPagesMap() {
+    const glob = require('glob');
+
+    const html = glob.sync(require('../def').pagePath);
+
     let obj = {};
-    const html = pagesArr.filter((p) => /\.html$/.test(p));
 
     return html.reduce((ret, next) => {
-            obj[next.replace(/(.html)$/, '')] = next;
-            return obj
-        }, html[0])
+        const temp = next.split('/');
+        const file = temp[temp.length - 1];
+        obj[file] = `${file}.html`;
+        return obj
+    }, html[0])
 }
 
 module.exports = getPagesMap;

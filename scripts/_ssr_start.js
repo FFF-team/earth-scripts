@@ -12,7 +12,8 @@ nodemon({
     ext: 'js json',
     "env": {
         "NODE_ENV": "development"
-    }
+    },
+    watch: path.resolve('_server/dist/main.generated.js')
 });
 
 nodemon.on('start', function () {
@@ -21,5 +22,5 @@ nodemon.on('start', function () {
     console.log('App has quit');
     process.exit();
 }).on('restart', function (files) {
-    console.log('App restarted due to: ', files);
+    // console.log('App restarted due to: ', files);
 });

@@ -241,3 +241,26 @@ http://localhost:3000/index.html/[browerRouter内容]
 ```
 BROWSER_ROUTER=true
 ```
+
+
+### node server
+
+`earth-scripts ssr-start` 启动server端
+
+`earth-scripts start -- server` 启动client端
+
+```
+_server/
+  - dist/  编译后的文件
+  - log/   日志文件
+  - proxy_[name] 定义代理的接口前缀及逻辑。eg: 需要代理的地址如下，/api/user/center，有统一的前缀
+                 api，则目录为proxy_api
+    - index.js   提供两个方法可供自定义 apiProxyBefore(ctx), apiProxyReceived(ctx)
+
+  - page/     page对应的逻辑
+  - def.js    配置文件
+
+
+```
+
+todo: more

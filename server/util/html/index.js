@@ -10,7 +10,6 @@ const getAppForPage = require('../getAppForPage');
 const pageStream = require('./stream');
 const logger = require('../logger');
 const maxMem = require('../../def').maxMem;
-const console = require('../../../tools').clog.ssr;
 const getInitialData = require('../../util/getInitialData');
 const enhanceApp = require('./enhanceApp');
 const {getStoreByPage} = require('../../context')
@@ -99,11 +98,14 @@ class Html {
 
         // 内存占用大于300M时关闭ssr
         // todo: 判断负载过高用内存？？
-        const _osBusy = osBusy({maxMem: maxMem});
-        if (_osBusy) {
-            logger.info(`mem usage: ${_osBusy}`);
-            this.option.ssr = false;
+        if (process.env.NODE_ENV !== 'development') {
+            const _osBusy = osBusy({maxMem: maxMem});
+            if (_osBusy) {
+                logger.info(`mem usage: ${_osBusy}`);
+                this.option.ssr = false;
+            }
         }
+
 
         const { ssr } = this.option;
 
