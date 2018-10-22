@@ -30,21 +30,21 @@ router.all('/:name/:other*',
 
         ctx.respond = false;
 
+        const req = ctx.req;
+        const res = ctx.res;
         const params = ctx.params;
 
-        const _app_proxy = new Proxy2Server(ctx.req, ctx.res, ctx);
+        const _app_proxy = new Proxy2Server(req, res);
 
-        // 传递ctx
-        Proxy2Server.ctx = ctx;
+        // 在res上挂载_app_proxy
+        res._app_proxy = (dataObj, send) => {
+            send(dataObj)
+        };
 
-        // 在ctx上挂在_app_proxy
-        ctx._app_proxy = _app_proxy;
-
-
-        // set custom on('proxyRes')
-        const cusRouter = getCusProxyRouter(ctx.params.name) || defaultRouter;
+        // set custom
+        const cusRouter = getCusProxyRouter(params.name) || defaultRouter;
         if (cusRouter && cusRouter.apiProxyReceived) {
-            await cusRouter.apiProxyReceived(ctx);
+            await cusRouter.apiProxyReceived(req, res);
         }
 
         // proxy-to-server
@@ -55,7 +55,7 @@ router.all('/:name/:other*',
                 'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
             },
             target: `${ctx.app_proxyServer || config.get('proxy')}/${params.name}/${params.other}`,
-        }, ctx);
+        });
 
 
     }

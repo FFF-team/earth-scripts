@@ -263,4 +263,45 @@ _server/
 
 ```
 
+
+需要代理的api，可实现如下两个函数：
+
+```
+module.exports = {
+   // 代理之前
+   apiProxyBefore: (ctx) => {
+      // 自定义代理域名
+      ctx.app_proxyServer = 'http://test001.payment.58v5.cn'
+   }，
+   // 代理后
+   apiProxyReceived: (req, res) => {
+      res._app_proxy = (data, send) => {
+         // 可修改返回值 data object, 最后调用send
+         send(Object.assign(data, {notice: 111})
+
+      }
+   }
+}
+
+
+```
+
+page
+
+```
+router.get('*', async (ctx, next) => {
+
+    const htmlObj = await new html(ctx, PAGE)
+        .init({
+            ssr: true,
+            browserRouter: true
+        }).catch((e) => {
+                console.log(e);
+                console.log('page get file error')
+            }
+        );
+
+    htmlObj.injectStore().render();
+});
+```
 todo: more

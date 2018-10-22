@@ -8,6 +8,8 @@ const zlib = require('zlib');
 const checkOnline = require('../util/checkOnline');
 const _http = checkOnline() ? require('https') : require('http');
 const logger = require('../util/logger');
+const errorBody = require('../util/error').resBody;
+const RES_CODE = require('../util/error').RES_CODE;
 
 const agent = _http.Agent({
     keepAlive: true,
@@ -20,23 +22,39 @@ const proxy = httpProxy.createProxyServer({
     ignorePath: true
 });
 
+
+/**
+ *
+ * @param data string
+ * @return {*}
+ */
+const checkProxyRes = (data) => {
+    let parsedData = null;
+
+
+    try {
+        parsedData = JSON.parse(data)
+    } catch (e) {
+        logger.error(e.stack)
+    }
+
+    return parsedData
+
+}
+
 // todo; 优化
 
 class ProxyToServer extends Base {
 
-    constructor(req, res, ctx) {
+    constructor(req, res) {
         super();
 
         this.req = req;
         this.res = res;
     }
 
-    static ctx = null;
-
 
     static onProxyRes(proxyRes, req, res) {
-
-        const _this = this;
 
         // setHeaders
         const setHeaders = (fields) => {
@@ -49,15 +67,29 @@ class ProxyToServer extends Base {
         const send = (formatData) => {
             setHeaders(proxyRes.headers);
 
+            formatData.__fns = true;
+
             try {
-                formatData = JSON.stringify(Object.assign({}, JSON.parse(formatData), {__fns: true}))
+                formatData = JSON.stringify(formatData)
             } catch (e) {
                 logger.error(e)
             }
 
+
+            logger.info(`
+        path: ${req.url}
+        status: ${200},
+        response: ${formatData}
+        method: ${req.method}
+        query: ${req.query || JSON.stringify(req._body)}
+        `
+            );
+
             res.statusCode = 200;
             res.write(formatData);
-            res.end()
+            res.end();
+
+
         };
 
 
@@ -76,11 +108,15 @@ class ProxyToServer extends Base {
                 delete proxyRes.headers['content-encoding'];
                 delete proxyRes.headers['transfer-encoding'];
 
-                // todo: 用emit实现
                 // unzip，返回body, headers数据
                 zlib.unzip(body, (err, buffer) => {
 
-                    _this.ctx._app_proxy.emit('proxyRes', req, res, buffer.toString(), send);
+                    const dataString = buffer.toString();
+                    const dataObject = checkProxyRes(dataString);
+
+                    dataObject ?
+                        res._app_proxy(dataObject, send) :
+                        send(errorBody(RES_CODE.PTS_PARSEFAIL, dataString));
 
 
                 })
@@ -91,7 +127,12 @@ class ProxyToServer extends Base {
                 delete proxyRes.headers['content-length'];
 
 
-                _this.ctx._app_proxy.emit('proxyRes', req, res, body.toString(), send);
+                const dataString = body.toString();
+                const dataObject = checkProxyRes(dataString);
+
+                dataObject ?
+                    res._app_proxy(dataObject, send) :
+                    send(errorBody(RES_CODE.PTS_PARSEFAIL, dataString));
 
 
             }
@@ -99,7 +140,8 @@ class ProxyToServer extends Base {
         });
     }
 
-    to (other, ctx) {
+
+    to (other) {
 
         proxy.web(this.req, this.res,
             {
@@ -111,27 +153,45 @@ class ProxyToServer extends Base {
         );
     }
 
+    static onProxyError(e, req, res) {
+        logger.error(e.stack);
+
+
+        res.statusCode = 200;
+        // err: 代理失败
+        res.write(JSON.stringify(errorBody(RES_CODE.PTS_ERROR, e.toString())));
+        res.end()
+
+    }
+
 
 }
 
-
+// todo: 压测bug Can't set headers after they are sent with bodyParser()
 proxy.on('proxyReq', function (proxyReq, req, res, options) {
+
+    if (!req._body || !Object.keys(req._body).length) {
+        return;
+    }
+
+    // 只考虑application/json情况
     // 如果是POST  && 有自定义传入的body
     // 重新buffer
-    if (req.method === 'POST' && req._consuming && req._body) {
+    if (req.method === 'POST' && req._body) {
         let bodyData = JSON.stringify(req._body);
         // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
         proxyReq.setHeader('Content-Type', 'application/json');
         proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData))
         // stream the content
-        proxyReq.write(bodyData)
+        proxyReq.write(bodyData);
+        proxyReq.end()
     }
 });
 proxy.on('proxyRes', function (proxyRes, req, res) {
     ProxyToServer.onProxyRes(proxyRes, req, res)
 });
-proxy.on('error',  (e) => {
-    logger.error(e.stack);
+proxy.on('error',  (e, req, res) => {
+    ProxyToServer.onProxyError(e, req, res)
 });
 
 module.exports = ProxyToServer;
