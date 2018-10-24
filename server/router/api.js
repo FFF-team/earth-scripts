@@ -5,9 +5,9 @@ const router = new Router();
 // const logger = require('../util/logger');
 // const errorBody = require('../util/error').resBody;
 // const RES_CODE = require('../util/error').RES_CODE;
-// const {selfHandleResponseApi} = require('../def');
-const config = require('../env');
-const {getCusProxyRouter} = require('../context')
+const config = require('../def');
+const {getCusProxyRouter} = require('../context');
+const {selfHandleResponseApi} = require('../def');
 
 const Proxy2Server = require('../lib/proxyToServer');
 
@@ -28,34 +28,52 @@ router.all('/:name/:other*',
     // proxy after
     async (ctx, next) => {
 
-        ctx.respond = false;
-
         const req = ctx.req;
         const res = ctx.res;
         const params = ctx.params;
 
-        const _app_proxy = new Proxy2Server(req, res);
+        res._app_selfHandleResponseApi = ctx.app_selfHandleResponseApi || selfHandleResponseApi;
 
-        // 在res上挂载_app_proxy
-        res._app_proxy = (dataObj, send) => {
-            send(dataObj)
-        };
-
-        // set custom
-        const cusRouter = getCusProxyRouter(params.name) || defaultRouter;
-        if (cusRouter && cusRouter.apiProxyReceived) {
-            await cusRouter.apiProxyReceived(req, res);
-        }
-
-        // proxy-to-server
-        await _app_proxy.to({
-            selfHandleResponse: true,
+        const proxyOption = {
+            selfHandleResponse: res._app_selfHandleResponseApi,
             headers: {
                 ip: '',
                 'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
             },
-            target: `${ctx.app_proxyServer || config.get('proxy')}/${params.name}/${params.other}`,
-        });
+            target: `${ctx.app_proxyServer || config.proxyPath}/${params.name}/${params.other}`,
+        };
+
+        const _app_proxy = new Proxy2Server(req, res);
+
+
+
+
+        if (res._app_selfHandleResponseApi) {
+            ctx.respond = false;
+
+            // 在res上挂载_app_proxy
+            res._app_proxy = (dataObj, send) => {
+                send(dataObj)
+            };
+
+            // set custom
+            const cusRouter = getCusProxyRouter(params.name) || defaultRouter;
+            if (cusRouter && cusRouter.apiProxyReceived) {
+                await cusRouter.apiProxyReceived(req, res);
+            }
+
+            // proxy-to-server
+            await _app_proxy.to(proxyOption);
+        } else {
+
+            // proxy-to-server
+            await _app_proxy.asyncTo(proxyOption, ctx);
+        }
+
+
+
+
+
 
 
     }

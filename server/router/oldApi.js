@@ -8,7 +8,7 @@ const logger = require('../util/logger');
 const errorBody = require('../util/error').resBody;
 const RES_CODE = require('../util/error').RES_CODE;
 const {selfHandleResponseApi} = require('../def');
-const config = require('../env');
+const config = require('../def');
 const {getCusProxyRouter} = require('../context')
 
 
@@ -49,7 +49,7 @@ router.all('/:name/:other*',
                     ip: '',
                     'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
                 },
-                target: `${ctx.app_proxyServer || config.get('proxy')}/${params.name}/${params.other}`,
+                target: `${ctx.app_proxyServer || config.proxyPath}/${params.name}/${params.other}`,
             })
         } catch (e) {
             // 代理失败

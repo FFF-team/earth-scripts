@@ -4,19 +4,17 @@ const Base = require('./ProxyBase');
 
 const httpProxy = require('http-proxy');
 const zlib = require('zlib');
-// const config = require('../env');
-const checkOnline = require('../util/checkOnline');
-const _http = checkOnline() ? require('https') : require('http');
+// const _http = require('http');
 const logger = require('../util/logger');
 const errorBody = require('../util/error').resBody;
 const RES_CODE = require('../util/error').RES_CODE;
 
-const agent = _http.Agent({
-    keepAlive: true,
-    maxSockets: 10,
-    maxFreeSockets: 6,
-    keepAliveMsecs: 1000
-});
+// const agent = _http.Agent({
+//     keepAlive: false,
+//     maxSockets: 10,
+//     maxFreeSockets: 6,
+//     keepAliveMsecs: 1000
+// });
 
 const proxy = httpProxy.createProxyServer({
     ignorePath: true
@@ -28,14 +26,36 @@ const proxy = httpProxy.createProxyServer({
  * @param data string
  * @return {*}
  */
-const checkProxyRes = (data) => {
+const parseToJson = (data, req) => {
     let parsedData = null;
+    const errorRes = errorBody(RES_CODE.PTS_PARSEFAIL, data);
 
 
     try {
         parsedData = JSON.parse(data)
     } catch (e) {
-        logger.error(e.stack)
+        parsedData = errorRes;
+
+
+        logger.proxyError({
+            path: req.url,
+            response: data,
+            errorCode: RES_CODE.PTS_PARSEFAIL,
+            errorStack: e.stack
+        })
+    }
+
+
+    // JSON.parse('null') 'false' '123' 时都不会报错，需要再做一层筛选
+    if (typeof parsedData !== 'object' || !parsedData) {
+        parsedData = errorRes;
+
+        logger.proxyError({
+            path: req.url,
+            response: data,
+            errorCode: RES_CODE.PTS_PARSEFAIL,
+            errorStack: `JSON.parse(${data})结果不是object`
+        })
     }
 
     return parsedData
@@ -67,23 +87,30 @@ class ProxyToServer extends Base {
         const send = (formatData) => {
             setHeaders(proxyRes.headers);
 
-            formatData.__fns = true;
 
             try {
+                formatData.__fns = true;
                 formatData = JSON.stringify(formatData)
             } catch (e) {
-                logger.error(e)
+                formatData = JSON.stringify(errorBody(RES_CODE.SEND_TO_CLIENT_ERROR, formatData));
+
+                logger.proxyError({
+                    path: req.url,
+                    response: formatData,
+                    errorCode: RES_CODE.SEND_TO_CLIENT_ERROR,
+                    errorStack: e.stack
+                });
+
             }
 
 
-            logger.info(`
-        path: ${req.url}
-        status: ${200},
-        response: ${formatData}
-        method: ${req.method}
-        query: ${req.query || JSON.stringify(req._body)}
-        `
-            );
+            logger.proxyInfo({
+                path: req.url,
+                method: req.method,
+                query: req.query || JSON.stringify(req._body),
+                status: 200,
+                response: formatData
+            });
 
             res.statusCode = 200;
             res.write(formatData);
@@ -112,11 +139,9 @@ class ProxyToServer extends Base {
                 zlib.unzip(body, (err, buffer) => {
 
                     const dataString = buffer.toString();
-                    const dataObject = checkProxyRes(dataString);
+                    const dataObject = parseToJson(dataString, req);
 
-                    dataObject ?
-                        res._app_proxy(dataObject, send) :
-                        send(errorBody(RES_CODE.PTS_PARSEFAIL, dataString));
+                    res._app_proxy(dataObject, send);
 
 
                 })
@@ -128,11 +153,9 @@ class ProxyToServer extends Base {
 
 
                 const dataString = body.toString();
-                const dataObject = checkProxyRes(dataString);
+                const dataObject = parseToJson(dataString, req);
 
-                dataObject ?
-                    res._app_proxy(dataObject, send) :
-                    send(errorBody(RES_CODE.PTS_PARSEFAIL, dataString));
+                res._app_proxy(dataObject, send);
 
 
             }
@@ -145,16 +168,50 @@ class ProxyToServer extends Base {
 
         proxy.web(this.req, this.res,
             {
-                selfHandleResponse : true,
                 changeOrigin: true,
-                agent: agent,
+                // agent: agent,
                 ...other
             }
         );
     }
 
+    asyncTo(other, ctx) {
+        return new Promise((resolve, reject) => {
+            proxy.web(this.req, this.res,
+                {
+                    changeOrigin: true,
+                    // agent: agent,
+                    ...other
+                }
+            );
+
+            ctx.res.on('close', () => {
+                reject(new Error('Http response closed while proxying'));
+            });
+
+            ctx.res.on('error', (e) => {
+                reject(e/*new Error('Http response error while proxying')*/);
+            });
+
+            ctx.res.on('finish', () => {
+                resolve();
+            });
+
+        })
+    }
+
     static onProxyError(e, req, res) {
-        logger.error(e.stack);
+
+        const data = JSON.stringify(errorBody(RES_CODE.PTS_ERROR, e.toString()));
+
+
+        logger.proxyError({
+            path: req.url,
+            response: data,
+            errorCode: RES_CODE.PTS_ERROR,
+            errorStack: e.stack
+        });
+
 
 
         res.statusCode = 200;
@@ -167,7 +224,9 @@ class ProxyToServer extends Base {
 
 }
 
-// todo: 压测bug Can't set headers after they are sent with bodyParser()
+// 使用agent,当sockets小于并发时会报错
+// 压测bug Can't set headers after they are sent with bodyParser()
+// todo: 暂时未找到根本性原因
 proxy.on('proxyReq', function (proxyReq, req, res, options) {
 
     if (!req._body || !Object.keys(req._body).length) {
@@ -188,7 +247,9 @@ proxy.on('proxyReq', function (proxyReq, req, res, options) {
     }
 });
 proxy.on('proxyRes', function (proxyRes, req, res) {
-    ProxyToServer.onProxyRes(proxyRes, req, res)
+    if (res._app_selfHandleResponseApi) {
+        ProxyToServer.onProxyRes(proxyRes, req, res)
+    }
 });
 proxy.on('error',  (e, req, res) => {
     ProxyToServer.onProxyError(e, req, res)

@@ -10,9 +10,6 @@ const _getContext = (context, filename) => {
 };
 
 module.exports = {
-    getEnv:
-        (name = `./${process.env.NODE_ENV}.js`) =>
-            _getContext(require.context(`./env`, true, /\.js/), name),
     getCustomDef:
         (name = 'def.js') =>
             _getContext(require.context('rootServer', false, /def\.js/), name),

@@ -9,15 +9,20 @@ module.exports = () => {
 
         const end = new Date();
 
-        // todo: 有些接口输出时已经被gzip过，如何打日志
-        // todo: html stream如何打日志
-        // todo: best practice
-        // logger.info(`
-        // path: ${ctx.path},
-        // status: ${ctx.status},
-        // time usage: ${end - start}ms
-        // `
-        // )
+        // const redirectLocation = ctx.response.headers.location;
+        //
+        // // todo: 有些接口输出时已经被gzip过，如何打日志
+        // // todo: html stream如何打日志
+        // // todo: best practice
+        // console.log(ctx.respond)
+        // // proxy
+        if (ctx.respond !== false) {
+
+            logger.info(
+                `${ctx.method} ${ctx.status} ${ctx.path} ${ctx.ip} `
+            )
+        }
+
 
 
 

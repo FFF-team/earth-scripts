@@ -29,42 +29,74 @@ try {
     process.exit(1)
 }
 
-// clear
-del(path.resolve('_server/dist'));
+const ssrDeploy = async () => {
+
+    await require('./_ssr_init')();
+
+    await require('./_ssr_set_config')(env);
+
+    // clear
+    del(path.resolve('_server/dist'));
 
 
-// compile
-console.log('start compile...');
-webpack(
-    Object.assign(config, {
-        entry: {
-            main: path.resolve(entry)
-        }
-    }),
-    (err, stats) => {
-        if (err || stats.hasErrors()) {
-            console.log(err);
-            console.log('webpack compiler error');
-            process.exit(1);
-            // Handle errors here
-        }
-        // Done processing
+    try {
+        await startCompile({
+            entry: entry
+        })
+    } catch (e) {
+        console.log(e);
+        console.log('webpack compiler error');
+        process.exit(1);
     }
-)
-    .run((err, stats) => {
 
-        console.log(stats.toString({
-            chunks: false,  // Makes the build much quieter
-            colors: true    // Shows colors in the console
-        }));
+    startPm2();
 
-        setTimeout(() => {
-            // start
-            startPm2();
-        }, 1000)
+};
+
+ssrDeploy();
 
 
-    });
+
+const startCompile = ({
+                          entry
+                      }) => {
+    // compile
+    return new Promise((resolve, reject) => {
+        console.log('start compile...');
+
+        webpack(
+            Object.assign(config, {
+                entry: {
+                    main: path.resolve(entry)
+                }
+            }),
+            (err, stats) => {
+                if (err || stats.hasErrors()) {
+                    reject(err);
+                    // Handle errors here
+                }
+                // Done processing
+            })
+            .run((err, stats) => {
+
+                if (err || stats.hasErrors()) {
+                    reject(err);
+                    // Handle errors here
+                }
+
+                console.log(stats.toString({
+                    chunks: false,  // Makes the build much quieter
+                    colors: true    // Shows colors in the console
+                }));
+
+                resolve()
+
+
+            });
+    })
+}
+
+
 
 
 

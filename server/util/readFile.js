@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const config = require('../env');
+const config = require('../def');
 const console = require('../../tools').clog.ssr;
 
 const readFile = async (page) => {
@@ -48,7 +48,7 @@ const readFromLocalServer = (page) => {
 
         const request = require('request');
 
-        request(`${config.get('localServer')}/${page}.html`, (err, response, body) => {
+        request(`${config.localServer}/${page}.html`, (err, response, body) => {
             if (err) {
                 console.error(`Are you forget to start 'npm run start'?`);
                 reject(err);

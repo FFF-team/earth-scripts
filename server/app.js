@@ -2,6 +2,9 @@
 require('ignore-styles'); // 不处理require('xx.scss')这种文件 https://www.npmjs.com/package/ignore-styles
 // require('babel-register');
 
+// 初始环境变量及配置
+require('rootServer/def');
+
 // 添加global对象
 global.document = require('./fakeObject/document');
 global.window = require('./fakeObject/window');

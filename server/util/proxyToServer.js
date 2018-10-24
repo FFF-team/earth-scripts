@@ -1,8 +1,7 @@
 const httpProxy = require('http-proxy');
 const zlib = require('zlib');
-const config = require('../env');
-const checkOnline = require('../util/checkOnline');
-const _http = checkOnline() ? require('https') : require('http');
+const config = require('../def');
+const _http = require('http');
 
 const agent = _http.Agent({
     keepAlive: true,
@@ -15,7 +14,7 @@ const agent = _http.Agent({
 // ins()
 function proxyToServer(req, res, {
     selfHandleResponse = false,
-    target = `${config.get('proxy')}${req.url}`,
+    target = `${config.proxyPath}${req.url}`,
     ...other
 }) {
 

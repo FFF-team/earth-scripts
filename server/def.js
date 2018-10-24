@@ -13,8 +13,8 @@ const {getCustomDef} = require('./context')
 const cusDef = getCustomDef();
 
 const {
-    proxyPath = {},
-    port = {},
+    proxyPath = PROXY_PATH.Local,
+    port = SSR_PORT.Local,
     selfHandleResponseApi,
     localServer,
 } = cusDef;
@@ -36,18 +36,10 @@ module.exports = {
 
     // below can config
     // 代理到的server地址
-    proxyPath: {
-        Local: proxyPath.Local || PROXY_PATH.Local,
-        Test: proxyPath.Test || PROXY_PATH.Test,
-        Online: proxyPath.Online || PROXY_PATH.Online
-    },
+    proxyPath,
     // 本地开发起的服务，用于获取html
     localServer: localServer || LOCAL_SERVER,
     // 端口号
-    port: {
-        Online: port.Online || SSR_PORT.Online,
-        Test: port.Test || SSR_PORT.Test,
-        Local: port.Local || SSR_PORT.Local
-    },
+    port,
     selfHandleResponseApi: selfHandleResponseApi || SELF_HANDLE_RESPONSE,
 };

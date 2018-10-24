@@ -53,10 +53,38 @@ const logger = createLogger({
     ]
 });
 
+
+
 logger.on('error', function (err) {
     /* Do Something */
     logger.error(err)
 });
 
 
-module.exports = logger;
+module.exports = {
+    info: logger.info,
+    proxyInfo: (option) => {
+        logger.info(`
+API PROXY -->
+   path: ${option.path}
+   method: ${option.method}
+   query: ${option.query}
+   status: ${option.status},
+   response: ${option.response}
+        `)
+    },
+    // errorProxy
+    proxyError: (option) => {
+        // proxy_api
+        logger.error(`
+API PROXY ERROR -->
+   path: ${option.path},
+   response: ${option.response},
+   errorCode: ${option.errorCode},
+   errorStack: ${option.errorStack} 
+            `)
+    },
+    error: (msg) => {
+        logger.error(msg)
+    }
+};

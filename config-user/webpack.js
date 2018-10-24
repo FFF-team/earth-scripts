@@ -5,16 +5,20 @@ const fs = require('fs');
 const resolveApp = require('../tools').resolveApp;
 
 
+const EARTH_CONFIG_NAME = `earth-config`;
+const EARTH_CONFIG_FILENAMES = path.resolve('earth-config/filenames');
+const EARTH_CONFIG_CDN = path.resolve('earth-config/cdn');
+const EARTH_CONFIG_ALIAS = path.resolve('earth-config/alias')
 
 const ENV = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
 const webpackConfig = (function getCustomConfig() {
-    const customConfigPath = path.resolve(`./config/webpack.config.${ENV}.js`);
+    const customConfigPath = path.resolve(`./${EARTH_CONFIG_NAME}/webpack.config.${ENV}.js`);
     return fs.existsSync(customConfigPath) ? require(customConfigPath) : {}
 })();
 
 
 /**
- * get filenames from config.output.filenames or config/filenames.js
+ * get filenames from config.output.filenames or earth-config/filenames.js
  *
  * @param webpackConfig
  * {
@@ -43,11 +47,11 @@ function getFilenames(webpackConfig) {
     }
 
     // deprecated
-    log(chalk.yellow('\n warning: config/filenames.js is deprecated, please use webpackconfig.output.filenames instead \n'));
+    log(chalk.yellow(`\n warning: ${EARTH_CONFIG_NAME}/filenames is deprecated, please use webpackconfig.output.filenames instead \n`));
 
     try {
         const env = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-        return require(path.resolve('config/filenames'))[env]
+        return require(EARTH_CONFIG_FILENAMES)[env]
     } catch (e){
 
     }
@@ -61,7 +65,7 @@ function getFilenames(webpackConfig) {
 }
 
 /**
- * get publicPath from config.output.publicPath or config/cndPath.js
+ * get publicPath from config.output.publicPath or earth-config/cndPath.js
  *
  * @param webpackConfig
  * {
@@ -113,8 +117,8 @@ function getCdnPath(webpackConfig) {
 
         // deprecated
         try{
-            cdnConfig = require(path.resolve('config/cdnPath'));
-            cdnConfig && log(chalk.yellow('\n warning: config/cdnPath.js is deprecated, please use webpackconfig.output.publicPath instead \n'));
+            cdnConfig = require(EARTH_CONFIG_CDN);
+            cdnConfig && log(chalk.yellow(`\n warning: ${EARTH_CONFIG_NAME}/cdnPath.js is deprecated, please use webpackconfig.output.publicPath instead \n`));
             return {
                 js: cdnConfig.prodJsCDN || defaultPublicPath,
                 css: cdnConfig.prodCssCDN || defaultPublicPath,
@@ -141,7 +145,7 @@ function getCdnPath(webpackConfig) {
 }
 
 /**
- * get alias from config.resolve.alias or config/alias.js
+ * get alias from config.resolve.alias or earth-config/alias.js
  *
  * @param webpackConfig
  * {
@@ -172,10 +176,10 @@ function getAliasConfig(webpackConfig) {
     if (_.isEmpty(alias)) {
         alias = defaultConfig;
 
-        log(chalk.yellow('\n warning: ' + "config/alias.js is deprecated. You can use alias in webpackconfig.resolve.alias." + '\n'));
+        log(chalk.yellow('\n warning: ' + `${EARTH_CONFIG_NAME}/alias.js is deprecated. You can use alias in webpackconfig.resolve.alias.` + '\n'));
 
         try{
-            alias = require(path.resolve('config/alias'));
+            alias = require(path.resolve(EARTH_CONFIG_ALIAS));
         }catch(e){
         }
     }

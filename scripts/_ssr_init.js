@@ -7,8 +7,10 @@ const { existsSync, readFileSync, writeFileSync } = require('fs');
 
 
 const init = async () => {
+    await mkdirp(resolve('_server'));
     await mkdirp(resolve('_server/dist'));
     await mkdirp(resolve('_server/log'));
+    await mkdirp(resolve('_server/page'));
 
     if (!existsSync(resolve('_server/def.js'))) {
         await cp(

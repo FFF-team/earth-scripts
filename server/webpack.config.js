@@ -1,6 +1,6 @@
 const path = require("path");
 const webpack = require('webpack');
-const alias = require(path.resolve('config/alias'));
+const alias = require(path.resolve('earth-config/alias'));
 const nodeExternals = require('webpack-node-externals');
 const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');

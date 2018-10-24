@@ -1,10 +1,10 @@
 const http = require('http');
 
 const app = require('./app');
-const env = require('./env');
+const env = require('./def');
 
 
-const port = env.get('port');
+const port = env.port;
 
 const appCallback = app.callback();
 const server = http.createServer(appCallback);

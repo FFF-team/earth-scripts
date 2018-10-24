@@ -11,8 +11,8 @@ module.exports = (page) => {
         async (ctx, next) => {
 
             const htmlObj = await new html(ctx, page).init({
-                ssr: true,
-                browserRouter: true
+                ssr: false,
+                browserRouter: false
             }).catch(() => {console.log('page get file error')});
 
             htmlObj.injectStore().render();

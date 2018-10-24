@@ -15,7 +15,7 @@ module.exports = {
     },
     // localServer: 'https://jruc.58.com',
     LOCAL_SERVER: 'http://localhost:3100',
-    SELF_HANDLE_RESPONSE: true,
+    SELF_HANDLE_RESPONSE: false,
 
     // proxy_api  api可以自定义
     // 需要代理的地址都以api开头，例如/api/send/xxx
