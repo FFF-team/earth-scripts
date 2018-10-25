@@ -21,5 +21,7 @@ module.exports = {
     // 需要代理的地址都以api开头，例如/api/send/xxx
     PROXY_API_FILENAME_PREFIX: 'proxy_',
     CLIENT_BUILD_PATH: path.resolve('build'),
-    PAGE_PATH: path.resolve('src/pages/*')
+    PAGE_PATH: path.resolve('src/pages/*'),
+    LOG_DIR: path.resolve('_server/log'),
+    LOG_DIR_DEPLOY: '/opt/nodejslogs'
 };

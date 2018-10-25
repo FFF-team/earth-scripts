@@ -5,7 +5,9 @@ const {
     PROXY_PATH,
     LOCAL_SERVER,
     CLIENT_BUILD_PATH,
-    PAGE_PATH
+    PAGE_PATH,
+    LOG_DIR,
+    LOG_DIR_DEPLOY
 } = require('./constants');
 
 const {getCustomDef} = require('./context')
@@ -19,6 +21,7 @@ const {
     localServer,
 } = cusDef;
 
+const dev = process.env.NODE_ENV === 'development';
 
 // todo: 格式校验
 
@@ -42,4 +45,5 @@ module.exports = {
     // 端口号
     port,
     selfHandleResponseApi: selfHandleResponseApi || SELF_HANDLE_RESPONSE,
+    logDir: dev ? LOG_DIR : LOG_DIR_DEPLOY
 };

@@ -3,12 +3,16 @@ const { createLogger, format } = require('winston');
 const { combine, timestamp, label, json, printf } = format;
 const path = require('path');
 const fs = require('fs');
+const {logDir} = require('../def');
 require('winston-daily-rotate-file');
 
 
-const LOG_DIR_PATH = path.resolve('_server/log');
-if (!fs.existsSync(LOG_DIR_PATH)) {
-    fs.mkdirSync(LOG_DIR_PATH)
+if (!fs.existsSync(logDir)) {
+    try {
+        fs.mkdirSync(logDir)
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 const myFormat = printf(info => {
@@ -41,12 +45,12 @@ const logger = createLogger({
         //
         new (winston.transports.DailyRotateFile)(
             Object.assign({}, commonOption, {
-                filename: path.resolve(LOG_DIR_PATH, './info-%DATE%.log'),
+                filename: path.join(logDir, './app.log.info-%DATE%'),
                 level: 'info',
             })),
         new (winston.transports.DailyRotateFile)(
             Object.assign({}, commonOption, {
-                filename: path.resolve(LOG_DIR_PATH, './error-%DATE%.log'),
+                filename: path.join(logDir, './app.log.error-%DATE%'),
                 level: 'error',
             })
         )
