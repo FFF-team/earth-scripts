@@ -4,7 +4,7 @@ const babel_loader = require('../common/loaders/babel');
 
 
 const DEFAULT = [{
-    test: /\.(js|jsx)$/,
+    test: /\.(js|jsx|mjs)$/,
     include: paths.appSrc,
     loader: babel_loader({
         compact: true,
