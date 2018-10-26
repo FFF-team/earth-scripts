@@ -1,13 +1,9 @@
-const Base = require('./ProxyBase');
-
-
-
 const httpProxy = require('http-proxy');
 const zlib = require('zlib');
 // const _http = require('http');
-const logger = require('../util/logger');
-const errorBody = require('../util/error').resBody;
-const RES_CODE = require('../util/error').RES_CODE;
+const logger = require('../lib/logger');
+const errorBody = require('../lib/error').resBody;
+const RES_CODE = require('../lib/error').RES_CODE;
 
 // const agent = _http.Agent({
 //     keepAlive: false,
@@ -64,10 +60,9 @@ const parseToJson = (data, req) => {
 
 // todo; 优化
 
-class ProxyToServer extends Base {
+class ProxyToServer {
 
     constructor(req, res) {
-        super();
 
         this.req = req;
         this.res = res;
@@ -163,27 +158,31 @@ class ProxyToServer extends Base {
         });
     }
 
-
-    to (other) {
-
-        proxy.web(this.req, this.res,
+    static proxyToWeb(req, res, other, ctx) {
+        proxy.web(req, res,
             {
                 changeOrigin: true,
                 // agent: agent,
+                headers: {
+                    ip: '',
+                    'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
+                },
                 ...other
             }
         );
     }
 
+
+    to (other, ctx) {
+
+        ProxyToServer.proxyToWeb(this.req, this.res, other, ctx)
+
+    }
+
     asyncTo(other, ctx) {
         return new Promise((resolve, reject) => {
-            proxy.web(this.req, this.res,
-                {
-                    changeOrigin: true,
-                    // agent: agent,
-                    ...other
-                }
-            );
+
+            ProxyToServer.proxyToWeb(this.req, this.res, other, ctx)
 
             ctx.res.on('close', () => {
                 reject(new Error('Http response closed while proxying'));

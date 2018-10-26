@@ -5,8 +5,7 @@ const Router = require('koa-router');
 const apiRouter = require('./api');
 const pageRouter = require('./page');
 
-const getPagesMap = require('../util/getPagesMap');
-const pagesMap = getPagesMap();
+const pagesMap = require('../def').pagesMap;
 const {PROXY_API_FILENAME_PREFIX} = require('../constants');
 const {getCusPageRouter} = require('../context');
 const router = new Router();

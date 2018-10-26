@@ -1,4 +1,4 @@
-const logger = require('../util/logger');
+const logger = require('../lib/logger');
 
 module.exports = () => {
 
@@ -19,7 +19,7 @@ module.exports = () => {
         if (ctx.respond !== false) {
 
             logger.info(
-                `${ctx.method} ${ctx.status} ${ctx.path} ${ctx.ip} `
+                `${ctx.method} ${ctx.status} ${end-start}ms ${ctx.path} ${ctx.ip} `
             )
         }
 

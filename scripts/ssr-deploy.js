@@ -1,35 +1,32 @@
-process.env.ENABLE_BUNDLE_ANALYZE = 'false';
-process.env.IS_SERVER = 'true';
-process.env.BABEL_ENV = 'production';
-process.env.NODE_ENV = 'production';
-
-
-const pm2 = require('pm2');
-const path = require('path');
-const yargs = require('yargs');
 const console = require('../tools').clog.ssr;
+const path = require('path');
+const pm2 = require('pm2');
 const webpack = require('webpack');
 const config = require('../server/webpack.config');
 const del = require('del');
 
-const args = process.argv.slice(2);
-const env = yargs.parse(args).env;
-const entry = yargs.parse(args).entry || require.resolve("../server/index.js");
-
-
-console.info(`current environment: ${env}`);
-
-let PM2_CONFIG = {};
-
-try {
-    PM2_CONFIG = require(path.resolve(__dirname, `../server/eco.${env}.js`))
-} catch (e) {
-    console.error(`cannot support env: ${env}`);
-    console.log(e);
-    process.exit(1)
-}
+const supportEnv = {
+    test: 'test',
+    production: 'production'
+};
 
 const ssrDeploy = async () => {
+
+    const {env, entry, name} = await require('./_ssr_get_args')();
+
+    console.info(`current environment: ${env}`);
+
+    if (!supportEnv[env]) {
+        console.error(`cannot support env: ${env}`);
+        process.exit(1)
+    }
+
+    process.env.ENABLE_BUNDLE_ANALYZE = 'false';
+    process.env.IS_SERVER = 'true';
+    process.env.BABEL_ENV = env;
+    process.env.NODE_ENV = env;
+
+
 
     await require('./_ssr_init')();
 
@@ -49,7 +46,7 @@ const ssrDeploy = async () => {
         process.exit(1);
     }
 
-    startPm2();
+    startPm2(name, env);
 
 };
 
@@ -100,7 +97,7 @@ const startCompile = ({
 
 
 
-const startPm2 = () => {
+const startPm2 = (name, env) => {
     pm2.connect(function (err) {
         console.log('pm2 connect...');
 
@@ -109,7 +106,16 @@ const startPm2 = () => {
             process.exit(2);
         }
 
-        pm2.start(PM2_CONFIG,
+        pm2.start(
+            {
+                name: name,
+                script: path.resolve('_server/dist/main.generated.js'),
+                env: {
+                    NODE_ENV: env
+                },
+                instance_var: 'INSTANCE_ID',
+                watch: ['server/dist/*.js']
+            },
             function (err, apps) {
                 err && console.log('start pm2: ' + err);
                 pm2.disconnect();   // Disconnects from PM2

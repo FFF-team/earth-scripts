@@ -18,6 +18,7 @@ switch (script) {
   case 'mock':
   case 'ssr-start':
   case 'ssr-deploy':
+  case 'ssr-stop':
   case 'test': {
     const result = spawn.sync(
       'node',

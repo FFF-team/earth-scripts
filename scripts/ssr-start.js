@@ -4,17 +4,10 @@ process.env.NODE_ENV = 'development';
 
 const del = require('del');
 const path = require('path');
-const yargs = require('yargs');
 const webpack = require('webpack');
 const nodemon = require('nodemon');
 const config = require('../server/webpack.config');
 const console = require('../tools').clog.ssr;
-
-
-console.info(`current environment: development`);
-
-const args = process.argv.slice(2);
-const entry = yargs.parse(args).entry || require.resolve("../server/index.js");
 
 
 /**
@@ -24,6 +17,10 @@ const entry = yargs.parse(args).entry || require.resolve("../server/index.js");
  */
 
 const ssrStart = async () => {
+
+    const {entry} = await require('./_ssr_get_args')();
+
+    console.info(`current environment: development`);
 
     await require('./_ssr_init')();
 

@@ -2,9 +2,9 @@ const Router = require('koa-router');
 const router = new Router();
 
 // const proxyToServer = require('../util/proxyToServer');
-// const logger = require('../util/logger');
-// const errorBody = require('../util/error').resBody;
-// const RES_CODE = require('../util/error').RES_CODE;
+// const logger = require('../lib/logger');
+// const errorBody = require('../lib/error').resBody;
+// const RES_CODE = require('../lib/error').RES_CODE;
 const config = require('../def');
 const {getCusProxyRouter} = require('../context');
 const {selfHandleResponseApi} = require('../def');
@@ -63,7 +63,7 @@ router.all('/:name/:other*',
             }
 
             // proxy-to-server
-            await _app_proxy.to(proxyOption);
+            await _app_proxy.to(proxyOption, ctx);
         } else {
 
             // proxy-to-server

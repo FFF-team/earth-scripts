@@ -1,5 +1,5 @@
 const React = require('react');
-const logger = require('../util/logger');
+const logger = require('../lib/logger');
 const {getAppByPage} = require('../context')
 
 module.exports = (page) => {

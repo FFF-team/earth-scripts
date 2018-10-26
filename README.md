@@ -245,28 +245,71 @@ BROWSER_ROUTER=true
 
 ### node server
 
-`earth-scripts ssr-start` 启动server端
+* development
 
-`earth-scripts start -- server` 启动client端
+  `earth-scripts ssr-start` 启动server端
+
+  `earth-scripts start -- server` 启动client端
+
+* test
+
+  `earth-scripts ssr-deploy --env=test`
+
+* production
+
+  `earth-scripts ssr-deploy --env=production`
+
+###### 目录结构
+
 
 ```
 _server/
   - dist/  编译后的文件
-  - log/   日志文件
+  - log/   日志文件（dev环境下位置，部署后会到/opt/nodejslogs下）
   - proxy_[name] 定义代理的接口前缀及逻辑。eg: 需要代理的地址如下，/api/user/center，有统一的前缀
                  api，则目录为proxy_api
     - index.js   提供两个方法可供自定义 apiProxyBefore(ctx), apiProxyReceived(ctx)
 
   - page/     page对应的逻辑
-  - def.js    配置文件
+  - def.js    配置文件（config,online,offline里的内容在打包时会复制到改文件里）
 
 
 ```
+
+
+tip:
+
+在启动命令中自定义启动文件：
+
+`earth-scripts ssr-start --entry=_server/app.js`
+
+
+```
+_server/app.js
+
+const app = require('earth-scripts/server/app');
+const env = require('earth-scripts/server/def');
+const http = require('http');
+
+const port = env.port;
+
+const appCallback = app.callback();
+const server = http.createServer(appCallback);
+
+server.listen(port);
+
+console.log(`custom Server client running on: http://localhost: ${port}`);
+
+```
+
+
 
 
 需要代理的api，可实现如下两个函数：
 
 ```
+proxy_api/index.js
+
 module.exports = {
    // 代理之前
    apiProxyBefore: (ctx) => {
@@ -286,10 +329,12 @@ module.exports = {
 
 ```
 
-page
+page文件夹下可创建某一page的js，自定义是否使用ssr(默认都不使用)
 
 ```
-router.get('*', async (ctx, next) => {
+page/page1.js
+
+router.get('/', async (ctx, next) => {
 
     const htmlObj = await new html(ctx, PAGE)
         .init({

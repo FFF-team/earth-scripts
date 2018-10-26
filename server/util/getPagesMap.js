@@ -4,10 +4,10 @@
  *
  * todo: more 异常处理
  */
-function getPagesMap() {
+function getPagesMap(pagePath) {
     const glob = require('glob');
 
-    const html = glob.sync(require('../def').pagePath);
+    const html = glob.sync(pagePath);
 
     let obj = {};
 

@@ -2,9 +2,6 @@
 require('ignore-styles'); // 不处理require('xx.scss')这种文件 https://www.npmjs.com/package/ignore-styles
 // require('babel-register');
 
-// 初始环境变量及配置
-require('rootServer/def');
-
 // 添加global对象
 global.document = require('./fakeObject/document');
 global.window = require('./fakeObject/window');
@@ -26,7 +23,7 @@ const performance = require('./middleware/performance');
 const staticRouter = require('./middleware/static');
 const router = require('./router');
 
-const logger = require('./util/logger');
+const logger = require('./lib/logger');
 
 // todo: 缓存 redis
 // todo: 性能问题

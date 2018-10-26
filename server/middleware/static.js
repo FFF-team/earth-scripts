@@ -1,25 +1,22 @@
 module.exports = (opts) => {
 
-    // dev环境，直接代理到本地server
+    // dev环境，直接next
     if (process.env.NODE_ENV === 'development') {
         return async (ctx, next) => {
-            next()
-            // await proxyToServer(ctx.req, ctx.res, {
-            //     target: `${config.get('localServer')}${ctx.path}`
-            // }).catch((e) => {
-            //     console.log(e)
-            // });
+            await next()
         }
     } else {
 
         // production环境，手动send
         const serve = require('koa-static');
+        const mount = require('koa-mount');
         const root = require('../def').clientBuildPath;
+        const path = require('path');
 
         // 注意：build/static/ 不要生成sourcemap
-        return serve(`${root}`, {
+        return mount('/static',serve(path.join(root, './static'), {
             maxAge: 30 * 24 * 60 * 60,
-        });
+        }));
 
     }
 

@@ -3,21 +3,18 @@ const { createLogger, format } = require('winston');
 const { combine, timestamp, label, json, printf } = format;
 const path = require('path');
 const fs = require('fs');
-const {logDir} = require('../def');
+let { logDir } = require('../def');
 require('winston-daily-rotate-file');
 
-
-if (!fs.existsSync(logDir)) {
-    try {
+try {
+    if (!fs.existsSync(logDir)) {
         fs.mkdirSync(logDir)
-    } catch (e) {
-        console.log(e)
     }
+} catch(e) {
+    console.log(e);
+    logDir = path.resolve('_server/log');
+    console.log(`mkdir fail, now logDir is ${logDir}`)
 }
-
-const myFormat = printf(info => {
-    return `${info.timestamp} [${info.label}] ${info.message}`;
-});
 
 
 const commonOption = {
@@ -26,6 +23,29 @@ const commonOption = {
     maxSize: '20m',
     maxFiles: '14d'
 };
+
+const myFormat = printf(info => {
+    return `${info.timestamp} [${info.label}] ${info.message}`;
+});
+
+const transports = [
+    new winston.transports.Console({ level: 'error' }),
+    // new winston.transports.Console(),
+    //
+    // - Write to all logs with level `info` and below to `combined.log`
+    //
+    new (winston.transports.DailyRotateFile)(
+        Object.assign({}, commonOption, {
+            filename: path.join(logDir, './app.log.info-%DATE%'),
+            level: 'info',
+        })),
+    new (winston.transports.DailyRotateFile)(
+        Object.assign({}, commonOption, {
+            filename: path.join(logDir, './app.log.error-%DATE%'),
+            level: 'error',
+        })
+    )
+]
 
 const logger = createLogger({
     // level: 'info',
@@ -37,24 +57,7 @@ const logger = createLogger({
         }),
         myFormat
     ),
-    transports: [
-        new winston.transports.Console({ level: 'error' }),
-        // new winston.transports.Console(),
-        //
-        // - Write to all logs with level `info` and below to `combined.log`
-        //
-        new (winston.transports.DailyRotateFile)(
-            Object.assign({}, commonOption, {
-                filename: path.join(logDir, './app.log.info-%DATE%'),
-                level: 'info',
-            })),
-        new (winston.transports.DailyRotateFile)(
-            Object.assign({}, commonOption, {
-                filename: path.join(logDir, './app.log.error-%DATE%'),
-                level: 'error',
-            })
-        )
-    ]
+    transports: transports
 });
 
 
