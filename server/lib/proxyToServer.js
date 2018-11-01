@@ -104,8 +104,11 @@ class ProxyToServer {
                 method: req.method,
                 query: req.query || JSON.stringify(req._body),
                 status: 200,
+                time: new Date() - req._app_proxy_start_time,
                 response: formatData
             });
+
+            delete req._app_proxy_start_time;
 
             res.statusCode = 200;
             res.write(formatData);
@@ -175,6 +178,7 @@ class ProxyToServer {
 
     to (other, ctx) {
 
+        this.req._app_proxy_start_time = new Date();
         ProxyToServer.proxyToWeb(this.req, this.res, other, ctx)
 
     }

@@ -60,7 +60,19 @@ class Html {
     }
 
     async init(option) {
-        const App = getAppForPage(this.page);
+
+        option.app = option.app ? option.app.default : null;
+
+        let App = null;
+        try {
+            App = option.app || getAppForPage(this.page);
+        } catch (e) {
+            App = require('../MissingComp');
+            logger.error(e.stack)
+        }
+
+
+
         const html = await readFile(this.page).catch((err) => {
             console.error('GET FILE ERROR: ' + err);
         });
@@ -80,9 +92,7 @@ class Html {
 
         if (!this.option.ssr) return this;
 
-        // todo: get store
-        // todo: better
-        const _store = getStoreByPage(this.page);
+        const _store = store || getStoreByPage(this.page);
 
         if (!_store) return this;
 

@@ -76,6 +76,7 @@ API PROXY -->
    path: ${option.path}
    method: ${option.method}
    query: ${option.query}
+   time: ${option.time}
    status: ${option.status},
    response: ${option.response}
         `)

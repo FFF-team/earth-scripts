@@ -6,7 +6,7 @@ module.exports = (page) => {
 
     const router = new Router();
 
-    router.get('*',
+    router.get(['/', '/*'],
         // page middleware
         async (ctx, next) => {
 

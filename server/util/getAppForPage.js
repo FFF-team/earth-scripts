@@ -1,14 +1,9 @@
 const React = require('react');
 const logger = require('../lib/logger');
-const {getAppByPage} = require('../context')
+const {getAppByPage} = require('../context');
+const Missing = require('./MissingComp');
 
 module.exports = (page) => {
-
-    class Missing extends React.Component {
-        render() {
-            return <span/>
-        }
-    }
 
     let App = Missing;
 
