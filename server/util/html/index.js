@@ -12,7 +12,7 @@ const logger = require('../../lib/logger');
 const maxMem = require('../../def').maxMem;
 const getInitialData = require('../../util/getInitialData');
 const enhanceApp = require('./enhanceApp');
-const {getStoreByPage} = require('../../context')
+// const Loadable = require('react-loadable')
 
 
 const osBusy = require('./osCheck');
@@ -28,7 +28,6 @@ const ReactDomRenderMethod = (() => {
 })();
 
 
-let context = {};
 
 /**
  * const htmlObj = await new Html(req, page).init({
@@ -49,6 +48,7 @@ class Html {
         this.option = {};
         this.ctx = ctx;
         this.app = null;
+        this.routerContext = {};
 
         this._store = null;
         // 保存初始数据
@@ -59,7 +59,7 @@ class Html {
         this._$html = '';
     }
 
-    async init(option) {
+    init(option) {
 
         option.app = option.app ? option.app.default : null;
 
@@ -71,18 +71,9 @@ class Html {
             logger.error(e.stack)
         }
 
-
-
-        const html = await readFile(this.page).catch((err) => {
-            console.error('GET FILE ERROR: ' + err);
-        });
-
         // save option
         this.option = option;
-        // get initialData for app
-        this.app = await this.__enhanceApp(App);
-        // parse html
-        this._$html = cheerio.load(html || '');
+        this.app = App;
 
         return this
     }
@@ -91,20 +82,22 @@ class Html {
     injectStore(store) {
 
         if (!this.option.ssr) return this;
+        if (!store) return this;
 
-        const _store = store || getStoreByPage(this.page);
-
-        if (!_store) return this;
-
-        store = _store.default;
 
         this._store = store;
-        this.__PRELOADED_STATE__.store = store.getState();
 
         return this
     }
 
-    render() {
+    async render() {
+
+        // get html
+        const html = await readFile(this.page).catch((err) => {
+            console.error('GET FILE ERROR: ' + err);
+        });
+
+        this._$html = cheerio.load(html || '');
 
         // 内存占用大于300M时关闭ssr
         // todo: 判断负载过高用内存？？
@@ -127,6 +120,8 @@ class Html {
 
             return
         }
+
+        this.app = await this.__enhanceApp(this.app);
 
         // 不能为空字符串，stream会有问题
         // todo: other fix
@@ -237,8 +232,11 @@ class Html {
      * @private
      */
     async __enhanceApp(App) {
-        const initialProps = await getInitialData(App, this.ctx);
+        const initialProps = await getInitialData(App, this.ctx, this._store);
         this.__PRELOADED_STATE__.pageProps = initialProps;
+        if (this._store && this._store.getState) {
+            this.__PRELOADED_STATE__.store = this._store.getState();
+        }
         const EnhancedApp = enhanceApp({
             initialData: initialProps
         })(App);
@@ -293,7 +291,7 @@ class Html {
                 <StaticRouter
                     basename={`/${this.page}`}
                     location={this.req.url}
-                    context={context}
+                    context={this.routerContext}
                 >
                     <App/>
                 </StaticRouter>
@@ -301,7 +299,7 @@ class Html {
         }
 
         return (
-            <StaticRouter context={context}>
+            <StaticRouter context={this.routerContext}>
                 <App/>
             </StaticRouter>
         )

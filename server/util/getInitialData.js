@@ -1,10 +1,12 @@
-const getInitialData = async (Component, ctx) => {
+const logger = require('../lib/logger');
+
+const getInitialData = async (Component, ctx, store) => {
 
     if (!Component.getInitialProps) return {};
 
-    const props = await Component.getInitialProps(ctx)
+    const props = await Component.getInitialProps(ctx, store)
         .catch((e) => {
-            console.log(e)
+            logger.error(e)
         });
 
     return props

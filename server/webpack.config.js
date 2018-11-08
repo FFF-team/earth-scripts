@@ -4,6 +4,8 @@ const alias = require(path.resolve('earth-config/alias'));
 const nodeExternals = require('webpack-node-externals');
 const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');
+const ReactLoadablePlugin = require('react-loadable/webpack')
+    .ReactLoadablePlugin;
 
 
 // TODO: 其他形式
@@ -114,6 +116,7 @@ module.exports = {
         new webpack.ProvidePlugin({
             window : 'window',
             document: 'document'
-        })
+        }),
+        new ReactLoadablePlugin({ filename: './_server/dist/react-loadable.json', }),
     ]
 };
