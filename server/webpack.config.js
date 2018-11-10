@@ -117,6 +117,6 @@ module.exports = {
             window : 'window',
             document: 'document'
         }),
-        new ReactLoadablePlugin({ filename: './_server/dist/react-loadable.json', }),
+        // new ReactLoadablePlugin({ filename: './_server/dist/react-loadable.json', }),
     ]
 };
