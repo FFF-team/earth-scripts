@@ -1,6 +1,4 @@
-// require('source-map-support').install();
 require('ignore-styles'); // 不处理require('xx.scss')这种文件 https://www.npmjs.com/package/ignore-styles
-// require('babel-register');
 
 // 添加global对象
 global.document = require('./fakeObject/document');
@@ -15,7 +13,6 @@ require('isomorphic-unfetch');
 
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
-const gzip = require('koa-compress');
 
 const app = new Koa();
 
@@ -24,11 +21,6 @@ const staticRouter = require('./middleware/static');
 const router = require('./router');
 
 const logger = require('./lib/logger');
-
-// todo: 缓存 redis
-// todo: 性能问题
-
-
 
 /*const webpack = require('webpack');
 const webpackClientConfig = require('earth-scripts/config/webpack.config.dev');
@@ -77,15 +69,6 @@ app.use((ctx, next) => {
     ctx.req._body= ctx.request.body;
     return next();
 });
-// 如果线上有sourcemap情况，etag和gzip共用会报错stream error
-// 针对 static、pages、api自己处理的请求 zip压缩
-app.use(gzip({
-    // filter: function (content_type) {
-    //     console.log(content_type)
-    //     return /application\/json/i.test(content_type)
-    // },
-    threshold: 1024 // response小于 1k 不压缩(默认就是1024)
-}));
 
 
 // router

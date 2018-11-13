@@ -10,12 +10,11 @@ module.exports = (page) => {
         // page middleware
         async (ctx, next) => {
 
-            const htmlObj = new html(ctx, PAGE)
+            const htmlObj = new html(ctx, page)
                 .init({
                     ssr: false,
                     browserRouter: false,
-                })
-                .injectStore(createStore(reducers, {}));
+                });
 
             await htmlObj.render().catch(() => {console.log('page get file error')});
 
