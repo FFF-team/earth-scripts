@@ -12,10 +12,10 @@ const init = async () => {
     await mkdirp(resolve('_server/log'));
     await mkdirp(resolve('_server/page'));
 
-    if (!existsSync(resolve('_server/def.js'))) {
+    if (!existsSync(resolve('config/server.js'))) {
         await cp(
             join(__dirname, '../server/_def.js'),
-            resolve('_server/def.js')
+            resolve('config/server.js')
         )
     }
 

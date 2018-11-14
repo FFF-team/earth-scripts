@@ -1,6 +1,6 @@
 const path = require("path");
 const webpack = require('webpack');
-const alias = require(path.resolve('earth-config/alias'));
+const alias = require(path.resolve('config/alias'));
 const nodeExternals = require('webpack-node-externals');
 const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');
@@ -60,6 +60,7 @@ module.exports = {
             'clientSrc': path.resolve('src'),
             // 指向根目录_server
             'rootServer': path.resolve('_server'),
+            'rootConfig': path.resolve('config'),
             'earth-scripts': path.resolve('node_modules/earth-scripts')
         }, alias)
     },

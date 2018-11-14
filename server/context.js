@@ -11,8 +11,8 @@ const _getContext = (context, filename) => {
 
 module.exports = {
     getCustomDef:
-        (name = 'def.js') =>
-            _getContext(require.context('rootServer', false, /def\.js/), name),
+        (name = 'server.js') =>
+            _getContext(require.context('rootConfig', false, /server\.js/), name),
     getAppByPage:
         (name) =>
             _getContext(require.context(`clientSrc/pages`, true, /containers\/App\.js/), name),

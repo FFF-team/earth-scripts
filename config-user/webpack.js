@@ -5,10 +5,10 @@ const fs = require('fs');
 const resolveApp = require('../tools').resolveApp;
 
 
-const EARTH_CONFIG_NAME = `earth-config`;
-const EARTH_CONFIG_FILENAMES = path.resolve('earth-config/filenames');
-const EARTH_CONFIG_CDN = path.resolve('earth-config/cdn');
-const EARTH_CONFIG_ALIAS = path.resolve('earth-config/alias')
+const EARTH_CONFIG_NAME = `config`;
+const EARTH_CONFIG_FILENAMES = path.resolve('config/filenames');
+const EARTH_CONFIG_CDN = path.resolve('config/cdn');
+const EARTH_CONFIG_ALIAS = path.resolve('config/alias')
 
 const ENV = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
 const webpackConfig = (function getCustomConfig() {

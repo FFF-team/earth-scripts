@@ -4,12 +4,6 @@ const { resolve, join } = require('path');
 
 const setConfig = async (env) => {
 
-
-    await cp(
-        resolve('config/index.js'),
-        resolve('_server/def.js'),
-        {overwrite: true}
-    )
     // if (env === 'development') {
     //     await cp(
     //         resolve('config/index.js'),

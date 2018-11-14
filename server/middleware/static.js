@@ -1,3 +1,9 @@
+// production环境，手动send
+const serve = require('koa-static');
+const mount = require('koa-mount');
+const root = require('../def').clientBuildPath;
+const path = require('path');
+
 module.exports = (opts) => {
 
     // dev环境，直接next
@@ -6,12 +12,6 @@ module.exports = (opts) => {
             await next()
         }
     } else {
-
-        // production环境，手动send
-        const serve = require('koa-static');
-        const mount = require('koa-mount');
-        const root = require('../def').clientBuildPath;
-        const path = require('path');
 
         // 注意：build/static/ 不要生成sourcemap
         return mount('/static',serve(path.join(root, './static'), {
