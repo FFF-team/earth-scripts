@@ -18,7 +18,6 @@ module.exports = (page) => {
 
             await htmlObj.render().catch(() => {console.log('page get file error')});
 
-            return next()
         }
     );
 
