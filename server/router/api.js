@@ -67,7 +67,8 @@ router.all('/:name/:other*',
         } else {
 
             // proxy-to-server
-            await _app_proxy.asyncTo(proxyOption, ctx);
+            await _app_proxy.asyncTo(proxyOption, ctx)
+                .catch(() => {});
         }
 
 
