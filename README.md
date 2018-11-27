@@ -210,7 +210,7 @@ server.js为mock文件夹下自定义的mock server启动文件。如果不配�
 
 可通过 **npm run start -- stopmock**在dev环境下不启用mock
 
-### dev环境下browserRouter优化
+### (废弃)dev环境下browserRouter优化
 
 page.html在url上会转化为page
 
@@ -264,6 +264,7 @@ BROWSER_ROUTER=true
 
 ```
 _server/
+  - assets/ 存放资源json文件
   - dist/  编译后的文件
   - log/   日志文件（dev环境下位置，部署后会到/opt/nodejslogs下）
   - proxy_[name] 定义代理的接口前缀及逻辑。eg: 需要代理的地址如下，/api/user/center，有统一的前缀
@@ -271,7 +272,6 @@ _server/
     - index.js   提供两个方法可供自定义 apiProxyBefore(ctx), apiProxyReceived(ctx)
 
   - page/     page对应的逻辑
-  - def.js    配置文件（config,online,offline里的内容在打包时会复制到改文件里）
 
 
 ```
@@ -287,18 +287,33 @@ tip:
 ```
 _server/app.js
 
-const app = require('earth-scripts/server/app');
-const env = require('earth-scripts/server/def');
+const start = require('earth-scripts/server/app');
+const env = require('../config/server');
 const http = require('http');
 
 const port = env.port;
 
-const appCallback = app.callback();
-const server = http.createServer(appCallback);
 
-server.listen(port);
 
-console.log(`custom Server client running on: http://localhost: ${port}`);
+sstart().then((app) => {
+
+
+     const appCallback = app.callback();
+     const server = http.createServer(appCallback);
+
+     // 可以添加自己项目的逻辑
+     // app.use(xxx)
+
+     server
+         .listen(port)
+         .on('clientError', (err, socket) => {
+             // handleErr(err, 'caught_by_koa_on_client_error');
+             socket.end('HTTP/1.1 400 Bad Request Request invalid\r\n\r\n');
+         });
+
+
+     console.log(`custom Server client running on: http://localhost: ${port}`);
+ });
 
 ```
 
@@ -314,7 +329,9 @@ module.exports = {
    // 代理之前
    apiProxyBefore: (ctx) => {
       // 自定义代理域名
-      ctx.app_proxyServer = 'http://test001.payment.58v5.cn'
+      ctx.app_proxyServer = 'http://test001.payment.58v5.cn';
+      // 为true可以拿到代理接口的response,可在apiProxyReceived中做进一步处理
+      ctx.app_selfHandleResponseApi = true
    }，
    // 代理后
    apiProxyReceived: (req, res) => {
@@ -339,14 +356,17 @@ router.get('/', async (ctx, next) => {
     const htmlObj = await new html(ctx, PAGE)
         .init({
             ssr: true,
-            browserRouter: true
+            browserRouter: true,
+            app: App
         }).catch((e) => {
                 console.log(e);
                 console.log('page get file error')
             }
         );
 
-    htmlObj.injectStore().render();
+    // 有redux情况下，每次请求都必须createStore
+    htmlObj.injectStore(createStore(reducers, {})).render();
 });
 ```
 todo: more
+todo: 优化
