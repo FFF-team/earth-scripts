@@ -1,20 +1,30 @@
+
+
 const http = require('http');
 
-const app = require('./app');
+const start = require('./app');
 const env = require('./def');
 
 
-const port = env.port;
+start().then((app) => {
+    const port = env.port;
 
-const appCallback = app.callback();
-const server = http.createServer(appCallback);
+    const appCallback = app.callback();
+    const server = http.createServer(appCallback);
 
-server
-    .listen(port)
-    .on('clientError', (err, socket) => {
-        // handleErr(err, 'caught_by_koa_on_client_error');
-        socket.end('HTTP/1.1 400 Bad Request Request invalid\r\n\r\n');
-    });
+    server
+        .listen(port)
+        .on('clientError', (err, socket) => {
+            // handleErr(err, 'caught_by_koa_on_client_error');
+            socket.end('HTTP/1.1 400 Bad Request Request invalid\r\n\r\n');
+        });
+
+
+
+    console.log(`Server running on: http://localhost: ${port}`);
+});
+
+
 
 
 // todo: hot reload
@@ -31,4 +41,3 @@ server
     });
 }*/
 
-console.log(`Server running on: http://localhost: ${port}`);

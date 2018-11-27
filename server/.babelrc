@@ -1,12 +1,18 @@
 {
-    "presets": [
-        ["env", {
-            "targets": {
-                "node": "current"
-            }
-        }],
-        "react-app"],
-    "plugins": [
-
-    ]
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "react-app"
+  ],
+  "plugins": [
+    "syntax-dynamic-import",
+    "dynamic-import-node",
+    "react-loadable/babel"
+  ]
 }

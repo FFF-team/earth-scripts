@@ -11,6 +11,7 @@ const init = async () => {
     await mkdirp(resolve('_server/dist'));
     await mkdirp(resolve('_server/log'));
     await mkdirp(resolve('_server/page'));
+    await mkdirp(resolve('_server/assets'));
 
     if (!existsSync(resolve('config/server.js'))) {
         await cp(

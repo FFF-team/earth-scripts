@@ -21,5 +21,11 @@ module.exports = {
             _getContext(require.context(`rootServer/`, true, /^\.\/proxy_.*\.js$/), name),
     getCusPageRouter:
         (name) =>
-            _getContext(require.context(`rootServer/page`, false, /\.js$/), name)
+            _getContext(require.context(`rootServer/page`, false, /\.js$/), name),
+    getManifest:
+        (name = 'asset-manifest.json') =>
+            _getContext(require.context(`rootServer/assets`, false, /asset-manifest.json$/), name),
+    getBundleAssets:
+        (name = 'react-loadable.json') =>
+            _getContext(require.context(`rootServer/assets`, false, /react-loadable.json$/), name)
 };

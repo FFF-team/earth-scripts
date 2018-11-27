@@ -26,12 +26,13 @@ module.exports = {
         ]*/
         'main': require.resolve("./index.js")
     },
-    devtool: dev ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
+    devtool: !dev ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
     target: "node",
     output: {
         path: path.resolve("_server/dist"),
         filename: "./[name].generated.js",
         libraryTarget: "commonjs2",
+        chunkFilename: `[name].chunk.js`,
         publicPath: '/',
         hotUpdateChunkFilename: './[id].[hash].hot-update.js',
         hotUpdateMainFilename: './[hash].hot-update.json'
@@ -58,6 +59,7 @@ module.exports = {
             'rootPackage': path.resolve('package.json'),
             // 指向client端代码
             'clientSrc': path.resolve('src'),
+            'clientBuild': path.resolve('build'),
             // 指向根目录_server
             'rootServer': path.resolve('_server'),
             'rootConfig': path.resolve('config'),

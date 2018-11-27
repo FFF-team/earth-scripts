@@ -16,6 +16,9 @@ const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const glob = require('glob');
 const util = require('./util');
+const ReactLoadablePlugin = require('react-loadable/webpack')
+    .ReactLoadablePlugin;
+const isServer = process.env.IS_SERVER === 'true';
 
 // import customerConfig
 const customConfig = require('../config-user/webpack');
@@ -373,9 +376,10 @@ const defaultConfig = {
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
-    new ManifestPlugin({
-      fileName: 'asset-manifest.json',
-    }),
+      ...(isServer ? [
+          new ManifestPlugin({fileName: '../_server/assets/asset-manifest.json'}),
+          new ReactLoadablePlugin({ filename: './_server/assets/react-loadable.json', })
+      ] : []),
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.
     // new SWPrecacheWebpackPlugin({

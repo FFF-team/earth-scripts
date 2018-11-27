@@ -3,28 +3,31 @@ const ReactDOMServer = require('react-dom/server');
 const StaticRouter = require('react-router-dom').StaticRouter;
 // const multiStream = require('multistream');
 const stringStream = require('string-to-stream');
+const Loadable = require('react-loadable');
 
 const cheerio = require('cheerio');
-const readFile = require('../readFile').readFile;
-const getAppForPage = require('../getAppForPage');
-const pageStream = require('./stream');
-const logger = require('../../lib/logger');
-const maxMem = require('../../def').maxMem;
-const getInitialData = require('../../util/getInitialData');
+const readFile = require('../util/readFile').readFile;
+const getAppForPage = require('./getAppForPage');
+const pageStream = require('../util/stream');
+const logger = require('../lib/logger');
+const maxMem = require('../def').maxMem;
+const getInitialData = require('./getInitialData');
 const enhanceApp = require('./enhanceApp');
-// const Loadable = require('react-loadable')
+const getScripts = require('../util/getScripts');
 
 
-const osBusy = require('./osCheck');
+const osBusy = require('../util/osCheck');
 
 const enableReaderStream = (() => (+React.version.split('.')[0] === 16))();
 
+// todo: renderToNodeStream react-loadable cannot support
 const ReactDomRenderMethod = (() => {
-    if (enableReaderStream) {
-        return ReactDOMServer.renderToNodeStream
-    } else {
-        return ReactDOMServer.renderToString
-    }
+    // if (enableReaderStream) {
+    //     return ReactDOMServer.renderToNodeStream
+    // } else {
+    //     return ReactDOMServer.renderToString
+    // }
+    return ReactDOMServer.renderToString
 })();
 
 
@@ -67,7 +70,7 @@ class Html {
         try {
             App = option.app || getAppForPage(this.page);
         } catch (e) {
-            App = require('../MissingComp');
+            App = require('./MissingComp');
             logger.error(e.stack)
         }
 
@@ -180,6 +183,7 @@ class Html {
      */
     __renderToStream(pageMarkup = ' ') {
 
+        const scripts = getScripts(this.page, this.modules);
 
         const stream = typeof pageMarkup === 'string' ? stringStream(pageMarkup) : pageMarkup;
         const ctx = this.ctx;
@@ -195,7 +199,8 @@ class Html {
 
         const  htmlWriter = new pageStream({
             head: `<!DOCTYPE html><html>${_$('head').html()}<body><div id='root'>`,
-            footer: `</div>${_$('body').html()}</body></html>`
+            // footer: `</div>${_$('body').html()}</body></html>`
+            footer: `</div>${scripts.map((s) => `<script type="text/javascript" src="${s}"></script>`).join('\n')}</body></html>`
         });
 
 
@@ -286,22 +291,28 @@ class Html {
     __appWithRouter() {
         const App = this.app;
 
+        this.modules = [];
+
         if (this.option.browserRouter) {
             return (
-                <StaticRouter
-                    basename={`/${this.page}`}
-                    location={this.req.url}
-                    context={this.routerContext}
-                >
-                    <App/>
-                </StaticRouter>
+                <Loadable.Capture report={moduleName => this.modules.push(moduleName)}>
+                    <StaticRouter
+                        basename={`/${this.page}`}
+                        location={this.req.url}
+                        context={this.routerContext}
+                    >
+                        <App/>
+                    </StaticRouter>
+                </Loadable.Capture>
             )
         }
 
         return (
-            <StaticRouter context={this.routerContext}>
-                <App/>
-            </StaticRouter>
+            <Loadable.Capture report={moduleName => this.modules.push(moduleName)}>
+                <StaticRouter context={this.routerContext}>
+                    <App/>
+                </StaticRouter>
+            </Loadable.Capture>
         )
     }
 

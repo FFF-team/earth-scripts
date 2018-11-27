@@ -21,8 +21,11 @@ const staticRouter = require('./middleware/static');
 const router = require('./router');
 
 const logger = require('./lib/logger');
+const Loadable = require('react-loadable')
 
-/*const webpack = require('webpack');
+
+const main = async () => {
+    /*const webpack = require('webpack');
 const webpackClientConfig = require('earth-scripts/config/webpack.config.dev');
 const compiler = webpack(webpackClientConfig);
 
@@ -39,22 +42,22 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
 }));*/
 
 
-app.proxy = true;
+    app.proxy = true;
 
 
-// performance
-app.use(performance());
+    // performance
+    app.use(performance());
 
 
-// catch error
-app.use(async (ctx, next) => {
-    try {
-        await next()
-    } catch (e) {
-        logger.error(e.stack);
-        ctx.body = e.message;
-    }
-});
+    // catch error
+    app.use(async (ctx, next) => {
+        try {
+            await next()
+        } catch (e) {
+            logger.error(e.stack);
+            ctx.body = e.message;
+        }
+    });
 
 
 // etag无法作用于Stream
@@ -62,39 +65,42 @@ app.use(async (ctx, next) => {
 // app.use(conditional());
 // app.use(etag());
 
-app.use(bodyParser());
-app.use((ctx, next) => {
-    // 开启了bodyparser
-    // 约定，向req中注入_body for "proxyToServer"
-    ctx.req._body= ctx.request.body;
-    return next();
-});
+    app.use(bodyParser());
+    app.use((ctx, next) => {
+        // 开启了bodyparser
+        // 约定，向req中注入_body for "proxyToServer"
+        ctx.req._body = ctx.request.body;
+        return next();
+    });
 
 
-// router
-app.use(router.routes());
-app.use(router.allowedMethods());
+    // router
+    app.use(router.routes());
+    app.use(router.allowedMethods());
 
-// static
-app.use(staticRouter());
-// todo: allowedMethods
-
-
-app.on("error",(err,ctx)=>{//捕获异常记录错误日志
-    logger.error(err.stack);
-    ctx.body = 'err'
-});
-
-process.on('uncaughtException', (err) => {
-    logger.error('uncaughtException' + err.stack);
-    throw err
-});
-
-process.on('unhandledRejection', (err) => {
-    logger.error('unhandledRejection' + err.stack);
-});
+    // static
+    app.use(staticRouter());
+    // todo: allowedMethods
 
 
+    app.on("error", (err, ctx) => {//捕获异常记录错误日志
+        logger.error(err.stack);
+        ctx.body = 'err'
+    });
+
+    process.on('uncaughtException', (err) => {
+        logger.error('uncaughtException' + err.stack);
+        throw err
+    });
+
+    process.on('unhandledRejection', (err) => {
+        logger.error('unhandledRejection' + err.stack);
+    });
+
+    await Loadable.preloadAll();
+
+    return app
+}
 
 
-module.exports = app;
+module.exports = main;

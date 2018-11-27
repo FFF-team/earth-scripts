@@ -1,5 +1,5 @@
 const Router = require('koa-router');
-const html = require('earth-scripts/server/util/html');
+const html = require('earth-scripts/server/html');
 
 
 module.exports = (page) => {
