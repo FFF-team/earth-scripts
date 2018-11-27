@@ -1,6 +1,6 @@
 {
   "name": "earth-scripts",
-  "version": "1.1.0-alpha.20",
+  "version": "1.1.0-alpha.21",
   "description": "earth for node script",
   "bin": {
     "earth-scripts": "./index.js"
@@ -21,7 +21,7 @@
   "dependencies": {
     "autoprefixer": "7.1.2",
     "babel-core": "6.25.0",
-    "babel-eslint": "7.2.3",
+    "babel-eslint": "9.0.0",
     "babel-jest": "20.0.3",
     "babel-loader": "7.1.1",
     "babel-plugin-import": "1.5.0",
@@ -37,13 +37,13 @@
     "css-loader": "0.28.4",
     "del": "^3.0.0",
     "dotenv": "4.0.0",
-    "eslint": "4.4.1",
-    "eslint-config-react-app": "^2.0.0",
-    "eslint-loader": "1.9.0",
-    "eslint-plugin-flowtype": "2.35.0",
-    "eslint-plugin-import": "2.7.0",
-    "eslint-plugin-jsx-a11y": "5.1.1",
-    "eslint-plugin-react": "7.1.0",
+    "eslint": "5.6.0",
+    "eslint-config-react-app": "3.0.5",
+    "eslint-loader": "2.1.1",
+    "eslint-plugin-flowtype": "2.50.1",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-jsx-a11y": "6.1.2",
+    "eslint-plugin-react": "7.11.1",
     "extract-text-webpack-plugin": "3.0.0",
     "file-loader": "0.11.2",
     "fs-extra": "3.0.1",

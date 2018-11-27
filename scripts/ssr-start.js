@@ -106,12 +106,20 @@ module.exports = ssrWatch;
 
 const nodemonStart = () => {
     nodemon({
-        script: path.resolve('_server/dist/main.generated.js'),
-        ext: 'js json',
+        "script": path.resolve('_server/dist/main.generated.js'),
+        "ext": 'js json',
         "env": {
             "NODE_ENV": "development"
         },
-        watch: path.resolve('_server/dist/main.generated.js')
+        "watch": [
+            path.resolve('_server'),
+            path.resolve('src')
+        ],
+        "ignore": [
+            path.resolve('_server/assets'),
+            path.resolve('_server/log'),
+            path.resolve('_server/dist')
+        ],
     });
 
     nodemon.on('start', function () {
