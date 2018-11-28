@@ -107,7 +107,8 @@ module.exports = ssrWatch;
 const nodemonStart = () => {
     nodemon({
         "script": path.resolve('_server/dist/main.generated.js'),
-        "ext": 'js json',
+        "ext": 'js',
+        "verbose": true,
         "env": {
             "NODE_ENV": "development"
         },
@@ -120,6 +121,7 @@ const nodemonStart = () => {
             path.resolve('_server/log'),
             path.resolve('_server/dist')
         ],
+        "delay": "5000"
     });
 
     nodemon.on('start', function () {
