@@ -10,6 +10,7 @@ const {
 } = require('./constants');
 
 const pagesMap = require('./util/getPagesMap')(PAGE_PATH);
+const staticPath = require('earth-scripts/config-user/webpack.js').staticPath;
 
 const {getCustomDef} = require('./context');
 
@@ -18,8 +19,7 @@ const cusDef = getCustomDef();
 const {
     proxyPath = PROXY_PATH,
     port = SSR_PORT,
-    selfHandleResponseApi,
-    staticServer
+    selfHandleResponseApi
 } = cusDef;
 
 const dev = process.env.NODE_ENV === 'development';
@@ -36,7 +36,7 @@ module.exports = {
     // 代理到的server地址
     proxyPath,
     // 本地开发静态资源起的服务，用于获取html
-    staticServer: staticServer || STATIC_SERVER,
+    staticPath: staticPath || {js: STATIC_SERVER},
     // 端口号
     port,
     selfHandleResponseApi: selfHandleResponseApi || SELF_HANDLE_RESPONSE

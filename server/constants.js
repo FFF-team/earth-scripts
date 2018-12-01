@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
     SSR_PORT: 8001,
     PROXY_PATH: 'http://localhost:3101',
-    STATIC_SERVER: 'http://localhost:3100',
+    STATIC_SERVER: 'http://localhost:3000',
     SELF_HANDLE_RESPONSE: false,
 
     // proxy_api  api可以自定义

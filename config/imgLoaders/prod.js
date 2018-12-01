@@ -3,14 +3,14 @@ const util = require('../util');
 
 function imgLoaders(customConfig) {
 
-    const cdnPath = customConfig.cdnPath;
+    const staticPath = customConfig.staticPath;
     const filenames = customConfig.filenames;
 
-    const imgOption = cdnPath && cdnPath.img ?
+    const imgOption = staticPath && staticPath.img ?
         {
             limit: 10000,
             name: filenames.img,
-            publicPath: util.ensureSlash(cdnPath.img, true)
+            publicPath: util.ensureSlash(staticPath.img, true)
         } : {
             limit: 10000,
             name: filenames.img,

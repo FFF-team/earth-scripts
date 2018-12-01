@@ -6,9 +6,6 @@ const resolveApp = require('../tools').resolveApp;
 
 
 const EARTH_CONFIG_NAME = `config`;
-const EARTH_CONFIG_FILENAMES = path.resolve('config/filenames');
-const EARTH_CONFIG_CDN = path.resolve('config/cdn');
-const EARTH_CONFIG_ALIAS = path.resolve('config/alias')
 
 const ENV = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
 const webpackConfig = (function getCustomConfig() {
@@ -51,7 +48,7 @@ function getFilenames(webpackConfig) {
 
     try {
         const env = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-        return require(EARTH_CONFIG_FILENAMES)[env]
+        return require(path.resolve('config/filenames'))[env]
     } catch (e){
 
     }
@@ -88,7 +85,7 @@ function getFilenames(webpackConfig) {
  *
  * @return {*} publicPath [object | null]
  */
-function getCdnPath(webpackConfig) {
+/*function getCdnPath(webpackConfig) {
 
     const defaultPublicPath = '';
     const publicPath = _.get(webpackConfig, ['output', 'publicPath']);
@@ -97,11 +94,27 @@ function getCdnPath(webpackConfig) {
 
 
     if (_.isString(publicPath)) {
-        return null
+        return publicPath
+    }
+
+
+    // get publicPath from staticPath
+    let staticPath  = null;
+    try {
+        staticPath = require(path.resolve('config/staticPath'))
+    } catch (e) {
+        staticPath = {}
+    }
+
+
+    if (ENV === 'dev') {
+        return staticPath.dev
     }
 
 
     if (ENV === 'prod') {
+
+        if (staticPath[ENV].js) return staticPath[ENV];
 
         if (_.isPlainObject(publicPath)) {
 
@@ -116,33 +129,34 @@ function getCdnPath(webpackConfig) {
         }
 
         // deprecated
-        try{
-            cdnConfig = require(EARTH_CONFIG_CDN);
-            cdnConfig && log(chalk.yellow(`\n warning: ${EARTH_CONFIG_NAME}/cdnPath.js is deprecated, please use webpackconfig.output.publicPath instead \n`));
-            return {
-                js: cdnConfig.prodJsCDN || defaultPublicPath,
-                css: cdnConfig.prodCssCDN || defaultPublicPath,
-                img: cdnConfig.prodImgCDN || defaultPublicPath,
-                media: cdnConfig.prodMediaCDN || defaultPublicPath
-            }
-        }catch(e){
-
-            // show missing error
-            if (!_.isEmpty(webpackConfig) && _.isEmpty(publicPath)) {
-                log(chalk.yellow('\n warning: webpackconfig.output.publicPath is missing!'));
-                return null
-            }
-
-        }
+        // try{
+        //     cdnConfig = require(path.resolve('config/cdnPath'));
+        //     cdnConfig && log(chalk.yellow(`\n warning: ${EARTH_CONFIG_NAME}/cdnPath.js is deprecated, please use webpackconfig.output.publicPath instead \n`));
+        //     return {
+        //         js: cdnConfig.prodJsCDN || defaultPublicPath,
+        //         css: cdnConfig.prodCssCDN || defaultPublicPath,
+        //         img: cdnConfig.prodImgCDN || defaultPublicPath,
+        //         media: cdnConfig.prodMediaCDN || defaultPublicPath
+        //     }
+        // }catch(e){
+        //
+        //     // show missing error
+        //     if (!_.isEmpty(webpackConfig) && _.isEmpty(publicPath)) {
+        //         log(chalk.yellow('\n warning: webpackconfig.output.publicPath is missing!'));
+        //         return null
+        //     }
+        //
+        // }
 
 
     }
 
 
+    return null
 
 
 
-}
+}*/
 
 /**
  * get alias from config.resolve.alias or earth-config/alias.js
@@ -179,7 +193,7 @@ function getAliasConfig(webpackConfig) {
         log(chalk.yellow('\n warning: ' + `${EARTH_CONFIG_NAME}/alias.js is deprecated. You can use alias in webpackconfig.resolve.alias.` + '\n'));
 
         try{
-            alias = require(path.resolve(EARTH_CONFIG_ALIAS));
+            alias = require(path.resolve(path.resolve('config/alias')));
         }catch(e){
         }
     }
@@ -294,12 +308,48 @@ function log(msg) {
     console.log(msg)
 }
 
+
+function getStaticPath() {
+
+    const config = require(path.resolve('config/staticPath'));
+    const publicPath = _.get(webpackConfig, ['output', 'publicPath']);
+
+    if (ENV === 'dev') {
+
+        // webpack.config.dev.js
+        if (_.isString(publicPath)) {
+            return {
+                js: publicPath
+            }
+        }
+
+        // config/staticPath
+        return {
+            js: config[ENV]
+        }
+    }
+
+    if (ENV === 'prod') {
+
+        // webpack.config.dev.js
+        if (_.isPlainObject(publicPath)) {
+            return publicPath
+        }
+
+        // config/staticPath
+        return config[ENV]
+    }
+
+    return null
+}
+
 module.exports = {
     _origin: webpackConfig,
 
     filenames: getFilenames(webpackConfig),
-    cdnPath: getCdnPath(webpackConfig),
+    // cdnPath: getCdnPath(webpackConfig),
     alias: getAliasConfig(webpackConfig),
     cssModule: getCssModuleConfig(webpackConfig),
-    externals: getExternals(webpackConfig)
+    externals: getExternals(webpackConfig),
+    staticPath: getStaticPath()
 };

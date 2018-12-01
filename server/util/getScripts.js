@@ -1,6 +1,7 @@
 const getBundles = require('react-loadable/webpack').getBundles;
 const getManifest = require('../context').getManifest;
 const getBundleAssets = require('../context').getBundleAssets;
+const staticPath = require('../def').staticPath;
 
 // todo: 异常处理
 const getAsyncBundle = (modules) => {
@@ -28,13 +29,11 @@ const getScripts = (page, asyncModules) => {
 
     const modules = getAsyncBundle(asyncModules);
 
+    const preLoc = staticPath.js;
 
     // development
     if (process.env.NODE_ENV === 'development') {
 
-        const clientWebpackConfig = require('earth-scripts/config/webpack.config.dev.js');
-        // todo: 这里先写死，需要灵活配置
-        const preLoc = clientWebpackConfig.output.publicPath;
 
         return [
             `${preLoc}static/js/runtime.js`,
@@ -47,9 +46,6 @@ const getScripts = (page, asyncModules) => {
     else {
 
         let manifest =  getManifest();
-
-        const clientWebpackConfig = require('earth-scripts/config/webpack.config.prod.js');
-        const preLoc = clientWebpackConfig.output.publicPath;
 
         if (!manifest) return  [];
 

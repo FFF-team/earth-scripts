@@ -5,26 +5,30 @@ react v16.x 使用`earth-scripts@1.x`版本
 
 ### config
 * polyfill.js
-* webpack.config.dev.js
-* webpack.config.prod.js
+* webpack.config.dev.js `优先级高于但文件配置`
+* webpack.config.prod.js  `优先级高于但文件配置`
 
 
-* alias.js `deprecated, webpackConfig.resolve.alias代替`
+* alias.js `deprecated, 对应webpackConfig.resolve.alias`
    ```
    module.exports = {
      moduleName: '/path-to-module/xx'
    }
    ```
-* cdnPath.js  `deprecated, webpackConfig.output.publicPath代替`
+
+* staticPath `静态资源路径，对应webpackConfig.output.publicPath`
    ```
    module.exports = {
-     prodJsCDN: 'http://j1.cdn.com',
-     prodCssCDN: 'http://c1.cdn.com',
-     prodImgCDN: 'http://img1.cdn.com',
-     prodMediaCDN: 'http://media1.cdn.com'
+       dev: 'http://localhost:3100/',
+       prod: {
+           js: '//j1.58cdn.com.cn/jinrong/user_center/',
+           css: '//j1.58cdn.com.cn/jinrong/user_center/',
+           img: '//j1.58cdn.com.cn/jinrong/user_center/',
+           media: '//j1.58cdn.com.cn/jinrong/user_center/'
+       }
    }
    ```
-* filenames.js  `deprecated, webpackConfig.output.publicPath代替`
+* filenames.js  `deprecated, 对应webpackConfig.output.publicPath`
    ```
    module.exports = {
      dev: {
@@ -43,8 +47,6 @@ react v16.x 使用`earth-scripts@1.x`版本
      }
    }
    ```
-
-
 
 ### 扩展webpack配置
 
@@ -182,8 +184,7 @@ production环境下使用.env.production
 例：
 ```
 dev环境下配置：
-HOST=3001 // 自定义端口号
-BROWSER_ROUTER=true // 是否使用BrowserRouter
+HOST=3001 // 自定义开发环境webpack-dev-server端口号
 
 prod环境下配置：
 ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
@@ -209,38 +210,6 @@ package.json增加字段:
 server.js为mock文件夹下自定义的mock server启动文件。如果不配置，则用默认的server
 
 可通过 **npm run start -- stopmock**在dev环境下不启用mock
-
-### (废弃)dev环境下browserRouter优化
-
-page.html在url上会转化为page
-
-例:
-```
-http://localhost:3000/index.html/[browerRouter内容]
-```
-
- 会转化为
-
- ```
- http://localhost:3000/index/[browerRouter内容]
- ```
-
-需要在Router配置中加basename： publicPath(如果设置) + pageName
-```
-
-// publicPath： '/abc/'
-// 当前pagename： 'pay.html'
-
-<Router basename='/abc/pay'>
-  ....
-</Router>
-
-```
-.env.development添加配置：
-
-```
-BROWSER_ROUTER=true
-```
 
 
 ### node server
@@ -370,3 +339,45 @@ router.get('/', async (ctx, next) => {
 ```
 todo: more
 todo: 优化
+
+
+
+
+
+----
+
+###### (废弃)cdnPath.js废弃
+
+###### (废弃)dev环境下browserRouter优化
+
+.env.development配置BROWSER_ROUTER=true // 是否使用BrowserRouter
+
+page.html在url上会转化为page
+
+例:
+```
+http://localhost:3000/index.html/[browerRouter内容]
+```
+
+ 会转化为
+
+ ```
+ http://localhost:3000/index/[browerRouter内容]
+ ```
+
+需要在Router配置中加basename： publicPath(如果设置) + pageName
+```
+
+// publicPath： '/abc/'
+// 当前pagename： 'pay.html'
+
+<Router basename='/abc/pay'>
+  ....
+</Router>
+
+```
+.env.development添加配置：
+
+```
+BROWSER_ROUTER=true
+```

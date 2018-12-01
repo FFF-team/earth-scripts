@@ -47,7 +47,7 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 // import filenames config
 const fileNames = customConfig.filenames;
 // import cnd path
-const cdnPaths = customConfig.cdnPath;
+const cdnPaths = customConfig.staticPath;
 
 // Note: defined here because it will be used more than once.
 const cssFilename = fileNames.css;

@@ -48,7 +48,7 @@ const readFromLocalServer = (page) => {
 
         const request = require('request');
 
-        request(`${config.staticServer}/${page}.html`, (err, response, body) => {
+        request(`${config.staticPath.js}/${page}.html`, (err, response, body) => {
             if (err) {
                 console.error(`Are you forget to start 'npm run start'?`);
                 reject(err);
