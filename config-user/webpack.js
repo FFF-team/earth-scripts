@@ -311,8 +311,20 @@ function log(msg) {
 
 function getStaticPath() {
 
-    const config = require(path.resolve('config/staticPath'));
+    const STATICPATH_CONFIG_NAME = 'config/staticPath.js';
+
+
+    let config = {};
     const publicPath = _.get(webpackConfig, ['output', 'publicPath']);
+
+    if (!publicPath) {
+        try {
+            config = require(path.resolve(STATICPATH_CONFIG_NAME))
+        } catch (e) {
+            log(chalk.error('\n error: ' + `${STATICPATH_CONFIG_NAME} is missing!` + '\n'));
+            process.exit(1);
+        }
+    }
 
     if (ENV === 'dev') {
 
