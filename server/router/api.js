@@ -8,6 +8,7 @@ const router = new Router();
 const config = require('../def');
 const {getCusProxyRouter} = require('../context');
 const {selfHandleResponseApi} = require('../def');
+const logger = require('../lib/logger');
 
 const Proxy2Server = require('../lib/proxyToServer');
 
@@ -32,15 +33,14 @@ router.all('/:name/:other*',
         const res = ctx.res;
         const params = ctx.params;
 
-        res._app_selfHandleResponseApi = ctx.app_selfHandleResponseApi || selfHandleResponseApi;
+        const _app_proxyOption = ctx._app_proxyOption || {headers: {}};
+
+        res._app_selfHandleResponseApi = _app_proxyOption.selfHandleResponse || selfHandleResponseApi;
 
         const proxyOption = {
             selfHandleResponse: res._app_selfHandleResponseApi,
-            headers: {
-                ip: '',
-                'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
-            },
-            target: `${ctx.app_proxyServer || config.proxyPath}/${params.name}/${params.other}`,
+            headers: _app_proxyOption.headers || {},
+            target: `${_app_proxyOption.target || config.proxyPath}/${params.name}/${params.other}`,
         };
 
         const _app_proxy = new Proxy2Server(req, res);
@@ -68,7 +68,9 @@ router.all('/:name/:other*',
 
             // proxy-to-server
             await _app_proxy.asyncTo(proxyOption, ctx)
-                .catch(() => {});
+                .catch((e) => {
+                    logger.error(e.stack)
+                });
         }
 
 

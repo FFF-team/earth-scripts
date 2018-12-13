@@ -12,6 +12,10 @@ start().then((app) => {
     const appCallback = app.callback();
     const server = http.createServer(appCallback);
 
+
+    app.performance();
+    app.baseFrame();
+
     server
         .listen(port)
         .on('clientError', (err, socket) => {

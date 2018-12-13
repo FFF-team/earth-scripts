@@ -168,9 +168,11 @@ class ProxyToServer {
                 // agent: agent,
                 headers: {
                     ip: '',
-                    'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip
+                    'x-origin-ip': ctx.headers['x-forwarded-for'] || ctx.ip,
+                    ...other.headers
                 },
-                ...other
+                target: other.target,
+                selfHandleResponse: other.selfHandleResponse
             }
         );
     }

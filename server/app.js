@@ -12,16 +12,16 @@ process.env.IS_SERVER = 'true';
 require('isomorphic-unfetch');
 
 const Koa = require('koa');
-const bodyParser = require('koa-bodyparser');
 
 const app = new Koa();
 
-const performance = require('./middleware/performance');
-const staticRouter = require('./middleware/static');
-const router = require('./router');
 
 const logger = require('./lib/logger');
-const Loadable = require('react-loadable')
+const Loadable = require('react-loadable');
+const performance = require('./middleware/performance');
+const bodyParser = require('koa-bodyparser');
+const staticRouter = require('./middleware/static');
+const router = require('./router');
 
 
 const main = async () => {
@@ -44,11 +44,6 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
 
     app.proxy = true;
 
-
-    // performance
-    app.use(performance());
-
-
     // catch error
     app.use(async (ctx, next) => {
         try {
@@ -65,22 +60,6 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
 // app.use(conditional());
 // app.use(etag());
 
-    app.use(bodyParser());
-    app.use((ctx, next) => {
-        // 开启了bodyparser
-        // 约定，向req中注入_body for "proxyToServer"
-        ctx.req._body = ctx.request.body;
-        return next();
-    });
-
-
-    // router
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-
-    // static
-    app.use(staticRouter());
-    // todo: allowedMethods
 
 
     app.on("error", (err, ctx) => {//捕获异常记录错误日志
@@ -99,8 +78,33 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
 
     await Loadable.preloadAll();
 
+    // custom logic
+    app.performance = () => {
+        // performance
+        app.use(performance())
+    };
+
+    // custom logic
+    app.init = () => {
+        // bodyParser
+        app.use(bodyParser());
+        app.use((ctx, next) => {
+            // 开启了bodyparser
+            // 约定，向req中注入_body for "proxyToServer"
+            ctx.req._body = ctx.request.body;
+            return next();
+        });
+
+        // router
+        app.use(router.routes());
+        app.use(router.allowedMethods());
+
+        // staticRouter
+        app.use(staticRouter())
+    };
+
     return app
-}
+};
 
 
 module.exports = main;
