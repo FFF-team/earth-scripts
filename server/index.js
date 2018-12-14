@@ -14,7 +14,7 @@ start().then((app) => {
 
 
     app.performance();
-    app.baseFrame();
+    app.init();
 
     server
         .listen(port)

@@ -218,7 +218,7 @@ server.js为mock文件夹下自定义的mock server启动文件。如果不配�
 
   `earth-scripts ssr-start` 启动server端
 
-  `earth-scripts start -- server` 启动client端
+  `earth-scripts start` 启动client端
 
 * test
 
@@ -267,11 +267,21 @@ const port = env.port;
 sstart().then((app) => {
 
 
+
+
      const appCallback = app.callback();
      const server = http.createServer(appCallback);
 
+     app.performance()
+
      // 可以添加自己项目的逻辑
      // app.use(xxx)
+
+     app.init() // 必须，添加基本的mw
+
+
+     // 可以添加自己项目的逻辑
+     // app.use(xxxx)
 
      server
          .listen(port)
@@ -298,9 +308,13 @@ module.exports = {
    // 代理之前
    apiProxyBefore: (ctx) => {
       // 自定义代理域名
-      ctx.app_proxyServer = 'http://test001.payment.58v5.cn';
-      // 为true可以拿到代理接口的response,可在apiProxyReceived中做进一步处理
-      ctx.app_selfHandleResponseApi = true
+      ctx.app_proxyOption = {
+          target: 'http://test001.payment.58v5.cn',
+          selfHandleResponseApi: false,
+          headers: {
+             .....
+          }
+      }
    }，
    // 代理后
    apiProxyReceived: (req, res) => {
