@@ -22,6 +22,10 @@ const isServer = process.env.IS_SERVER === 'true';
 
 // import customerConfig
 const customConfig = require('../config-user/webpack');
+// import filenames config
+const fileNames = customConfig.filenames;
+// import cnd path
+const cdnPaths = customConfig.staticPath;
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -44,10 +48,7 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
   throw new Error('Production builds must have NODE_ENV=production.');
 }
 
-// import filenames config
-const fileNames = customConfig.filenames;
-// import cnd path
-const cdnPaths = customConfig.staticPath;
+
 
 // Note: defined here because it will be used more than once.
 const cssFilename = fileNames.css;
@@ -463,7 +464,6 @@ const newConfig = webpackMerge({
 
         if (key === 'output') {
             let newOutput = _.omit(b, 'filenames', 'publicPath');
-            newOutput.publicPath = _.isString(b.publicPath) ? util.ensureSlash(b.publicPath, true) : publicPath;
 
             return _.merge(
                 a,

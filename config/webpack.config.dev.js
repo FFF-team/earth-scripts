@@ -85,7 +85,7 @@ const defaultConfig =  {
         // There are also additional JS chunk files if you use code splitting.
         chunkFilename: fileNames.jsChunk,
         // This is the URL that app is served from. We use "/" in development.
-        publicPath: publicPath,
+        publicPath: util.ensureSlash(publicPath, true),
         // Point sourcemap entries to original disk location (format as URL on Windows)
         devtoolModuleFilenameTemplate: info =>
             path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
@@ -271,11 +271,10 @@ const newConfig = webpackMerge({
         if (key === 'output') {
             return _.merge(
                 a,
-                _.omit(b, 'filenames'),
+                _.omit(b, 'filenames', 'publicPath'),
                 {
                     filename: fileNames.js || b.filename,
                     chunkFilename: fileNames.jsChunk || b.chunkFilename,
-                    publicPath: b.publicPath ? util.ensureSlash(b.publicPath, true) : publicPath
                 }
             )
         }

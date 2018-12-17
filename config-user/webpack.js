@@ -326,14 +326,18 @@ function getStaticPath() {
         }
     }
 
-    if (ENV === 'dev') {
-
-        // webpack.config.dev.js
-        if (_.isString(publicPath)) {
-            return {
-                js: publicPath
-            }
+    // read from webpack.config.js
+    if (_.isString(publicPath)) {
+        return {
+            js: publicPath,
+            img: publicPath,
+            css: publicPath,
+            media: publicPath
         }
+    }
+
+    // read from staticPath.js
+    if (ENV === 'dev') {
 
         // config/staticPath
         return {
