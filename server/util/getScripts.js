@@ -3,6 +3,8 @@ const getManifest = require('../context').getManifest;
 const getBundleAssets = require('../context').getBundleAssets;
 const staticPath = require('../def').staticPath;
 
+const preLoc = staticPath.js;
+
 // todo: 异常处理
 const getAsyncBundle = (modules) => {
 
@@ -21,7 +23,7 @@ const getAsyncBundle = (modules) => {
         .filter((bundle) => {
             return /\.js$/.test(bundle.file)
         })
-        .map((item) => item.publicPath)
+        .map((item) => `${preLoc}${item.file}`)
 };
 
 
