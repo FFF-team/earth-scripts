@@ -64,6 +64,10 @@ class Html {
 
     init(option) {
 
+        if (!option.ssr) {
+            return this
+        }
+
         option.app = option.app ? option.app.default : null;
 
         let App = null;
@@ -77,6 +81,10 @@ class Html {
         // save option
         this.option = option;
         this.app = App;
+
+        if (this.app) {
+            this.option.browserRouter = true
+        }
 
         return this
     }

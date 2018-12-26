@@ -4,6 +4,6 @@
  */
 module.exports = {
     port: '8001',
-    proxyPath: 'http://localhost:3201',  // 代理地址
+    proxyPath: 'http://localhost:3001',  // 代理地址
     selfHandleResponseApi: false,        // 是否处理代理返回的数据
 };

@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const config = require('../def');
 const console = require('../../tools').clog.ssr;
+const logger = require('../lib/logger');
 
 const readFile = async (page) => {
     if (process.env.NODE_ENV === 'development') {
@@ -28,7 +29,7 @@ const readFromBuildFile = (page) => {
 
             if (err) {
                 resolve('');
-                throw new Error(err)
+                logger.error(err.stack);
             }
 
             resolve(data)

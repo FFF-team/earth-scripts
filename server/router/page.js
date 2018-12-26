@@ -1,25 +1,14 @@
 const Router = require('koa-router');
-const html = require('earth-scripts/server/html');
+const router = new Router();
+
+const pageRouter = require('./_page');
+
+const pagesMap = require('../def').pagesMap;
 
 
-module.exports = (page) => {
+// page
+Object.keys(pagesMap).forEach((page) => {
+    router.use(`/${page}`, pageRouter(page).routes())
+});
 
-    const router = new Router();
-
-    router.get(['/', '/*'],
-        // page middleware
-        async (ctx, next) => {
-
-            const htmlObj = new html(ctx, page)
-                .init({
-                    ssr: false,
-                    browserRouter: false,
-                });
-
-            await htmlObj.render().catch(() => {console.log('page get file error')});
-
-        }
-    );
-
-    return router
-};
+module.exports = router;

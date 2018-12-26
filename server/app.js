@@ -85,19 +85,37 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
     };
 
     // custom logic
-    app.init = () => {
-        // bodyParser
-        app.use(bodyParser());
-        app.use((ctx, next) => {
-            // 开启了bodyparser
-            // 约定，向req中注入_body for "proxyToServer"
-            ctx.req._body = ctx.request.body;
-            return next();
-        });
+    app.init = ({
+                    apiProxy = true,
+                    defaultSSR = false
+                }) => {
 
-        // router
-        app.use(router.routes());
-        app.use(router.allowedMethods());
+        // favicon
+        app.use(router.favicon.routes());
+
+        // todo: better
+        if (apiProxy) {
+
+            // bodyParser
+            app.use(bodyParser());
+            app.use((ctx, next) => {
+                // 开启了bodyparser
+                // 约定，向req中注入_body for "proxyToServer"
+                ctx.req._body = ctx.request.body;
+                return next();
+            });
+
+            // api router
+            app.use(router.api.routes());
+            app.use(router.api.allowedMethods());
+        }
+
+        // todo: better
+        if (defaultSSR) {
+            // page
+            app.use(router.page.routes());
+            app.use(router.page.allowedMethods());
+        }
 
         // staticRouter
         app.use(staticRouter())

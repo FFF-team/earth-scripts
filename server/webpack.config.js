@@ -32,7 +32,7 @@ module.exports = {
         filename: "./[name].generated.js",
         libraryTarget: "commonjs2",
         chunkFilename: `[name].chunk.js`,
-        publicPath: '/',
+        publicPath: dev ? customConfig.staticPath.js : '/',
         hotUpdateChunkFilename: './[id].[hash].hot-update.js',
         hotUpdateMainFilename: './[hash].hot-update.json'
     },
@@ -103,9 +103,10 @@ module.exports = {
                         // by webpacks internal loaders.
                         exclude: [/\.js$/, /\.html$/, /\.json$/],
                         loader: require.resolve('file-loader'),
+                        options: {
+                            name: customConfig.filenames.media,
+                        },
                     }
-                    // {test: /\.png$/, loader: "url-loader"},
-                    // {test: /\.jpg$/, loader: "file-loader"},
                 ]
             }
         ]

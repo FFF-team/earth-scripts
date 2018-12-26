@@ -14,7 +14,10 @@ start().then((app) => {
 
 
     app.performance();
-    app.init();
+    app.init({
+        apiProxy: true,
+        defaultSSR: true
+    });
 
     server
         .listen(port)

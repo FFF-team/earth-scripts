@@ -113,13 +113,13 @@ const nodemonStart = () => {
             "NODE_ENV": "development"
         },
         "watch": [
-            path.resolve('_server'),
+            path.resolve('_server/dist'),
             path.resolve('src')
         ],
         "ignore": [
             path.resolve('_server/assets'),
             path.resolve('_server/log'),
-            path.resolve('_server/dist')
+            // path.resolve('_server/dist')
         ],
         "delay": "5000"
     });
