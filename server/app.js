@@ -25,21 +25,23 @@ const router = require('./router');
 
 
 const main = async () => {
-    /*const webpack = require('webpack');
-const webpackClientConfig = require('earth-scripts/config/webpack.config.dev');
-const compiler = webpack(webpackClientConfig);
+/*
+    const webpack = require('webpack');
+    const webpackClientConfig = require('earth-scripts/config/webpack.config.dev');
+    const compiler = webpack(webpackClientConfig);
 
-app.use(require("koa-webpack-dev-middleware")(compiler, {
-    logLevel: 'warn',
-    noInfo: true,
-    publicPath: webpackClientConfig.output.publicPath
-}));
+    app.use(require("koa-webpack-dev-middleware")(compiler, {
+        logLevel: 'warn',
+        noInfo: true,
+        publicPath: webpackClientConfig.output.publicPath
+    }));
 
-app.use(require("koa-webpack-hot-middleware")(compiler, {
-    log: console.log,
-    path: '/__webpack_hmr',
-    heartbeat: 10 * 1000
-}));*/
+    app.use(require("koa-webpack-hot-middleware")(compiler, {
+        log: console.log,
+        path: '/__webpack_hmr',
+        heartbeat: 10 * 1000
+    }));
+*/
 
 
     app.proxy = true;
@@ -55,10 +57,10 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
     });
 
 
-// etag无法作用于Stream
-// Strings, Buffers, and fs.Stats are accepted
-// app.use(conditional());
-// app.use(etag());
+    // etag无法作用于Stream
+    // Strings, Buffers, and fs.Stats are accepted
+    // app.use(conditional());
+    // app.use(etag());
 
 
 
@@ -78,10 +80,37 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
 
     await Loadable.preloadAll();
 
+
     // custom logic
     app.performance = () => {
         // performance
         app.use(performance())
+    };
+
+
+    // proxy api
+    app.proxyApi = (option = {}) => {
+
+        const emptyFun = async () => {};
+
+        const proxyApi = router.api({
+            prefix: option.prefix || 'api',
+            apiProxyBefore: option.apiProxyBefore || emptyFun,
+            apiProxyReceived: option.apiProxyReceived || emptyFun
+        });
+
+        // bodyParser
+        app.use(bodyParser());
+        app.use((ctx, next) => {
+            // 开启了bodyparser
+            // 约定，向req中注入_body for "proxyToServer"
+            ctx.req._body = ctx.request.body;
+            return next();
+        });
+
+        // api router
+        app.use(proxyApi.routes());
+        app.use(proxyApi.allowedMethods());
     };
 
     // custom logic
@@ -92,23 +121,6 @@ app.use(require("koa-webpack-hot-middleware")(compiler, {
 
         // favicon
         app.use(router.favicon.routes());
-
-        // todo: better
-        if (apiProxy) {
-
-            // bodyParser
-            app.use(bodyParser());
-            app.use((ctx, next) => {
-                // 开启了bodyparser
-                // 约定，向req中注入_body for "proxyToServer"
-                ctx.req._body = ctx.request.body;
-                return next();
-            });
-
-            // api router
-            app.use(router.api.routes());
-            app.use(router.api.allowedMethods());
-        }
 
         // todo: better
         if (defaultSSR) {

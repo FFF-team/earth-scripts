@@ -14,8 +14,10 @@ start().then((app) => {
 
 
     app.performance();
+
+    app.proxyApi();
+
     app.init({
-        apiProxy: true,
         defaultSSR: true
     });
 

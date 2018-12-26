@@ -16,9 +16,9 @@ module.exports = {
     getAppByPage:
         (name) =>
             _getContext(require.context(`clientSrc/pages`, true, /containers\/App\.js/), name),
-    getCusProxyRouter:
-        (name) =>
-            _getContext(require.context(`rootServer/`, true, /^\.\/proxy_.*\.js$/), name),
+    // getCusProxyRouter:
+    //     (name) =>
+    //         _getContext(require.context(`rootServer/`, true, /^\.\/proxy_.*\.js$/), name),
     getManifest:
         (name = 'asset-manifest.json') =>
             _getContext(require.context(`rootServer/assets`, false, /asset-manifest.json$/), name),

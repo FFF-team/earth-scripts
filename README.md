@@ -3,6 +3,8 @@ react v15.x 使用`earth-scripts@0.x`版本
 
 react v16.x 使用`earth-scripts@1.x`版本
 
+react-ssr 使用`earth-scripts@2.x`版本
+
 ### config
 * polyfill.js
 * webpack.config.dev.js `优先级高于但文件配置`
@@ -236,11 +238,6 @@ _server/
   - assets/ 存放资源json文件
   - dist/  编译后的文件
   - log/   日志文件（dev环境下位置，部署后会到/opt/nodejslogs下）
-  - proxy_[name] 定义代理的接口前缀及逻辑。eg: 需要代理的地址如下，/api/user/center，有统一的前缀
-                 api，则目录为proxy_api
-    - index.js   提供两个方法可供自定义 apiProxyBefore(ctx), apiProxyReceived(ctx)
-
-  - page/     page对应的逻辑
 
 
 ```
@@ -250,11 +247,11 @@ tip:
 
 在启动命令中自定义启动文件：
 
-`earth-scripts ssr-start --entry=_server/app.js`
+`earth-scripts ssr-start --entry=server.js`
 
 
 ```
-_server/app.js
+_server.js
 
 const start = require('earth-scripts/server/app');
 const env = require('../config/server');
@@ -274,10 +271,16 @@ sstart().then((app) => {
 
      app.performance()
 
-     // 可以添加自己项目的逻辑
-     // app.use(xxx)
+     app.proxyApi({
+         prefix: 'api'
+         // 详细说明如下
+         apiProxyBefore: async () => {},
+         apiProxyReceived: async () => {}
+     });
 
-     app.init() // 必须，添加基本的mw
+     app.init({
+         apiProxy: true
+     });
 
 
      // 可以添加自己项目的逻辑
@@ -302,8 +305,6 @@ sstart().then((app) => {
 需要代理的api，可实现如下两个函数：
 
 ```
-proxy_api/index.js
-
 module.exports = {
    // 代理之前
    apiProxyBefore: (ctx) => {
@@ -329,17 +330,15 @@ module.exports = {
 
 ```
 
-page文件夹下可创建某一page的js，自定义是否使用ssr(默认都不使用)
+自定义是否使用ssr(默认使用)，使用redux情况下不能用默认的
 
 ```
-page/page1.js
 
-router.get('/', async (ctx, next) => {
+router.get('/page1', async (ctx, next) => {
 
     const htmlObj = await new html(ctx, PAGE)
         .init({
             ssr: true,
-            browserRouter: true,
             app: App
         }).catch((e) => {
                 console.log(e);
@@ -351,8 +350,6 @@ router.get('/', async (ctx, next) => {
     htmlObj.injectStore(createStore(reducers, {})).render();
 });
 ```
-todo: more
-todo: 优化
 
 
 
