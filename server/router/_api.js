@@ -15,7 +15,7 @@ module.exports = ({
                       apiProxyReceived = () => {}
 }) => {
 
-    router.all('/:name/:other*',
+    router.all('/:other*',
         // proxy before, change body or something
         async (ctx, next) => {
             if (apiProxyBefore) {
@@ -37,7 +37,7 @@ module.exports = ({
             const proxyOption = {
                 selfHandleResponse: res._app_selfHandleResponseApi,
                 headers: _app_proxyOption.headers || {},
-                target: `${_app_proxyOption.target || config.proxyPath}/${params.name}/${params.other}`,
+                target: `${_app_proxyOption.target || config.proxyPath}/${params.other}`,
             };
 
             const _app_proxy = new Proxy2Server(req, res);
