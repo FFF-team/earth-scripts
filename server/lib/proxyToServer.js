@@ -234,10 +234,6 @@ class ProxyToServer {
 // todo: 暂时未找到根本性原因
 proxy.on('proxyReq', function (proxyReq, req, res, options) {
 
-    if (!req._body || !Object.keys(req._body).length) {
-        return;
-    }
-
     // 只考虑application/json情况
     // 如果是POST  && 有自定义传入的body
     // 重新buffer
