@@ -14,6 +14,7 @@ const maxMem = require('../def').maxMem;
 const getInitialData = require('./getInitialData');
 const enhanceApp = require('./enhanceApp');
 const getScripts = require('../util/getScripts');
+const { matchRoutes, getRouteInitialData } = require('../util/parseRoute');
 
 
 const osBusy = require('../util/osCheck');
@@ -245,8 +246,24 @@ class Html {
      * @private
      */
     async __enhanceApp(App) {
+
+        // get InitialData from <App/>
         const initialProps = await getInitialData(App, this.ctx, this._store);
+
+        // get InitialData from route Component
+        const routeConfig = this.option.routeConfig;
+        if (routeConfig) {
+            const pathname = this.ctx.request.path.replace(`/${this.page}`, '');
+            const matchedRoute = matchRoutes(routeConfig, pathname);
+            const ret = await getRouteInitialData(this.ctx, this._store, matchedRoute);
+            this.__PRELOADED_STATE__.routeProps = ret;
+        }
+
+
+
+
         this.__PRELOADED_STATE__.pageProps = initialProps;
+
         if (this._store && this._store.getState) {
             this.__PRELOADED_STATE__.store = this._store.getState();
         }
