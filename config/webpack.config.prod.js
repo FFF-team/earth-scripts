@@ -378,8 +378,8 @@ const defaultConfig = {
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
       ...(isServer ? [
-          new ManifestPlugin({fileName: '../_server/assets/asset-manifest.json'}),
-          new ReactLoadablePlugin({ filename: './_server/assets/react-loadable.json', })
+          new ManifestPlugin({fileName: '../_server/asset-manifest.json'}),
+          new ReactLoadablePlugin({ filename: './_server/react-loadable.json', })
       ] : []),
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.
