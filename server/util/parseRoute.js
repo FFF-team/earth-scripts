@@ -52,8 +52,11 @@ const getRouteInitialData = async (ctx, reduxStore, matchedRoute) => {
 
     initialData.reduce((ret, next, i) => {
         const comp = _tempRouteComp[i];
-        finalData[comp.displayName] = next;
-        comp.defaultProps = initialData[i]
+        const compName = comp.displayName || comp.name;
+        if (compName) {
+            finalData[comp.displayName || comp.name] = next;
+            comp.defaultProps = initialData[i]
+        }
     }, finalData);
 
 
