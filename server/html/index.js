@@ -213,9 +213,13 @@ class Html {
         });
 
 
-        ctx.set('Content-Type', 'text/html; charset=utf-8');
-        ctx.status = 200;
-        ctx.body = stream.pipe(htmlWriter)
+        if (this.routerContext.url) {
+            ctx.redirect(this.routerContext.url, 302)
+        } else {
+            ctx.set('Content-Type', 'text/html; charset=utf-8');
+            ctx.status = 200;
+            ctx.body = stream.pipe(htmlWriter)
+        }
 
 
         // todo: 以下方式压测时会有Error: read ECONNRESET错误
