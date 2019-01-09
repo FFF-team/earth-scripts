@@ -12,6 +12,15 @@ start().then((app) => {
     const appCallback = app.callback();
     const server = http.createServer(appCallback);
 
+    // catch error
+    app.use(async (ctx, next) => {
+        try {
+            await next()
+        } catch (e) {
+            logger.error(e.stack);
+            ctx.body = 'server error';
+        }
+    });
 
     app.performance();
 
@@ -19,6 +28,11 @@ start().then((app) => {
 
     app.init({
         defaultSSR: true
+    });
+
+    app.on("error", (err, ctx) => {//捕获异常记录错误日志
+        logger.error(err.stack);
+        ctx.body = 'server app onError'
     });
 
     server

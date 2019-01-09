@@ -56,7 +56,7 @@ module.exports = ({
 }) => {
 
     // proxy api
-    router.use(`/${prefix}`, apiRouter({apiProxyBefore, apiProxyReceived}).routes());
+    router.use(`/${prefix}`, apiRouter({apiProxyBefore, apiProxyReceived, prefix}).routes());
 
     return router
 };

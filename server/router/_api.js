@@ -12,7 +12,8 @@ const Proxy2Server = require('../lib/proxyToServer');
 
 module.exports = ({
                       apiProxyBefore = () => {},
-                      apiProxyReceived = () => {}
+                      apiProxyReceived = () => {},
+                      prefix
 }) => {
 
     router.all('/:other*',
@@ -28,16 +29,16 @@ module.exports = ({
 
             const req = ctx.req;
             const res = ctx.res;
-            const params = ctx.params;
 
             const _app_proxyOption = ctx._app_proxyOption || {headers: {}};
+            const proxyPath = ctx.request.url.replace(new RegExp(`/${prefix}`), '');
 
             res._app_selfHandleResponseApi = _app_proxyOption.selfHandleResponse || selfHandleResponseApi;
 
             const proxyOption = {
                 selfHandleResponse: res._app_selfHandleResponseApi,
                 headers: _app_proxyOption.headers || {},
-                target: `${_app_proxyOption.target || config.proxyPath}/${params.other}`,
+                target: `${_app_proxyOption.target || config.proxyPath}/${proxyPath}`,
             };
 
             const _app_proxy = new Proxy2Server(req, res);

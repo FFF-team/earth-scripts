@@ -87,12 +87,12 @@ class ProxyToServer {
                 formatData.__fns = true;
                 formatData = JSON.stringify(formatData)
             } catch (e) {
-                formatData = JSON.stringify(errorBody(RES_CODE.SEND_TO_CLIENT_ERROR, formatData));
+                formatData = JSON.stringify(errorBody(RES_CODE.PTS_SEND_TO_CLIENT_ERROR, formatData));
 
                 logger.proxyError({
                     path: req.url,
                     response: formatData,
-                    errorCode: RES_CODE.SEND_TO_CLIENT_ERROR,
+                    errorCode: RES_CODE.PTS_SEND_TO_CLIENT_ERROR,
                     errorStack: e.stack
                 });
 

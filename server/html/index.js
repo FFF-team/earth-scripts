@@ -219,7 +219,7 @@ class Html {
     async __enhanceApp(App) {
 
         // get InitialData from <App/>
-        this.initialData.pageProps = this.initialData.pageProps ? this.initialData.pageProps : await getInitialData(App, this.ctx, this._store);
+        this.initialData.pageProps = Object.keys(this.initialData.pageProps).length ? this.initialData.pageProps : await getInitialData(App, this.ctx, this._store);
         this.__PRELOADED_STATE__.pageProps = this.initialData.pageProps;
 
         // get InitialData from route Component

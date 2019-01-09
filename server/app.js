@@ -43,31 +43,12 @@ const main = async () => {
     }));
 */
 
-
     app.proxy = true;
-
-    // catch error
-    app.use(async (ctx, next) => {
-        try {
-            await next()
-        } catch (e) {
-            logger.error(e.stack);
-            ctx.body = e.message;
-        }
-    });
-
 
     // etag无法作用于Stream
     // Strings, Buffers, and fs.Stats are accepted
     // app.use(conditional());
     // app.use(etag());
-
-
-
-    app.on("error", (err, ctx) => {//捕获异常记录错误日志
-        logger.error(err.stack);
-        ctx.body = 'err'
-    });
 
     process.on('uncaughtException', (err) => {
         logger.error('uncaughtException' + err.stack);
