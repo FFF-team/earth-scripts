@@ -32,13 +32,41 @@ function matchRoutes(routes, pathname, /*not public API*/ branch = []) {
     return branch;
 }
 
-const getRouteInitialData = async (ctx, reduxStore, matchedRoute) => {
+/**
+ *
+ * @param ctx
+ * @param reduxStore
+ * @param matchedRoute
+ * @param defaultInitialData 直接从html()中传过来的初始数据
+ * @return {Promise<void>}
+ */
+const getRouteInitialData = async (ctx, reduxStore, matchedRoute, defaultInitialData) => {
 
     let _tempRouteComp = [];
     let finalData = {};
 
+    // 已经传入初始数据
+    if (defaultInitialData && Object.keys(defaultInitialData).length) {
+        const promise = matchedRoute.map(async ({ route, match }) => {
+            return  await getRouteComp(route.component);
+        });
+        const routeComp = await Promise.all(promise);
+
+        routeComp.forEach((comp) => {
+            const compName = comp.displayName || comp.name;
+            const data = defaultInitialData[compName];
+
+            if (data) {
+                comp.defaultProps = data;
+                finalData[compName] = data
+            }
+        });
+
+        return finalData
+    }
 
 
+    // 无初始数据，尝试从组件下getInitialProps中拿
     const promises = matchedRoute.map(async ({ route, match }) => {
         const comp = await getRouteComp(route.component);
         _tempRouteComp.push(comp);
@@ -53,12 +81,11 @@ const getRouteInitialData = async (ctx, reduxStore, matchedRoute) => {
     initialData.reduce((ret, next, i) => {
         const comp = _tempRouteComp[i];
         const compName = comp.displayName || comp.name;
-        if (compName) {
-            finalData[comp.displayName || comp.name] = next;
+        if (compName && initialData[i]) {
+            finalData[compName] = next;
             comp.defaultProps = initialData[i]
         }
     }, finalData);
-
 
     return finalData
 }

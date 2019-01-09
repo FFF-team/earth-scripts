@@ -59,6 +59,7 @@ module.exports = {
             // 指向client端代码
             'clientSrc': path.resolve('src'),
             'clientBuild': path.resolve('build'),
+            'clientTpl': path.resolve('template'),
             // 指向根目录_server
             'rootServer': path.resolve('_server'),
             'rootConfig': path.resolve('config'),

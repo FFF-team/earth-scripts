@@ -6,7 +6,7 @@ const getInitialData = async (Component, ctx, store) => {
 
     const props = await Component.getInitialProps(ctx, store)
         .catch((e) => {
-            logger.error(e)
+            logger.error(e.stack)
         });
 
     return props

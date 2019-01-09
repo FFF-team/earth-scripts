@@ -60,6 +60,7 @@ paths.entriesMap['vendor'] = [
     require.resolve('react-error-overlay'),
 ];
 
+console.log(customConfig.externals)
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -186,11 +187,11 @@ const defaultConfig =  {
         // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
         // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
         // In development, this will be an empty string.
-        new InterpolateHtmlPlugin(env.raw),
+        // new InterpolateHtmlPlugin(env.raw),
         // Generates an `index.html` file with the <script> injected.
-        ...htmlWebpackPluginMap,
+        // ...htmlWebpackPluginMap,
         // HtmlWebpackExternalsPlugin
-        ...require('./common/htmlWebpackExternalsPlugin')(customConfig._origin.externals),
+        // ...require('./common/htmlWebpackExternalsPlugin')(customConfig._origin.externals),
 
         new webpack.optimize.CommonsChunkPlugin({
             name: "vendor"

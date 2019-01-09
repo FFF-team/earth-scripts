@@ -11,7 +11,7 @@ const checkPagesRequired = (allPagesName) => {
     for (let i = 0, len = allPagesName.length; i < len; i++) {
         page = allPagesName[i];
         if (!checkRequiredFiles([
-                resolveApp(`public/${page}.html`),
+                resolveApp(`template/${page}.js`),
                 isSinglePage() ? resolveApp('src/index.js') : resolveApp(`src/pages/${page}/index.js`)
             ])
         ) {
