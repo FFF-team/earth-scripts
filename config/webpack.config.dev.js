@@ -60,8 +60,6 @@ paths.entriesMap['vendor'] = [
     require.resolve('react-error-overlay'),
 ];
 
-console.log(customConfig.externals)
-
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.

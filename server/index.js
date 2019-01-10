@@ -4,7 +4,7 @@ const http = require('http');
 
 const start = require('./app');
 const env = require('./def');
-
+const logger = require('./lib/logger');
 
 start().then((app) => {
     const port = env.port;

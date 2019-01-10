@@ -31,7 +31,7 @@ module.exports = ({
             const res = ctx.res;
 
             const _app_proxyOption = ctx._app_proxyOption || {headers: {}};
-            const proxyPath = ctx.request.url.replace(new RegExp(`/${prefix}`), '');
+            const proxyPath = ctx.request.url.replace(new RegExp(`^/${prefix}/`), '/');
 
             res._app_selfHandleResponseApi = _app_proxyOption.selfHandleResponse || selfHandleResponseApi;
 
