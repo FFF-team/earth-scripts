@@ -1,9 +1,9 @@
 const mergeLoaders = require('../util').mergeLoaders;
 
-const postcss_loader = require('../common/loaders/postcss');
-const css_loader = require('../common/loaders/css');
-const style_loader = require('../common/loaders/style');
-const scss_loader = require('../common/loaders/scss');
+const postcss_loader = require('../../config/common/loaders/postcss');
+const css_loader = require('../../config/common/loaders/css');
+const style_loader = require('../../config/common/loaders/style');
+const scss_loader = require('../../config/common/loaders/scss');
 
 const base = {
     test: /\.scss$/,

@@ -2,7 +2,7 @@ const console = require('../tools').clog.ssr;
 const path = require('path');
 const pm2 = require('pm2');
 const webpack = require('webpack');
-const config = require('../server/webpack.config');
+const config = require('../webpack/server/webpack.config2');
 const del = require('del');
 
 const supportEnv = {
@@ -12,7 +12,7 @@ const supportEnv = {
 
 const ssrDeploy = async () => {
 
-    const {env, entry, name} = await require('./_ssr_get_args')();
+    const {env, entry, name, webpackEntry} = await require('./_ssr_get_args')();
 
     console.info(`current environment: ${env}`);
 
@@ -38,7 +38,7 @@ const ssrDeploy = async () => {
 
     try {
         await startCompile({
-            entry: entry
+            entry: webpackEntry
         })
     } catch (e) {
         console.log(e);
@@ -46,7 +46,7 @@ const ssrDeploy = async () => {
         process.exit(1);
     }
 
-    startPm2(name, env);
+    startPm2(name, env, entry);
 
 };
 
@@ -63,9 +63,7 @@ const startCompile = ({
 
         webpack(
             Object.assign(config, {
-                entry: {
-                    main: path.resolve(entry)
-                }
+                entry: entry
             }),
             (err, stats) => {
                 if (err || stats.hasErrors()) {
@@ -97,7 +95,7 @@ const startCompile = ({
 
 
 
-const startPm2 = (name, env) => {
+const startPm2 = (name, env, serverEntry) => {
     pm2.connect(function (err) {
         console.log('pm2 connect...');
 
@@ -109,7 +107,7 @@ const startPm2 = (name, env) => {
         pm2.start(
             {
                 name: name,
-                script: path.resolve('_server/dist/main.generated.js'),
+                script: serverEntry,
                 env: {
                     NODE_ENV: env
                 },

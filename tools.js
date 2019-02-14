@@ -65,6 +65,17 @@ const clog = {
     log: (msg) => {
         console.log(clog.prefix + msg)
     }
+};
+
+function ensureSlash(path, needsSlash) {
+    const hasSlash = path.endsWith('/');
+    if (hasSlash && !needsSlash) {
+        return path.substr(path, path.length - 1);
+    } else if (!hasSlash && needsSlash) {
+        return `${path}/`;
+    } else {
+        return path;
+    }
 }
 
 
@@ -73,5 +84,6 @@ module.exports = {
     resolveApp,
     getLocalMockPort,
     isSinglePage,
-    clog
+    clog,
+    ensureSlash
 };

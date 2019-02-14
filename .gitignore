@@ -1,6 +1,4 @@
 !/scripts/build.js
 .idea
 node_modules/
-serverMain/
-serverSSr
-webpack/
+_serverOld

@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const url = require('url');
 const glob = require('glob');
-const ensureSlash = require('./util').ensureSlash;
+const ensureSlash = require('../tools').ensureSlash;
 const isSinglePage = require('../tools').isSinglePage;
 
 // Make sure any symlinks in the project folder are resolved:

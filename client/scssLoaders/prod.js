@@ -1,18 +1,17 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const postcss_loader = require('../common/loaders/postcss');
-const css_loader = require('../common/loaders/css');
-const style_loader = require('../common/loaders/style');
-
+const postcss_loader = require('../../config/common/loaders/postcss');
+const css_loader = require('../../config/common/loaders/css');
+const style_loader = require('../../config/common/loaders/style');
+const scss_loader = require('../../config/common/loaders/scss');
 const _ = require('lodash');
 
 const mergeLoaders = require('../util').mergeLoaders;
 
 
-function cssLoaders(customConfig, extractTextPluginOptions) {
-
+function scssLoaders(customConfig, extractTextPluginOptions) {
 
     const base = {
-        test: /\.css$/
+        test: /\.scss$/,
     };
 
     const loaderObj = Object.assign(
@@ -20,11 +19,11 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
             fallback: style_loader,
             use: [
                 postcss_loader,
+                scss_loader
             ],
         },
         extractTextPluginOptions
     );
-
 
     const getRets = (arr) => {
 
@@ -37,6 +36,7 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
 
             return Object.assign(
                 {},
+                others,
                 base,
                 {
                     loader: ExtractTextPlugin.extract(
@@ -44,38 +44,41 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
                             use: use
                         })
                     )
-                },
-                others
+                }
             )
         })
 
-    };
+
+    }
 
 
     const normalLoader = () => {
+
         return getRets([{
             use: [0 , css_loader({
-                importLoaders: 1,
+                importLoaders: 2,
                 minimize: true,
                 sourceMap: false,
                 // sourceMap: shouldUseSourceMap,
-            })]
+            }),]
         }])
+
         /*return [
             {
-                test: /\.css$/,
+                test: /\.scss$/,
                 loader: ExtractTextPlugin.extract(
                     Object.assign(
                         {
                             fallback: style_loader,
                             use: [
                                 css_loader({
-                                    importLoaders: 1,
+                                    importLoaders: 2,
                                     minimize: true,
                                     sourceMap: false,
                                     // sourceMap: shouldUseSourceMap,
                                 }),
                                 postcss_loader,
+                                scss_loader
                             ],
                         },
                         extractTextPluginOptions
@@ -92,22 +95,20 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
             getRets([
                 {
                     exclude: exclude,
-                    use: [0,
-                        css_loader(
-                            Object.assign({
-                                importLoaders: 1,
-                                minimize: true,
-                                sourceMap: false,
-                                module: true,
-                                // sourceMap: shouldUseSourceMap,
-                            }, config)
-                        )
-                    ]
+                    use: [0, css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )]
                 },
                 {
                     include: exclude,
                     use: [0, css_loader({
-                        importLoaders: 1,
+                        importLoaders: 2,
                         minimize: true,
                         sourceMap: false,
                         // sourceMap: shouldUseSourceMap,
@@ -116,20 +117,21 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
             ]) :
             getRets([
                 {
-                    use: [0,
-                        css_loader(
-                            Object.assign({
-                                importLoaders: 1,
-                                minimize: true,
-                                sourceMap: false,
-                                module: true,
-                                // sourceMap: shouldUseSourceMap,
-                            }, config)
-                        )]
+                    use: [0, css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )]
                 }
             ])
 
     };
+
+
 
 
     const {
@@ -145,6 +147,7 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
         }) :
         normalLoader()
 
+
 }
 
-module.exports = cssLoaders;
+module.exports = scssLoaders;

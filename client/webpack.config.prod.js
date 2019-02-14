@@ -15,7 +15,7 @@ const getClientEnvironment = require('./env');
 const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const glob = require('glob');
-const util = require('./util');
+const util = require('../tools');
 const ReactLoadablePlugin = require('react-loadable/webpack')
     .ReactLoadablePlugin;
 const isServer = process.env.IS_SERVER === 'true';
@@ -108,6 +108,7 @@ paths.entriesMap['vendor'] = [
     'classnames'
 ];
 
+
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
@@ -193,7 +194,7 @@ const defaultConfig = {
         oneOf: [
           // "url" loader works just like "file" loader but it also embeds
           // assets smaller than specified size as data URLs to avoid requests.
-            ...require('./imgLoaders/prod')(customConfig),
+            ...require('../config/imgLoaders/prod')(customConfig),
           // Process JS with Babel.
             ...require('./jsLoaders/prod')(),
           // The notation here is somewhat confusing.
@@ -324,7 +325,7 @@ const defaultConfig = {
   },
   plugins: [
     // cdn配置
-    ...(cdnPaths ? [require('./common/cdnPathWebpackPlugin')(cdnPaths)] : []),
+    ...(cdnPaths ? [require('./plugins/cdnPathWebpackPlugin')(cdnPaths)] : []),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">

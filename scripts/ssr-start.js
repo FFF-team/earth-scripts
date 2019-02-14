@@ -6,7 +6,7 @@ const del = require('del');
 const path = require('path');
 const webpack = require('webpack');
 const nodemon = require('nodemon');
-const config = require('../server/webpack.config');
+const config = require('../webpack/server/webpack.config2');
 const console = require('../tools').clog.ssr;
 
 
@@ -18,7 +18,7 @@ const console = require('../tools').clog.ssr;
 
 const ssrStart = async () => {
 
-    const {entry} = await require('./_ssr_get_args')();
+    const {entry, webpackEntry} = await require('./_ssr_get_args')();
 
     console.info(`current environment: development`);
 
@@ -32,7 +32,7 @@ const ssrStart = async () => {
 
     try {
         await ssrWatch({
-            entry: entry
+            entry: webpackEntry
         });
     } catch (e) {
         console.log(e);
@@ -40,7 +40,7 @@ const ssrStart = async () => {
         return;
     }
 
-    nodemonStart()
+    nodemonStart(entry)
 
 };
 
@@ -53,9 +53,7 @@ const ssrWatch = ({
 
         const compiler = webpack(
             Object.assign(config, {
-                entry: {
-                    main: path.resolve(entry)
-                }
+                entry: entry
             }),
             (err, stats) => {
                 if (err || stats.hasErrors()) {
@@ -104,9 +102,9 @@ const ssrWatch = ({
 module.exports = ssrWatch;
 
 
-const nodemonStart = () => {
+const nodemonStart = (serverEntry) => {
     nodemon({
-        "script": path.resolve('_server/dist/main.generated.js'),
+        "script": serverEntry,
         "ext": 'js',
         "verbose": true,
         "env": {
@@ -114,7 +112,11 @@ const nodemonStart = () => {
         },
         "watch": [
             path.resolve('_server/dist'),
-            path.resolve('src')
+            path.resolve('src'),
+            path.resolve('template'),
+            // todo: 没想好怎么传watch参数，暂时写死
+            path.resolve('server'),
+            serverEntry
         ],
         "ignore": [
             path.resolve('_server/assets'),

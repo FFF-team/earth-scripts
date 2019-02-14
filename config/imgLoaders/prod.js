@@ -1,5 +1,5 @@
 const url_loader = require('../common/loaders/url');
-const util = require('../util');
+const util = require('../../tools');
 
 function imgLoaders(customConfig) {
 

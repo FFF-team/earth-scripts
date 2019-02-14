@@ -12,7 +12,7 @@ const getClientEnvironment = require('./env');
 const paths = require('./paths');
 const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
-const util = require('./util');
+const util = require('../tools');
 const staticPath = require('../config-user/webpack').staticPath;
 
 // import customerConfig
@@ -147,7 +147,7 @@ const defaultConfig =  {
                     // "url" loader works like "file" loader except that it embeds assets
                     // smaller than specified limit in bytes as data URLs to avoid requests.
                     // A missing `test` is equivalent to a match.
-                    ...require('./imgLoaders/dev')(customConfig),
+                    ...require('../config/imgLoaders/dev')(customConfig),
                     // Process JS with Babel.
                     ...require('./jsLoaders/dev')(),
                     // "postcss" loader applies autoprefixer to our CSS.
