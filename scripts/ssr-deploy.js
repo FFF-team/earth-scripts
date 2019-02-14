@@ -2,7 +2,7 @@ const console = require('../tools').clog.ssr;
 const path = require('path');
 const pm2 = require('pm2');
 const webpack = require('webpack');
-const config = require('../webpack/server/webpack.config2');
+const config = require('../server/webpack.config');
 const del = require('del');
 
 const supportEnv = {

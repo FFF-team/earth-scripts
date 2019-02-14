@@ -1,8 +1,8 @@
 const path = require("path");
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
-const customConfig = require('../../config-user/webpack');
-const imgLoaders = require('../../config/imgLoaders/prod');
+const customConfig = require('../config-user/webpack');
+const imgLoaders = require('../config/imgLoaders/prod');
 const ReactLoadablePlugin = require('react-loadable/webpack')
     .ReactLoadablePlugin;
 

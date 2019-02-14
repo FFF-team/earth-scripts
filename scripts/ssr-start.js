@@ -6,7 +6,7 @@ const del = require('del');
 const path = require('path');
 const webpack = require('webpack');
 const nodemon = require('nodemon');
-const config = require('../webpack/server/webpack.config2');
+const config = require('../server/webpack.config');
 const console = require('../tools').clog.ssr;
 
 
