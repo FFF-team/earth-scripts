@@ -24,7 +24,7 @@ module.exports = {
     //     ]*/
     //     'main': path.resolve('node_modules/react-ssr-with-koa/src/index.js')
     // },
-    devtool: !dev ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
+    devtool: dev ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
     target: "node",
     output: {
         path: path.resolve("_server/dist"),
