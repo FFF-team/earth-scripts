@@ -4,6 +4,8 @@ const pm2 = require('pm2');
 const webpack = require('webpack');
 const config = require('../server/webpack.config');
 const del = require('del');
+const paths = require('../config/paths');
+const appName = require(paths.appPackageJson).name;
 
 const supportEnv = {
     test: 'test',
@@ -12,7 +14,7 @@ const supportEnv = {
 
 const ssrDeploy = async () => {
 
-    const {env, entry, name, webpackEntry} = await require('./_ssr_get_args')();
+    const {env, entry, webpackEntry} = await require('./_ssr_get_args')();
 
     console.info(`current environment: ${env}`);
 
@@ -21,16 +23,12 @@ const ssrDeploy = async () => {
         process.exit(1)
     }
 
-    process.env.ENABLE_BUNDLE_ANALYZE = 'false';
-    process.env.IS_SERVER = 'true';
     process.env.BABEL_ENV = env;
     process.env.NODE_ENV = env;
 
 
 
     await require('./_ssr_init')();
-
-    await require('./_ssr_set_config')(env);
 
     // clear
     del(path.resolve('_server/dist'));
@@ -46,7 +44,7 @@ const ssrDeploy = async () => {
         process.exit(1);
     }
 
-    startPm2(name, env, entry);
+    startPm2(env, entry);
 
 };
 
@@ -95,7 +93,7 @@ const startCompile = ({
 
 
 
-const startPm2 = (name, env, serverEntry) => {
+const startPm2 = (env, serverEntry) => {
     pm2.connect(function (err) {
         console.log('pm2 connect...');
 
@@ -106,7 +104,7 @@ const startPm2 = (name, env, serverEntry) => {
 
         pm2.start(
             {
-                name: name,
+                name: `${appName}_${env}`.toLocaleUpperCase(),
                 script: serverEntry,
                 env: {
                     NODE_ENV: env

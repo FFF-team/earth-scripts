@@ -5,7 +5,7 @@ const server = jsonServer.create();
 // const router = jsonServer.router('db.json')
 const middlewares = jsonServer.defaults();
 const configResultes = require('./transform');
-const paths = require('../client/paths');
+const paths = require('../config/paths');
 const localMockPort = require('../tools').getLocalMockPort(require(paths.appPackageJson).proxy);
 
 const routerCreateFun = (configResulte) => {

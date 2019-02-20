@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
-const paths = require('../paths');
+const paths = require('../../config/paths');
 /**
  * 处理externals对象
  *

@@ -9,7 +9,7 @@ const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeM
 const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getClientEnvironment = require('./env');
-const paths = require('./paths');
+const paths = require('../config/paths');
 const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const util = require('../tools');
@@ -19,7 +19,6 @@ const staticPath = require('../config-user/webpack').staticPath;
 const customConfig = require('../config-user/webpack');
 const ReactLoadablePlugin = require('react-loadable/webpack')
     .ReactLoadablePlugin;
-const isServer = process.env.IS_SERVER === 'true';
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -221,7 +220,7 @@ const defaultConfig =  {
         // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
         // You can remove this if you don't use Moment.js:
         // new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-        ...(isServer ? [new ReactLoadablePlugin({ filename: path.resolve('_server/react-loadable.json'), })] : [])
+        new ReactLoadablePlugin({ filename: path.resolve('_server/react-loadable.json'), })
     ],
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.

@@ -1,4 +1,3 @@
-process.env.IS_SERVER = 'true';
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
@@ -8,7 +7,12 @@ const webpack = require('webpack');
 const nodemon = require('nodemon');
 const config = require('../server/webpack.config');
 const console = require('../tools').clog.ssr;
-
+// const openBrowser = require('react-dev-utils/openBrowser');
+// const {
+//     prepareUrls,
+// } = require('react-dev-utils/WebpackDevServerUtils');
+//
+// let openFlag = false;
 
 /**
  * 0. init
@@ -23,8 +27,6 @@ const ssrStart = async () => {
     console.info(`current environment: development`);
 
     await require('./_ssr_init')();
-
-    await require('./_ssr_set_config')('development');
 
     // clear
     del(path.resolve('_server/dist'));
@@ -44,7 +46,15 @@ const ssrStart = async () => {
 
 };
 
-ssrStart();
+// todo: port获取方式
+// const _openBrowser = () => {
+//     const urls = prepareUrls('http', '0.0.0.0', 8004);
+//
+//     openBrowser(
+//         urls.localUrlForBrowser +
+//         `index`
+//     )
+// }
 
 const ssrWatch = ({
                       entry
@@ -128,6 +138,13 @@ const nodemonStart = (serverEntry) => {
 
     nodemon.on('start', function () {
         console.log('=== App has started === \n');
+
+        // if (!openFlag) {
+        //     openFlag = true;
+        //     _openBrowser()
+        // }
+
+
     }).on('quit', function () {
         console.log('App has quit');
         process.exit();
@@ -135,3 +152,6 @@ const nodemonStart = (serverEntry) => {
         // console.log('App restarted due to: ', files);
     });
 }
+
+
+ssrStart();

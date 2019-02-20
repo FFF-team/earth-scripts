@@ -28,7 +28,7 @@ const {
   prepareUrls,
 } = require('react-dev-utils/WebpackDevServerUtils');
 const openBrowser = require('react-dev-utils/openBrowser');
-const paths = require('../client/paths');
+const paths = require('../config/paths');
 const config = require('../client/webpack.config.dev');
 const createDevServerConfig = require('../client/webpackDevServer.config');
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
@@ -49,12 +49,11 @@ if (!checkPagesRequired(paths.allPages)) {
 // console.log('earth-scripts')
 
 // Tools like Cloud9 rely on this.
-const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
+const DEFAULT_PORT = parseInt(process.env.CLIENT_PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // start mock server depends `npm run start -- stopmock`
 const isStopmock = process.argv.slice(2).find((v) => v === 'stopmock' );
-const isServer = process.env.IS_SERVER === 'true';
 
 if (!isStopmock) {
     const customerMock = require(paths.appPackageJson).mockRoot;
@@ -118,16 +117,6 @@ choosePort(HOST, DEFAULT_PORT)
         // clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
-      // 默认取第一个html打开
-      // todo: better
-      if (isServer) {
-          return;
-      }
-      openBrowser(
-          urls.localUrlForBrowser +
-          publicPath.substring(1) +
-          `${paths.allPages[0]}.html`
-      )
 
     });
 

@@ -1,4 +1,4 @@
-const paths = require('../paths');
+const paths = require('../../config/paths');
 const isValid = require('./util').isValid;
 const babel_loader = require('../../config/common/loaders/babel');
 

@@ -9,7 +9,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
-const paths = require('./paths');
+const paths = require('../config/paths');
 const getClientEnvironment = require('./env');
 // const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
 const webpackMerge = require('webpack-merge');
@@ -18,7 +18,6 @@ const glob = require('glob');
 const util = require('../tools');
 const ReactLoadablePlugin = require('react-loadable/webpack')
     .ReactLoadablePlugin;
-const isServer = process.env.IS_SERVER === 'true';
 
 // import customerConfig
 const customConfig = require('../config-user/webpack');
@@ -378,10 +377,8 @@ const defaultConfig = {
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
-      ...(isServer ? [
-          new ManifestPlugin({fileName: '../_server/asset-manifest.json'}),
-          new ReactLoadablePlugin({ filename: './_server/react-loadable.json', })
-      ] : []),
+    new ManifestPlugin({fileName: '../_server/asset-manifest.json'}),
+    new ReactLoadablePlugin({ filename: './_server/react-loadable.json', })
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.
     // new SWPrecacheWebpackPlugin({

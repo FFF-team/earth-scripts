@@ -1,13 +1,14 @@
 const pm2 = require('pm2');
+const paths = require('../config/paths');
+const appName = require(paths.appPackageJson).name;
 
 const console = require('../tools').clog.ssr;
-const args = process.argv.slice(2);
 
-let name = require('yargs').parse(args).name;
+let name = appName;
 let processFind = false;
 
 if (!name) {
-    console.error('name is missing! please use --name=PROJECT_NAME')
+    console.error('name is missing! please set name in package.json')
 }
 
 const formatName = (n) => {
@@ -20,7 +21,7 @@ const formatName = (n) => {
 pm2.list((err, processDescriptionList) => {
 
     processDescriptionList.forEach((p) => {
-        if (formatName(p.name) === name) {
+        if (formatName(p.name) === name.toLocaleUpperCase()) {
 
             processFind = true;
 

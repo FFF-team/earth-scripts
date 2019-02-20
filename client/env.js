@@ -2,10 +2,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const paths = require('./paths');
+const paths = require('../config/paths');
 
 // Make sure that including paths.js after env.js will read .env variables.
-delete require.cache[require.resolve('./paths')];
+delete require.cache[require.resolve('../config/paths')];
 
 const NODE_ENV = process.env.NODE_ENV;
 if (!NODE_ENV) {
@@ -75,7 +75,7 @@ function getClientEnvironment(publicUrl) {
         // images into the `src` and `import` them in code to get their paths.
         PUBLIC_URL: publicUrl,
         // add port for ssr
-        CLIENT_PORT: process.env.PORT
+        CLIENT_PORT: process.env.CLIENT_PORT
       }
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
