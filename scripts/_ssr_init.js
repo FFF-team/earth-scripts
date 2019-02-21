@@ -7,9 +7,9 @@ const { existsSync, readFileSync, writeFileSync } = require('fs');
 
 
 const init = async () => {
-    await mkdirp(resolve('_server'));
-    await mkdirp(resolve('_server/dist'));
-    await mkdirp(resolve('_server/log'));
+    await mkdirp(resolve('build'));
+    await mkdirp(resolve('build/server'));
+    await mkdirp(resolve('log'));
     // await mkdirp(resolve('_server/assets'));
 
     if (!existsSync(resolve('config/server.js'))) {

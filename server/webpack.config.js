@@ -27,7 +27,7 @@ module.exports = {
     devtool: dev ? 'cheap-module-eval-source-map' : 'cheap-module-source-map',
     target: "node",
     output: {
-        path: path.resolve("_server/dist"),
+        path: path.resolve("build/server"),
         filename: "./[name].generated.js",
         libraryTarget: "commonjs2",
         chunkFilename: `[name].chunk.js`,

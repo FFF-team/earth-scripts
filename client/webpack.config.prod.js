@@ -377,8 +377,8 @@ const defaultConfig = {
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
-    new ManifestPlugin({fileName: '../_server/asset-manifest.json'}),
-    new ReactLoadablePlugin({ filename: './_server/react-loadable.json', })
+    new ManifestPlugin({fileName: '../build/asset-manifest.json'}),
+    new ReactLoadablePlugin({ filename: './build/react-loadable.json', })
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.
     // new SWPrecacheWebpackPlugin({
