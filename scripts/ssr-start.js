@@ -121,19 +121,14 @@ const nodemonStart = (serverEntry) => {
             "NODE_ENV": "development"
         },
         "watch": [
-            path.resolve('_server/dist'),
-            path.resolve('src'),
+            path.resolve('build/server'),
             path.resolve('template'),
             // todo: 没想好怎么传watch参数，暂时写死
             path.resolve('server'),
             serverEntry
         ],
-        "ignore": [
-            path.resolve('_server/assets'),
-            path.resolve('_server/log'),
-            // path.resolve('_server/dist')
-        ],
-        "delay": "5000"
+        "ignore": [],
+        "delay": "3000"
     });
 
     nodemon.on('start', function () {

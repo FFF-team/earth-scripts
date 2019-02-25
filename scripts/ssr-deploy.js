@@ -110,7 +110,7 @@ const startPm2 = (env, serverEntry) => {
                     NODE_ENV: env
                 },
                 instance_var: 'INSTANCE_ID',
-                watch: ['server/dist/*.js']
+                watch: false
             },
             function (err, apps) {
                 err && console.log('start pm2: ' + err);
