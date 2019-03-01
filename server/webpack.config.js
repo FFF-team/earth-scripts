@@ -49,10 +49,7 @@ module.exports = {
     },
     resolve: {
         extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-        alias: Object.assign({
-            'window$': path.resolve(__dirname, 'fakeObject/window.js'),
-            'document$': path.resolve(__dirname, 'fakeObject/document'),
-        }, customConfig.alias)
+        alias: customConfig.alias
     },
     module: {
         strictExportPresence: true,
@@ -111,10 +108,6 @@ module.exports = {
         // new webpack.NamedModulesPlugin(),
         // new webpack.HotModuleReplacementPlugin(),
         // new webpack.NoEmitOnErrorsPlugin(),
-        new webpack.ProvidePlugin({
-            window : 'window',
-            document: 'document'
-        }),
         new webpack.DefinePlugin({
             "process.env": {
                 "IS_SERVER": "true",  // 标识正在使用ssr

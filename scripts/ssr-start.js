@@ -128,7 +128,7 @@ const nodemonStart = (serverEntry) => {
             serverEntry
         ],
         "ignore": [],
-        "delay": "3000"
+        "delay": "1000"
     });
 
     nodemon.on('start', function () {
