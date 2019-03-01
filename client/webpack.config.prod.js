@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+// const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
@@ -70,35 +70,35 @@ const mediaOption = cdnPaths && cdnPaths.media ?
         name: fileNames.media
     };
 
-const htmlWebpackPluginMap = (function(){
-    let map = [];
-    for(let k in paths.entriesMap){
-        map.push(
-            new HtmlWebpackPlugin({
-                inject: true,
-                flexibleStr: paths.flexibleStr,
-                filename: `${k}.html`,
-                template: paths.resolveApp(`public/${k}.html`),
-                chunks: ['runtime', 'vendor', k],
-                minify: {
-                    removeComments: true,
-                    collapseWhitespace: true,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true,
-                    removeEmptyAttributes: true,
-                    removeStyleLinkTypeAttributes: true,
-                    keepClosingSlash: true,
-                    minifyJS: true,
-                    minifyCSS: true,
-                    minifyURLs: true,
-                },
-            })
-        );
-    }
-
-    return map;
-
-})();
+// const htmlWebpackPluginMap = (function(){
+//     let map = [];
+//     for(let k in paths.entriesMap){
+//         map.push(
+//             new HtmlWebpackPlugin({
+//                 inject: true,
+//                 flexibleStr: paths.flexibleStr,
+//                 filename: `${k}.html`,
+//                 template: paths.resolveApp(`public/${k}.html`),
+//                 chunks: ['runtime', 'vendor', k],
+//                 minify: {
+//                     removeComments: true,
+//                     collapseWhitespace: true,
+//                     removeRedundantAttributes: true,
+//                     useShortDoctype: true,
+//                     removeEmptyAttributes: true,
+//                     removeStyleLinkTypeAttributes: true,
+//                     keepClosingSlash: true,
+//                     minifyJS: true,
+//                     minifyCSS: true,
+//                     minifyURLs: true,
+//                 },
+//             })
+//         );
+//     }
+//
+//     return map;
+//
+// })();
 
 paths.entriesMap['vendor'] = [
     require.resolve('./polyfills'),
@@ -377,8 +377,8 @@ const defaultConfig = {
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
-    new ManifestPlugin({fileName: '../build/asset-manifest.json'}),
-    new ReactLoadablePlugin({ filename: './build/react-loadable.json', })
+    new ManifestPlugin({fileName: path.resolve('build/asset-manifest.json')}),
+    new ReactLoadablePlugin({ filename: path.resolve('build/react-loadable.json'), })
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.
     // new SWPrecacheWebpackPlugin({
@@ -439,7 +439,6 @@ const newConfig = webpackMerge({
         if (key === 'plugins') {
             let uniques = [
                 'CdnPathWebpackPlugin',
-                'InterpolateHtmlPlugin',
                 'HtmlWebpackPlugin',
                 'HtmlWebpackExternalsPlugin',
                 'HashedModuleIdsPlugin',

@@ -2,9 +2,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
@@ -14,6 +12,8 @@ const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const util = require('../tools');
 const staticPath = require('../config-user/webpack').staticPath;
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
 
 // import customerConfig
 const customConfig = require('../config-user/webpack');
@@ -33,31 +33,22 @@ const env = getClientEnvironment(publicUrl);
 
 // import filenames config
 const fileNames = customConfig.filenames;
+const cssFilename = fileNames.css;
 
-const htmlWebpackPluginMap = (function(){
-    let map = [];
-    for(let k in paths.entriesMap){
-        paths.entriesMap[k] = [
-            require.resolve('./clientHotReload/webpackHotDevClient'),
-            paths.entriesMap[k]
-        ];
-        map.push(
-            new HtmlWebpackPlugin({
-                inject: true,
-                flexibleStr: paths.flexibleStr,
-                filename: `${k}.html`,
-                template: paths.resolveApp(`public/${k}.html`),
-                chunks: ['runtime', 'vendor', k]
-            })
-        );
-    }
-    return map;
-})();
+
+for(let k in paths.entriesMap){
+    paths.entriesMap[k] = [
+        require.resolve('./clientHotReload/webpackHotDevClient'),
+        paths.entriesMap[k]
+    ];
+}
 
 paths.entriesMap['vendor'] = [
     require.resolve('./polyfills'),
     require.resolve('react-error-overlay'),
 ];
+
+
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -152,11 +143,10 @@ const defaultConfig =  {
                     // "postcss" loader applies autoprefixer to our CSS.
                     // "css" loader resolves paths in CSS and adds assets as dependencies.
                     // "style" loader turns CSS into JS modules that inject <style> tags.
-                    // In production, we use a plugin to extract that CSS to a file, but
-                    // in development "style" loader enables hot editing of CSS.
-                    ...require('./cssLoaders/dev')(customConfig),
+                    // for ssr, we use a plugin to extract that CSS to a file
+                    ...require('./cssLoaders/prod')(customConfig, {}),
                     // sass-loader
-                    ...require('./scssLoaders/dev')(customConfig),
+                    ...require('./scssLoaders/prod')(customConfig, {}),
                     // "file" loader makes sure those assets get served by WebpackDevServer.
                     // When you `import` an asset, you get its (virtual) filename.
                     // In production, they would get copied to the `build` folder.
@@ -180,15 +170,6 @@ const defaultConfig =  {
         ],
     },
     plugins: [
-        // Makes some environment variables available in index.html.
-        // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-        // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In development, this will be an empty string.
-        // new InterpolateHtmlPlugin(env.raw),
-        // Generates an `index.html` file with the <script> injected.
-        // ...htmlWebpackPluginMap,
-        // HtmlWebpackExternalsPlugin
-        // ...require('./common/htmlWebpackExternalsPlugin')(customConfig._origin.externals),
 
         new webpack.optimize.CommonsChunkPlugin({
             name: "vendor"
@@ -209,6 +190,11 @@ const defaultConfig =  {
         // a plugin that prints an error when you attempt to do this.
         // See https://github.com/facebookincubator/create-react-app/issues/240
         new CaseSensitivePathsPlugin(),
+
+        new ExtractTextPlugin({
+            filename: cssFilename,
+            allChunks: true
+        }),
         // If you require a missing module and then `npm install` it, you still have
         // to restart the development server for Webpack to discover it. This plugin
         // makes the discovery automatic so you don't have to restart.
@@ -220,6 +206,10 @@ const defaultConfig =  {
         // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
         // You can remove this if you don't use Moment.js:
         // new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+        new ManifestPlugin({
+            fileName: path.resolve('build/asset-manifest.json'),
+            writeToFileEmit: true
+        }),
         new ReactLoadablePlugin({ filename: path.resolve('build/react-loadable.json'), })
     ],
     // Some libraries import Node modules but don't use them in the browser.
@@ -244,9 +234,6 @@ const newConfig = webpackMerge({
 
         if (key === 'plugins') {
             let uniques = [
-                'InterpolateHtmlPlugin',
-                'HtmlWebpackPlugin',
-                'HtmlWebpackExternalsPlugin',
                 'CommonsChunkPlugin',
                 'NamedModulesPlugin',
                 'DefinePlugin',
