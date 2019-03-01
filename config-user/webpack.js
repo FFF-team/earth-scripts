@@ -341,7 +341,10 @@ function getStaticPath() {
 
         // config/staticPath
         return {
-            js: config[ENV]
+            js: config[ENV],
+            img: config[ENV],
+            css: config[ENV],
+            media: config[ENV]
         }
     }
 
