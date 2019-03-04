@@ -44,7 +44,8 @@ const ssrDeploy = async () => {
         process.exit(1);
     }
 
-    startPm2(env, entry);
+    // todo: 优化
+    entry && startPm2(env, entry);
 
 };
 

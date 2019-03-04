@@ -42,7 +42,7 @@ const ssrStart = async () => {
         return;
     }
 
-    nodemonStart(entry)
+    entry && nodemonStart(entry);
 
 };
 
@@ -89,6 +89,8 @@ const ssrWatch = ({
                 reject(err);
                 return;
             }
+
+            console.info('react component for ssr has rebuild!')
 
 
             const info = stats.toJson();

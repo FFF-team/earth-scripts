@@ -3,12 +3,8 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');
-const ReactLoadablePlugin = require('react-loadable/webpack')
-    .ReactLoadablePlugin;
 
 
-// TODO: 其他形式
-const EARTH_SERVER_PATH = path.resolve(__dirname);
 const CLIENT_PATH = path.resolve('src');
 
 const dev = process.env.NODE_ENV === 'development';
@@ -38,8 +34,7 @@ module.exports = {
     externals: [
         nodeExternals({
             whitelist: [
-                // "webpack/hot/poll?1000",
-                /^react-ssr-with-koa\/src/
+                // "webpack/hot/poll?1000"
             ]
         }),
         customConfig.externals
@@ -61,31 +56,10 @@ module.exports = {
                     {test: /\.scss$/, loader: "ignore-loader"},
                     {
                         test: /\.(js|jsx)$/,
-                        exclude: [
-                            /node_modules\/(?!earth-scripts)/
-                        ],
                         include: [
-                            // '/Users/khongyan/WebstormProjects/github/react-ssr-with-koa/src/',
-                            // EARTH_SERVER_PATH,
-                            /react-ssr-with-koa\/src/,
                             CLIENT_PATH
                         ],
                         loader: require.resolve('babel-loader'),
-                        // options: {
-                        //     presets: [
-                        //         ["env", {
-                        //             "targets": {
-                        //                 "node": "current"
-                        //             }
-                        //         }],
-                        //         "react-app"
-                        //     ],
-                        //     "plugins": [
-                        //         // "syntax-dynamic-import",
-                        //         // "dynamic-import-node",
-                        //         "react-loadable/babel"
-                        //     ]
-                        // },
                     },
                     ...imgLoaders(customConfig),
                     {
@@ -114,6 +88,5 @@ module.exports = {
                 "NODE_ENV": JSON.stringify(process.env.NODE_ENV) // node环境
             }
         }),
-        // new ReactLoadablePlugin({ filename: './_server/react-loadable.json', }),
     ]
 };

@@ -9,7 +9,7 @@ const ssrGetArgs = async () => {
 
     const {
         env = 'development',
-        entry = path.resolve("node_modules/react-ssr-with-koa/index.js")
+        entry = ''
     } = yargs;
 
     return {
