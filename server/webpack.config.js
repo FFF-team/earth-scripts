@@ -36,8 +36,7 @@ module.exports = {
             whitelist: [
                 // "webpack/hot/poll?1000"
             ]
-        }),
-        customConfig.externals
+        })
     ],
     node: {
         __dirname: false // 否则__dirname就会被webpack处理为'/'
