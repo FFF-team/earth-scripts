@@ -31,7 +31,7 @@ const ssrDeploy = async () => {
     await require('./_ssr_init')();
 
     // clear
-    del(path.resolve('_server/dist'));
+    await del(path.resolve('_server/dist'));
 
 
     try {
