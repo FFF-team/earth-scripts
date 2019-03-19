@@ -6,6 +6,9 @@ react v16.x 使用`earth-scripts@1.x`版本
 react-ssr 使用`earth-scripts@2.x`版本
 
 ### config
+
+---
+
 * polyfill.js
 * webpack.config.dev.js `优先级高于但文件配置`
 * webpack.config.prod.js  `优先级高于但文件配置`
@@ -51,6 +54,8 @@ react-ssr 使用`earth-scripts@2.x`版本
    ```
 
 ### 扩展webpack配置
+
+---
 
 在项目下建立config/webpack.config.dev.js 或者 config/webpack.config.prod.js来修改默认webpack配置
 
@@ -149,6 +154,8 @@ module.exports = {
 
 ### 使用.env
 
+---
+
 项目根目录下添加.env.development或.env.production文件
 
 development环境下使用.env.development
@@ -165,7 +172,10 @@ ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
 
 ```
 
+
 ### mock server
+
+---
 
 npm run start在"proxy"的地址是localhost、127.0.0.1、本机ip时会启动mockserver，port为配置的端口号。
 否则不会在本机启动mock server
@@ -174,7 +184,7 @@ npm run start在"proxy"的地址是localhost、127.0.0.1、本机ip时会启动m
 ”proxy”: “http://localhost:3001/“
 ```
 
-### 自定义mock server
+##### 自定义mock server
 
 package.json增加字段:
 ```
@@ -187,6 +197,9 @@ server.js为mock文件夹下自定义的mock server启动文件。如果不配�
 
 
 ### ssr
+
+---
+
 
 ##### config/ssr.js
 
@@ -250,6 +263,8 @@ build/
 ```
 
 
+
+---
 
 ###### (废弃)cdnPath.js废弃
 
