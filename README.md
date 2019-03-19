@@ -77,22 +77,8 @@ module.exports = {
         alias: {...}
     }
     externals: {
-        echarts : {
-            root: "echarts", // 指向全局变量
-            entry: { // cdn地址
-                path: 'https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.2/echarts.js',
-                type: 'js',
-            },
-            files: ['index.html', 'test.html'] // 适用于哪个文件
-        },
-        jquery: {
-            root: "jQuery", // 暴露给window的变量，例window.jQuery。 使用：import jQuery from 'jquery'
-            entry: { // cdn地址
-                path: 'http://code.jquery.com/jquery-3.3.1.min.js',
-                type: 'js',
-            },
-            files: ['index.html'] // 适用于哪个文件
-        }
+        echarts : "echarts"  // 指向全局变量,
+        jquery: "jQuery" // 暴露给window的变量，例window.jQuery。 使用：import jQuery from 'jquery'
     },
     cssModule: {
         exclude: ['node_modules,', 'src/static'] // 不需要css module的文件
@@ -139,22 +125,8 @@ module.exports = {
         alias: {...} // 同上
     }
     externals: {
-        echarts : {
-            root: "echarts", // 指向全局变量
-            entry: { // cdn地址
-                path: 'https://cdnjs.cloudflare.com/ajax/libs/echarts/4.0.2/echarts.js',
-                type: 'js',
-            },
-            files: ['index.html', 'test.html'] // 适用于哪个文件
-        },
-        jquery: {
-            root: "jQuery", // 暴露给window的变量，例window.jQuery。 使用：import jQuery from 'jquery'
-            entry: { // cdn地址
-                path: 'http://code.jquery.com/jquery-3.3.1.min.js',
-                type: 'js',
-            },
-            files: ['index.html'] // 适用于哪个文件
-        }
+        echarts : "echarts"  // 指向全局变量,
+        jquery: "jQuery" // 暴露给window的变量，例window.jQuery。 使用：import jQuery from 'jquery'
     },
     cssModule: {} // 同上
     plugins: [
@@ -186,7 +158,7 @@ production环境下使用.env.production
 例：
 ```
 dev环境下配置：
-HOST=3001 // 自定义开发环境webpack-dev-server端口号
+CLIENT_PORT=3001 // 自定义开发环境webpack-dev-server端口号
 
 prod环境下配置：
 ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
@@ -214,148 +186,70 @@ server.js为mock文件夹下自定义的mock server启动文件。如果不配�
 可通过 **npm run start -- stopmock**在dev环境下不启用mock
 
 
-### node server
+### ssr
+
+##### config/ssr.js
+
+配置server端react入口文件。具体内容可参见[react-ssr-with-react](https://github.com/kanghongyan/react-ssr-with-koa)
+
+```
+const path = require('path');
+module.exports = {
+    appEntry: {
+        "page1": path.resolve('src/pages/page1/indexSSR.js'),
+        "page2": path.resolve('src/pages/page2/indexSSR.js')
+    },
+};
+```
+
+
+##### CLI
 
 * development
 
-  `earth-scripts ssr-start` 启动server端
-
   `earth-scripts start` 启动client端
+  
+       执行如下步骤：
+           * 打包编译client端代码、启动webpackDevServer(CLIENT_PORT)、启动mockserver
+           * 生成asset-manifest.json react-loadable.json
 
-* test
-
-  `earth-scripts ssr-deploy --env=test`
+  `earth-scripts ssr-start --entry=pathToEntry.js` 启动server端
+  
+      执行如下步骤：
+         * 清空build/server下原有内容
+         * webpack(watch) 打包编译config/ssr.js里配置的appEntry文件。生成到build/server下
+         * nodemon执行pathToEntry.js文件。当build/server下文件有改动，则重启
+  
 
 * production
 
-  `earth-scripts ssr-deploy --env=production`
+  `earth-scripts ssr-deploy --entry=pathToEntry.js --env=production`
+  
+      执行如下步骤：
+           * 清空build/server下原有内容
+           * webpack打包编译config/ssr.js里配置的appEntry文件。生成到build/server下
+           * pm2执行pathToEntry.js文件。
+  
 
-###### 目录结构
-
-
-```
-_server/
-  - assets/ 存放资源json文件
-  - dist/  编译后的文件
-  - log/   日志文件（dev环境下位置，部署后会到/opt/nodejslogs下）
-
-
-```
+*如果不加entry参数，则不会启动server，需要自己手动启动*
+  
+  `earth-scripts ssr-start && node pathToEntry.js`
 
 
-tip:
-
-在启动命令中自定义启动文件：
-
-`earth-scripts ssr-start --entry=server.js`
+###### build目录结构
 
 
 ```
-_server.js
+build/
+  - server/              // react build for server
+  - static/              // react build for client
+  - asset-manifest.json  // static files map for server
+  - react-loadable.json  // loadable files map for server
 
-const start = require('earth-scripts/server/app');
-const env = require('../config/server');
-const http = require('http');
-
-const port = env.port;
-
-
-
-sstart().then((app) => {
-
-
-
-
-     const appCallback = app.callback();
-     const server = http.createServer(appCallback);
-
-     app.performance()
-
-     app.proxyApi({
-         prefix: 'api'
-         // 详细说明如下
-         apiProxyBefore: async () => {},
-         apiProxyReceived: async () => {}
-     });
-
-     app.init({
-         apiProxy: true
-     });
-
-
-     // 可以添加自己项目的逻辑
-     // app.use(xxxx)
-
-     server
-         .listen(port)
-         .on('clientError', (err, socket) => {
-             // handleErr(err, 'caught_by_koa_on_client_error');
-             socket.end('HTTP/1.1 400 Bad Request Request invalid\r\n\r\n');
-         });
-
-
-     console.log(`custom Server client running on: http://localhost: ${port}`);
- });
 
 ```
 
 
-
-
-需要代理的api，可实现如下两个函数：
-
-```
-module.exports = {
-   // 代理之前
-   apiProxyBefore: (ctx) => {
-      // 自定义代理域名
-      ctx.app_proxyOption = {
-          target: 'http://test001.payment.58v5.cn',
-          selfHandleResponseApi: false,
-          headers: {
-             .....
-          }
-      }
-   }，
-   // 代理后
-   apiProxyReceived: (req, res) => {
-      res._app_proxy = (data, send) => {
-         // 可修改返回值 data object, 最后调用send
-         send(Object.assign(data, {notice: 111})
-
-      }
-   }
-}
-
-
-```
-
-自定义是否使用ssr(默认使用)，使用redux情况下不能用默认的
-
-```
-
-router.get('/page1', async (ctx, next) => {
-
-    const htmlObj = await new html(ctx, PAGE)
-        .init({
-            ssr: true,
-            app: App
-        }).catch((e) => {
-                console.log(e);
-                console.log('page get file error')
-            }
-        );
-
-    // 有redux情况下，每次请求都必须createStore
-    htmlObj.injectStore(createStore(reducers, {})).render();
-});
-```
-
-
-
-
-
-----
 
 ###### (废弃)cdnPath.js废弃
 
