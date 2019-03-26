@@ -5,13 +5,18 @@ const babel_loader = require('../../config/common/loaders/babel');
 const DEFAULT = [{
     test: /\.(js|jsx)$/,
     include: paths.appSrc,
-    loader: babel_loader({
+    use: [
+        babel_loader({
 
-        // This is a feature of `babel-loader` for webpack (not Babel itself).
-        // It enables caching results in ./node_modules/.cache/babel-loader/
-        // directory for faster rebuilds.
-        cacheDirectory: true,
-    })
+            // This is a feature of `babel-loader` for webpack (not Babel itself).
+            // It enables caching results in ./node_modules/.cache/babel-loader/
+            // directory for faster rebuilds.
+            cacheDirectory: true,
+        }),
+        {
+            loader: require.resolve('webpack-conditional-loader'),
+        }
+    ]
 }]
 
 /**
