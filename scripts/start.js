@@ -31,12 +31,9 @@ const openBrowser = require('react-dev-utils/openBrowser');
 const paths = require('../config/paths');
 const config = require('../client/webpack.config.dev');
 const createDevServerConfig = require('../client/webpackDevServer.config');
-const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const _ = require('lodash');
 
 const checkPagesRequired = require('../tools').checkPagesRequired;
-const resolveApp = require('../tools').resolveApp;
-const localMockPort = require('../tools').getLocalMockPort(require(paths.appPackageJson).proxy);
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
@@ -56,22 +53,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 const isStopmock = process.argv.slice(2).find((v) => v === 'stopmock' );
 
 if (!isStopmock) {
-    const customerMock = require(paths.appPackageJson).mockRoot;
-    if (customerMock) {
-        const customerMockPath = resolveApp(`mock/${customerMock}`);
-        if (checkRequiredFiles([customerMockPath])) {
-            console.log(chalk.green('\n custom mock is running! \n'));
-            require('./mock').start(customerMockPath);
-        } else {
-            console.log(chalk.yellow(`\n mock warning: \n missing mock/${customerMock}, start default mockServer\n\n`));
-            require('./mock').start();
-        }
-    } else {
-        if (localMockPort) {
-            console.log(chalk.green('\n default mock is running! \n'));
-            require('./mock').start();
-        }
-    }
+    require('./mock');
 }
 
 //todo 优化
