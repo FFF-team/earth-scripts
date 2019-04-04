@@ -1,48 +1,19 @@
-// require('../mock/worker')
-const fs = require('fs');
-const fork = require('child_process').fork;
-const path = require('path');
-const chokidar = require('chokidar');
+const paths = require('../config/paths');
+const resolveApp = require('../tools').resolveApp;
+const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
+const chalk = require('chalk');
 
-let watcher = null;
-let work = null;
-
-// process.on('SIGINT', function() {
-//     // watcher && watcher.close();
-//     // work && work.kill();
-//     process.exit(1);
-// });
-
-const start = (serverRoot) => {
-    const actionShell = serverRoot || path.join(__dirname, '../mock/worker.js'); //执行文件路径
-
-    //看门狗 进程
-    let watchDog = function(){
-        let timer = setTimeout(function(){
-            work = fork(actionShell);
-            clearTimeout(timer);
-        }, 100);
-    };
-
-    //监听mock文件变化 并重启进程
-	// fs.watch callback会执行多次， 替换为 https://github.com/paulmillr/chokidar
-    const watchedFolder = path.resolve('mock/');
-    watcher = chokidar
-        .watch(watchedFolder, {ignoreInitial: true})
-        .on('all', (event, path) => {
-            if (work) {
-                console.log('trigger watchedFolder and will restart mock server ...');
-                work.kill();
-
-                watchDog();
-            }
-        });
-
-    //启动看门狗
-    watchDog();
-};
-
-
-module.exports = {
-	start: start
-};
+const customerMock = require(paths.appPackageJson).mockRoot;
+if (customerMock) {
+    const customerMockPath = resolveApp(`mock/${customerMock}`);
+    if (checkRequiredFiles([customerMockPath])) {
+        console.log(chalk.green('\n custom mock is running! \n'));
+        require('../mock/run').start(customerMockPath);
+    } else {
+        console.log(chalk.yellow(`\n mock warning: \n missing mock/${customerMock}, start default mockServer\n\n`));
+        require('../mock/run').start();
+    }
+} else {
+    console.log(chalk.green('\n default mock is running! \n'));
+    require('../mock/run').start();
+}

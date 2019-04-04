@@ -54,23 +54,9 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 // start mock server depends `npm run start -- stopmock`
 const isStopmock = process.argv.slice(2).find((v) => v === 'stopmock' );
+
 if (!isStopmock) {
-    const customerMock = require(paths.appPackageJson).mockRoot;
-    if (customerMock) {
-        const customerMockPath = resolveApp(`mock/${customerMock}`);
-        if (checkRequiredFiles([customerMockPath])) {
-            console.log(chalk.green('\n custom mock is running! \n'));
-            require('./mock').start(customerMockPath);
-        } else {
-            console.log(chalk.yellow(`\n mock warning: \n missing mock/${customerMock}, start default mockServer\n\n`));
-            require('./mock').start();
-        }
-    } else {
-        if (localMockPort) {
-            console.log(chalk.green('\n default mock is running! \n'));
-            require('./mock').start();
-        }
-    }
+    require('./mock');
 }
 
 //todo 优化
