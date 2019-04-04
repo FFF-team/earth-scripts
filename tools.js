@@ -1,6 +1,8 @@
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
 const path = require('path');
+const chalk = require('chalk');
 const fs = require('fs');
+const glob = require('glob');
 
 // todo: 抽取公共tools
 const appDirectory = fs.realpathSync(process.cwd());
@@ -12,7 +14,7 @@ const checkPagesRequired = (allPagesName) => {
         page = allPagesName[i];
         if (!checkRequiredFiles([
                 resolveApp(`public/${page}.html`),
-                isSinglePage() ? resolveApp('src/index.js') : resolveApp(`src/pages/${page}/index.js`)
+                isSinglePage() ? getClientEntryFile('src/index.*') : getClientEntryFile(`src/pages/${page}/index.*`)
             ])
         ) {
             return false
@@ -37,10 +39,31 @@ const getLocalMockPort = (proxy) => {
 
 const isSinglePage = () => !fs.existsSync(resolveApp(`src/pages/`));
 
+/**
+ * entry file support multiple ext
+ * @param file
+ */
+const getClientEntryFile = (file) => {
+
+    const files = glob.sync(file);
+
+    if (!files.length) {
+        const dirName = path.dirname(file);
+        const fileName = path.basename(file);
+        console.log(chalk.red('Could not find a required file.'));
+        console.log(chalk.red('  Name: ') + chalk.cyan(fileName));
+        console.log(chalk.red('  Searched in: ') + chalk.cyan(dirName));
+        process.exit(1)
+    }
+
+    return resolveApp(files[0])
+
+};
 
 module.exports = {
     checkPagesRequired,
     resolveApp,
     getLocalMockPort,
-    isSinglePage
+    isSinglePage,
+    getClientEntryFile
 };

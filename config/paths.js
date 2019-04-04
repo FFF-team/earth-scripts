@@ -5,14 +5,15 @@ const fs = require('fs');
 const url = require('url');
 const glob = require('glob');
 const ensureSlash = require('./util').ensureSlash;
+const getClientEntryFile = require('../tools').getClientEntryFile;
 const isSinglePage = require('../tools').isSinglePage;
+const resolveApp = require('../tools').resolveApp;
 
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebookincubator/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
-const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 const pagesPath = 'src/pages/*';
-const singlePagePath = 'src/index.js';
+const singlePagePath = 'src/index.*';
 
 const envPublicUrl = process.env.PUBLIC_URL;
 
@@ -26,12 +27,12 @@ const entriesFunc = function(globPath) {
         // basename = path.basename(entry, '.js');
         // entries[path.join(dirname, basename)] = './' + entry;
         basename = path.basename(entry);
-        entries[basename] = resolveApp(entry + '/index.js');
+        entries[basename] = getClientEntryFile(entry + '/index.*');
     }
     return entries;
 };
 
-let entriesMap = isSinglePage() ? {index: resolveApp(singlePagePath)} : entriesFunc(pagesPath);
+let entriesMap = isSinglePage() ? {index: getClientEntryFile(singlePagePath)} : entriesFunc(pagesPath);
 
 const getPublicUrl = appPackageJson =>
 envPublicUrl || require(appPackageJson).homepage;
@@ -60,7 +61,6 @@ module.exports = {
     dotenv: resolveApp('.env'),
     appPublic: resolveApp('public'),
     appHtml: resolveApp('public/index.html'),
-    appIndexJs: resolveApp('src/pages/index/index.js'),
     entriesMap: entriesMap,
     appPackageJson: resolveApp('package.json'),
     appSrc: resolveApp('src'),

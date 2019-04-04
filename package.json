@@ -1,6 +1,6 @@
 {
   "name": "earth-scripts",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "earth for node script",
   "bin": {
     "earth-scripts": "./index.js"
