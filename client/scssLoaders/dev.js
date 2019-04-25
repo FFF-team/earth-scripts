@@ -1,115 +1,134 @@
-const mergeLoaders = require('../util').mergeLoaders;
-
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const postcss_loader = require('../../config/common/loaders/postcss');
 const css_loader = require('../../config/common/loaders/css');
 const style_loader = require('../../config/common/loaders/style');
 const scss_loader = require('../../config/common/loaders/scss');
+const _ = require('lodash');
 
-const base = {
-    test: /\.scss$/,
-    use: [
-        style_loader,
-        postcss_loader,
-        scss_loader
-    ]
-};
+const mergeLoaders = require('../util').mergeLoaders;
 
-const normalLoader = () => {
 
-    return mergeLoaders(base)([
+function scssLoaders(customConfig, extractTextPluginOptions) {
+
+    const base = {
+        test: /\.scss$/,
+    };
+
+    const loaderObj = Object.assign(
         {
-            use: [1, css_loader({
-                importLoaders: 2
-            })]
-        }
-    ])
+            fallback: style_loader,
+            use: [
+                postcss_loader,
+                scss_loader
+            ],
+        },
+        extractTextPluginOptions
+    );
 
-    // return [
-    //     {
-    //         test: /\.scss$/,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ]
-    //     }
-    // ]
-};
+    const getRets = (arr) => {
 
-const cssModuleLoader = ({exclude, config}) => {
+        return arr.map((item) => {
 
-    return exclude ?
-        mergeLoaders(base)([
+            const {use} = item;
+            const others = _.omit(item, 'use');
+
+            // const {use, ..other} = item
+
+            return Object.assign(
+                {},
+                others,
+                base,
+                {
+                    loader: ExtractTextPlugin.extract(
+                        mergeLoaders(loaderObj)({
+                            use: use
+                        })
+                    )
+                }
+            )
+        })
+
+
+    }
+
+
+    const normalLoader = () => {
+
+        return getRets([{
+            use: [0 , css_loader({
+                importLoaders: 2,
+                minimize: true,
+                sourceMap: true,
+            }),]
+        }])
+
+        /*return [
             {
-                exclude: exclude,
-                use: [1, css_loader(
-                    Object.assign({importLoaders: 2, module: true}, config)
-                )]
-            },
-            {
-                include: exclude,
-                use: [1, css_loader({
-                    importLoaders: 2,
-                })]
+                test: /\.scss$/,
+                loader: ExtractTextPlugin.extract(
+                    Object.assign(
+                        {
+                            fallback: style_loader,
+                            use: [
+                                css_loader({
+                                    importLoaders: 2,
+                                    minimize: true,
+                                    sourceMap: false,
+                                    // sourceMap: shouldUseSourceMap,
+                                }),
+                                postcss_loader,
+                                scss_loader
+                            ],
+                        },
+                        extractTextPluginOptions
+                    )
+                ),
+                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
             }
-        ]) :
-        mergeLoaders(base)([
-            {
-                use: [1, css_loader(
-                    Object.assign({importLoaders: 2, module: true}, config)
-                )]
-            }
-        ]);
+        ]*/
+    };
 
-    // return exclude ? [
-    //     {
-    //         test: /\.scss$/,
-    //         exclude: exclude,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2,
-    //                 module: true,
-    //                 localIdentName: name
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ],
-    //     },
-    //     {
-    //         test: /\.scss$/,
-    //         include: exclude,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2,
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ],
-    //     }
-    // ] : [
-    //     {
-    //         test: /\.scss$/,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2,
-    //                 module: true,
-    //                 localIdentName: name
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ],
-    //     }
-    // ]
-}
+    const cssModuleLoader = ({exclude, config}) => {
+
+        return exclude ?
+            getRets([
+                {
+                    exclude: exclude,
+                    use: [0, css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: true,
+                            module: true,
+                        }, config)
+                    )]
+                },
+                {
+                    include: exclude,
+                    use: [0, css_loader({
+                        importLoaders: 2,
+                        minimize: true,
+                        sourceMap: true,
+                    })]
+                }
+            ]) :
+            getRets([
+                {
+                    use: [0, css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: true,
+                            module: true,
+                        }, config)
+                    )]
+                }
+            ])
+
+    };
 
 
-function scssLoaders(customConfig) {
+
 
     const {
         exclude,
