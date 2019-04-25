@@ -6,10 +6,15 @@ const babel_loader = require('../../config/common/loaders/babel');
 const DEFAULT = [{
     test: /\.(js|jsx|mjs)$/,
     include: paths.appSrc,
-    loader: babel_loader({
-        compact: true,
-    })
-}]
+    use: [
+        babel_loader({
+            compact: true,
+        }),
+        {
+            loader: require.resolve('webpack-conditional-loader'),
+        }
+    ]
+}];
 
 /**
  * js相关loader包装

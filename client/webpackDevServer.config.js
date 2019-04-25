@@ -119,5 +119,8 @@ module.exports = function(proxy, allowedHost) {
 
       // historyMiddleware && app.use(historyMiddleware)
     },
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   };
 };

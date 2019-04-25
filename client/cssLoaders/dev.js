@@ -1,69 +1,131 @@
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const postcss_loader = require('../../config/common/loaders/postcss');
 const css_loader = require('../../config/common/loaders/css');
 const style_loader = require('../../config/common/loaders/style');
 
+const _ = require('lodash');
+
 const mergeLoaders = require('../util').mergeLoaders;
 
 
-const base = {
-    test: /\.css$/,
-    use: [
-        style_loader,
-        postcss_loader,
-    ]
-};
+function cssLoaders(customConfig, extractTextPluginOptions) {
 
 
-const normalLoader = () => {
-    return mergeLoaders(base)([
-        {use: [1, css_loader({importLoaders: 1})]}
-    ])
-    /*return [
+    const base = {
+        test: /\.css$/
+    };
+
+    const loaderObj = Object.assign(
         {
-            test: /\.css$/,
+            fallback: style_loader,
             use: [
-                style_loader,
-                css_loader({importLoaders: 1}),
                 postcss_loader,
             ],
-        }
-    ]*/
-};
+        },
+        extractTextPluginOptions
+    );
 
 
-const cssModuleLoader = ({exclude, config}) => {
+    const getRets = (arr) => {
 
-    return exclude ?
-        mergeLoaders(base)([
-            {
-                exclude: exclude,
-                use: [1,
-                    css_loader(
-                        Object.assign({importLoaders: 1, module: true,}, config)
+        return arr.map((item) => {
+
+            const {use} = item;
+            const others = _.omit(item, 'use');
+
+            // const {use, ..other} = item
+
+            return Object.assign(
+                {},
+                base,
+                {
+                    loader: ExtractTextPlugin.extract(
+                        mergeLoaders(loaderObj)({
+                            use: use
+                        })
                     )
-                ]
-            },
+                },
+                others
+            )
+        })
+
+    };
+
+
+    const normalLoader = () => {
+        return getRets([{
+            use: [0 , css_loader({
+                importLoaders: 1,
+                minimize: true,
+                sourceMap: true,
+            })]
+        }])
+        /*return [
             {
-                include: exclude,
-                use: [1,
-                    css_loader({
+                test: /\.css$/,
+                loader: ExtractTextPlugin.extract(
+                    Object.assign(
+                        {
+                            fallback: style_loader,
+                            use: [
+                                css_loader({
+                                    importLoaders: 1,
+                                    minimize: true,
+                                    sourceMap: false,
+                                    // sourceMap: shouldUseSourceMap,
+                                }),
+                                postcss_loader,
+                            ],
+                        },
+                        extractTextPluginOptions
+                    )
+                ),
+                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
+            }
+        ]*/
+    };
+
+    const cssModuleLoader = ({exclude, config}) => {
+
+        return exclude ?
+            getRets([
+                {
+                    exclude: exclude,
+                    use: [0,
+                        css_loader(
+                            Object.assign({
+                                importLoaders: 1,
+                                minimize: true,
+                                sourceMap: true,
+                                module: true,
+                            }, config)
+                        )
+                    ]
+                },
+                {
+                    include: exclude,
+                    use: [0, css_loader({
                         importLoaders: 1,
-                    })
-                ]
-            }
-        ]) :
-        mergeLoaders(base)([
-            {
-                use: [1,
-                    css_loader(
-                        Object.assign({importLoaders: 1, module: true,}, config)
-                    )]
-            }
-        ])
-};
+                        minimize: true,
+                        sourceMap: true,
+                    })]
+                }
+            ]) :
+            getRets([
+                {
+                    use: [0,
+                        css_loader(
+                            Object.assign({
+                                importLoaders: 1,
+                                minimize: true,
+                                sourceMap: true,
+                                module: true,
+                            }, config)
+                        )]
+                }
+            ])
 
-
-function cssLoaders(customConfig) {
+    };
 
 
     const {
@@ -81,4 +143,4 @@ function cssLoaders(customConfig) {
 
 }
 
-module.exports =  cssLoaders;
+module.exports = cssLoaders;
