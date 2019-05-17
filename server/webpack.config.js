@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');
-
+const babel_loader = require('../config/common/loaders/babel');
 
 const CLIENT_PATH = path.resolve('src');
 
@@ -11,6 +11,7 @@ const dev = process.env.NODE_ENV === 'development';
 
 module.exports = {
     // The configuration for the server-side rendering
+    mode: dev? 'development': 'production',
     name: "server-side rendering",
     // todo: entry是数组编译会有问题？？？？
     // entry: {
@@ -58,7 +59,9 @@ module.exports = {
                         include: [
                             CLIENT_PATH
                         ],
-                        loader: require.resolve('babel-loader'),
+                        loader: babel_loader({
+                            compact: true,
+                        }),
                     },
                     ...imgLoaders(customConfig),
                     {

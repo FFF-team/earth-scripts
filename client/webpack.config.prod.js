@@ -2,13 +2,13 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 // const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const paths = require('../config/paths');
 const getClientEnvironment = require('./env');
 // const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
@@ -16,6 +16,7 @@ const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const glob = require('glob');
 const util = require('../tools');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ReactLoadablePlugin = require('react-loadable/webpack')
     .ReactLoadablePlugin;
 
@@ -52,7 +53,6 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 // Note: defined here because it will be used more than once.
 const cssFilename = fileNames.css;
 
-// ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
 // However, our output is structured with css, js and media folders.
 // To have this structure working with relative paths, we have to use custom options.
@@ -100,18 +100,136 @@ const mediaOption = cdnPaths && cdnPaths.media ?
 //
 // })();
 
-paths.entriesMap['vendor'] = [
-    require.resolve('./polyfills'),
-    'react', 'react-dom', 'prop-types',
-    'react-router-dom',
-    'classnames'
-];
+// paths.entriesMap['vendor'] = [
+//     require.resolve('./polyfills'),
+//     'react', 'react-dom', 'prop-types',
+//     'react-router-dom',
+//     'classnames'
+// ];
+
+function recursiveIssuer(m) {
+    if (m.issuer) {
+        return recursiveIssuer(m.issuer);
+    } else {
+        // return Array.from(m._chunks)[0].name;
+        for (var chunk of m._chunks) {
+            return chunk["name"]
+        }
+        return false;
+    }
+    // if (m.issuer) {
+    //     return recursiveIssuer(m.issuer);
+    // } else if (m.name) {
+    //     return m.name;
+    // } else {
+    //     return false;
+    // }
+
+    // if (m.issuer) {
+    //     return recursiveIssuer(m.issuer);
+    // } else {
+    //     return Array.from(m._chunks)[0].name;
+    // }
+}
+
+
+
+function getCssSplitChunks() {
+    const allEntryArr = paths.allPages;
+    let cacheGroups = {
+        default: false,
+
+        // 提取公共库到vendor.js
+        // todo: 自定义提取哪些
+        vendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom|prop-types|react-router-dom|classnames)[\\/]/,
+            chunks: 'initial',
+            name: "vendor",
+            enforce: true
+        },
+        // commonCss: {
+        //     test: (module, chunks) => module.constructor.name === 'CssModule',
+        //     name: "commons-style",
+        //     chunks: "all",
+        //     enforce: true
+        // }
+        // Merge all the CSS into one file
+        // fooStyles: {
+        //     name: 'foo',
+        //     test: (m, c, entry = 'index') =>
+        //         m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+        //     chunks: 'all',
+        //     enforce: true,
+        // }
+    };
+    allEntryArr.forEach((_entry) => {
+        cacheGroups[`${_entry}-style`] = {
+            name: `${_entry}-style`,
+            // test: /\.s?css$/,
+            // test: module => module.constructor.name === 'CssModule',
+            test: (m, c, entry = _entry) => {
+                // js name is NormalModule
+                // css name is CssModule
+                return m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry
+            },
+            chunks: 'all',
+            // chunks: chunk => chunk.name.startsWith(_entry),
+            // chunks: chunk => chunk.name.startsWith(_entry),
+            enforce: true,
+            reuseExistingChunk: false,
+            priority: 20,
+            // minChunks: 1,
+        }
+    });
+    return cacheGroups
+}
+
 
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 const defaultConfig = {
+    mode: 'production',
+    optimization: {
+        minimizer: [
+            new OptimizeCSSAssetsPlugin({}),
+            // Minify js code
+            // new UglifyJsPlugin({
+            //     uglifyOptions: {
+            //         compress: {
+            //             warnings: false,
+            //             // Disabled because of an issue with Uglify breaking seemingly valid code:
+            //             // https://github.com/facebookincubator/create-react-app/issues/2376
+            //             // Pending further investigation:
+            //             // https://github.com/mishoo/UglifyJS2/issues/2011
+            //             comparisons: false,
+            //         },
+            //         output: {
+            //             comments: false,
+            //             // Turned on because emoji and regex is not minified properly using default
+            //             // https://github.com/facebookincubator/create-react-app/issues/2488
+            //             ascii_only: true,
+            //         },
+            //         sourceMap: shouldUseSourceMap,
+            //     }
+            // })
+        ],
+        splitChunks: {
+            chunks: 'async',
+            minSize: 30000,
+            maxSize: 0,
+            minChunks: 1,
+            maxAsyncRequests: 5,
+            maxInitialRequests: 3,
+            automaticNameDelimiter: '~',
+            name: true,
+            cacheGroups: getCssSplitChunks()
+        },
+        runtimeChunk: {
+            name: 'runtime'
+        }
+    },
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
@@ -201,7 +319,6 @@ const defaultConfig = {
           // "css" loader resolves paths in CSS and adds assets as dependencies.
           // "style" loader normally turns CSS into JS modules injecting <style>,
           // but unlike in development configuration, we do something different.
-          // `ExtractTextPlugin` first applies the "postcss" and "css" loaders
           // (second argument), then grabs the result CSS and puts it into a
           // separate file in our build process. This way we actually ship
           // a single CSS file in production instead of JS code injecting <style>
@@ -209,100 +326,9 @@ const defaultConfig = {
           // use the "style" loader inside the async code so CSS from them won't be
           // in the main CSS file.
             // css loader
-            ...require('./cssLoaders/prod')(customConfig, extractTextPluginOptions),
-          /*{
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract(
-              Object.assign(
-                {
-                  fallback: require.resolve('style-loader'),
-                  use: [
-                    {
-                      loader: require.resolve('css-loader'),
-                      options: {
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: false
-                        // sourceMap: shouldUseSourceMap,
-                      },
-                    },
-                    {
-                      loader: require.resolve('postcss-loader'),
-                      options: {
-                        // Necessary for external CSS imports to work
-                        // https://github.com/facebookincubator/create-react-app/issues/2677
-                        ident: 'postcss',
-                        plugins: () => [
-                          require('postcss-flexbugs-fixes'),
-                          autoprefixer({
-                            browsers: [
-                              '>1%',
-                              'last 0 versions',
-                              'Firefox ESR',
-                              'not ie < 9', // React doesn't support IE8 anyway
-                            ]
-                          }),
-                        ],
-                      },
-                    },
-                  ],
-                },
-                extractTextPluginOptions
-              )
-            ),
-            // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },*/
+            ...require('./cssLoaders/prod')(customConfig),
           //scss-loader
-            ...require('./scssLoaders/prod')(customConfig, extractTextPluginOptions),
-          /*{
-            test: /\.scss$/,
-            loader: ExtractTextPlugin.extract(
-                Object.assign(
-                    {
-                      fallback: require.resolve('style-loader'),
-                      use: [
-                        {
-                          loader: require.resolve('css-loader'),
-                          options: {
-                            importLoaders: 2,
-                            minimize: true,
-                            sourceMap: false,
-                            // sourceMap: shouldUseSourceMap,
-                          },
-                        },
-                        {
-                          loader: require.resolve('postcss-loader'),
-                          options: {
-                            // Necessary for external CSS imports to work
-                            // https://github.com/facebookincubator/create-react-app/issues/2677
-                            ident: 'postcss',
-                            plugins: () => [
-                              require('postcss-flexbugs-fixes'),
-                              autoprefixer({
-                                browsers: [
-                                  '>1%',
-                                  'last 0 versions',
-                                  'Firefox ESR',
-                                  'not ie < 9', // React doesn't support IE8 anyway
-                                ],
-                                // flexbox: 'no-2009',
-                              }),
-                            ],
-                          },
-                        },
-                        {
-                          loader: "sass-loader",
-                          options: {
-                            // includePaths: ["src/"]
-                          }
-                        }
-                      ],
-                    },
-                    extractTextPluginOptions
-                )
-            ),
-            // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },*/
+            ...require('./scssLoaders/prod')(customConfig),
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader don't uses a "test" so it will catch all modules
@@ -324,7 +350,7 @@ const defaultConfig = {
   },
   plugins: [
     // cdn配置
-    ...(cdnPaths ? [require('./plugins/cdnPathWebpackPlugin')(cdnPaths)] : []),
+    // ...(cdnPaths ? [require('./plugins/cdnPathWebpackPlugin')(cdnPaths)] : []),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
@@ -337,47 +363,32 @@ const defaultConfig = {
     // ...require('./common/htmlWebpackExternalsPlugin')(customConfig._origin.externals),
     // 将公共包和webpack bootstrap从业务代码总分离
     new webpack.HashedModuleIdsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor"
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "runtime"
-    }),
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV was set to production here.
     // Otherwise React will be compiled in the very slow development mode.
     new webpack.DefinePlugin(env.stringified),
-    // Minify the code.
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-        // Disabled because of an issue with Uglify breaking seemingly valid code:
-        // https://github.com/facebookincubator/create-react-app/issues/2376
-        // Pending further investigation:
-        // https://github.com/mishoo/UglifyJS2/issues/2011
-        comparisons: false,
-      },
-      output: {
-        comments: false,
-        // Turned on because emoji and regex is not minified properly using default
-        // https://github.com/facebookincubator/create-react-app/issues/2488
-        ascii_only: true,
-      },
-      sourceMap: shouldUseSourceMap,
-    }),
-    // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
-    new ExtractTextPlugin({
-      filename: cssFilename,
-      allChunks: glob.sync(paths.pages).length > 1
-    }),
+
+      new MiniCssExtractPlugin({
+          // Options similar to the same options in webpackOptions.output
+          // both options are optional
+          filename: cssFilename,
+          // chunkFilename: cssFilename,
+          // chunkFilename: '[id].css',
+      }),
+
     ...(process.env.ENABLE_BUNDLE_ANALYZE === 'true' ?
           [new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)()] :
           []),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without
     // having to parse `index.html`.
-    new ManifestPlugin({fileName: path.resolve('build/asset-manifest.json')}),
+      // todo
+    new ManifestPlugin({
+        fileName: path.resolve('build/asset-manifest.json'),
+        writeToFileEmit: true,
+        publicPath: ''
+    }),
     new ReactLoadablePlugin({ filename: path.resolve('build/react-loadable.json'), })
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.

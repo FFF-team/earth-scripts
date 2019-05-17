@@ -12,8 +12,9 @@ const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const util = require('../tools');
 const staticPath = require('../config-user/webpack').staticPath;
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 // import customerConfig
 const customConfig = require('../config-user/webpack');
@@ -45,15 +46,103 @@ for(let k in paths.entriesMap){
 
 paths.entriesMap['vendor'] = [
     require.resolve('./polyfills'),
-    require.resolve('react-error-overlay'),
 ];
 
+/*function recursiveIssuer(m) {
+    // if (m.issuer) {
+    //     return recursiveIssuer(m.issuer);
+    // } else {
+    //     // return Array.from(m._chunks)[0].name;
+    //     for (var chunk of m._chunks) {
+    //         return chunk["name"]
+    //     }
+    //     return false;
+    // }
+    if (m.issuer) {
+        return recursiveIssuer(m.issuer);
+    } else if (m.name) {
+        return m.name;
+    } else {
+        return false;
+    }
+}*/
+
+function recursiveIssuer(m) {
+    if (m.issuer) {
+        return recursiveIssuer(m.issuer);
+    } else {
+        for (var chunk of m._chunks) {
+            return chunk["name"]
+        }
+        return false;
+    }
+}
+
+function getCssSplitChunks() {
+    const allEntryArr = paths.allPages;
+    let cacheGroups = {
+        default: false,
+
+        // 提取公共库到vendor.js
+        // todo: 自定义提取哪些
+        vendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom|prop-types|react-router-dom|classnames)[\\/]/,
+            chunks: 'initial',
+            name: "vendor",
+            enforce: true
+        },
+        // Merge all the CSS into one file
+        // fooStyles: {
+        //     name: 'foo',
+        //     test: (m, c, entry = 'index') =>
+        //         m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+        //     chunks: 'all',
+        //     enforce: true,
+        // }
+    };
+    // allEntryArr.forEach((_entry) => {
+    //     console.log(_entry)
+    //     cacheGroups[`${_entry}-style`] = {
+    //         name: `${_entry}-style`,
+    //         // test: /\.s?css$/,
+    //         // test: module => module.constructor.name === 'CssModule',
+    //         test: (m, c, entry = _entry) => {
+    //             // js name is NormalModule
+    //             // css name is CssModule
+    //             return m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry
+    //         },
+    //         chunks: 'all',
+    //         // chunks: chunk => chunk.name.startsWith(_entry),
+    //         enforce: true,
+    //         // reuseExistingChunk: true,
+    //         // minChunks: 1,
+    //     }
+    // });
+    return cacheGroups
+}
 
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
 const defaultConfig =  {
+    optimization: {
+        splitChunks: {
+            chunks: 'async',
+            minSize: 30000,
+            maxSize: 0,
+            minChunks: 1,
+            maxAsyncRequests: 5,
+            maxInitialRequests: 3,
+            automaticNameDelimiter: '~',
+            name: true,
+            cacheGroups: getCssSplitChunks()
+        },
+        runtimeChunk: {
+            name: 'runtime'
+        }
+    },
+    mode: 'development',
     // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
     // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
     devtool: 'cheap-module-source-map',
@@ -144,9 +233,9 @@ const defaultConfig =  {
                     // "css" loader resolves paths in CSS and adds assets as dependencies.
                     // "style" loader turns CSS into JS modules that inject <style> tags.
                     // for ssr, we use a plugin to extract that CSS to a file
-                    ...require('./cssLoaders/dev')(customConfig, {}),
+                    ...require('./cssLoaders/dev')(customConfig),
                     // sass-loader
-                    ...require('./scssLoaders/dev')(customConfig, {}),
+                    ...require('./scssLoaders/dev')(customConfig),
                     // "file" loader makes sure those assets get served by WebpackDevServer.
                     // When you `import` an asset, you get its (virtual) filename.
                     // In production, they would get copied to the `build` folder.
@@ -171,14 +260,6 @@ const defaultConfig =  {
     },
     plugins: [
 
-        new webpack.optimize.CommonsChunkPlugin({
-            name: "vendor"
-        }),
-
-        new webpack.optimize.CommonsChunkPlugin({
-            name: "runtime"
-        }),
-
         // Add module names to factory functions so they appear in browser profiler.
         new webpack.NamedModulesPlugin(),
         // Makes some environment variables available to the JS code, for example:
@@ -191,9 +272,10 @@ const defaultConfig =  {
         // See https://github.com/facebookincubator/create-react-app/issues/240
         new CaseSensitivePathsPlugin(),
 
-        new ExtractTextPlugin({
-            filename: cssFilename,
-            allChunks: true
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: cssFilename
         }),
         // If you require a missing module and then `npm install` it, you still have
         // to restart the development server for Webpack to discover it. This plugin
@@ -208,7 +290,8 @@ const defaultConfig =  {
         // new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         new ManifestPlugin({
             fileName: path.resolve('build/asset-manifest.json'),
-            writeToFileEmit: true
+            writeToFileEmit: true,
+            publicPath: ''
         }),
         new ReactLoadablePlugin({ filename: path.resolve('build/react-loadable.json'), })
     ],

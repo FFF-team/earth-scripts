@@ -14,8 +14,10 @@ const ssrGetArgs = async () => {
 
     return {
         env,
-        webpackEntry: ssrConfig.appEntry,
-        entry
+        webpackEntry: ssrConfig.appEntry || {},
+        entry,
+        serverPort: ssrConfig.serverPort || '8001',
+        devWatchFiles: ssrConfig.devWatchFiles || []
     };
 
 };

@@ -3,7 +3,7 @@ const cp = require('recursive-copy');
 const { resolve, join } = require('path');
 const { existsSync, readFileSync, writeFileSync } = require('fs');
 
-
+process.env.IS_SERVER = true;
 
 
 const init = async () => {

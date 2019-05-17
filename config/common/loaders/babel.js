@@ -1,6 +1,6 @@
 function babelLoader(options) {
     return {
-        loader: require.resolve('babel-loader'),
+        loader: 'babel-loader',
         options: options
     }
 }

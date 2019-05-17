@@ -1,135 +1,120 @@
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcss_loader = require('../../config/common/loaders/postcss');
 const css_loader = require('../../config/common/loaders/css');
 const style_loader = require('../../config/common/loaders/style');
 
 const _ = require('lodash');
 
-const mergeLoaders = require('../util').mergeLoaders;
+// const mergeLoaders = require('../util').mergeLoaders;
 
 
-function cssLoaders(customConfig, extractTextPluginOptions) {
+function cssLoaders(customConfig) {
 
 
-    const base = {
-        test: /\.css$/
+    // const base = {
+    //     test: /\.css$/
+    // };
+
+    const loaderObj = {
+        test: /\.css$/,
+        // fallback: style_loader
+        use: [
+            {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                    hmr: false,
+                    publicPath: (resourcePath, context) => {
+                        // publicPath is the relative path of the resource to the context
+                        // e.g. for ./css/admin/main.css the publicPath will be ../../
+                        // while for ./css/main.css the publicPath will be ../
+                        // todo: 看这里的resourcePath是什么
+                        return customConfig.staticPath.css ?
+                            customConfig.staticPath.css :
+                            path.relative(path.dirname(resourcePath), context) + '/';
+                    }
+                }
+            },
+            css_loader({
+                importLoaders: 1,
+                sourceMap: false,
+                import: true
+            }),
+            postcss_loader,
+        ],
     };
 
-    const loaderObj = Object.assign(
-        {
-            fallback: style_loader,
-            use: [
-                postcss_loader,
-            ],
-        },
-        extractTextPluginOptions
-    );
 
-
-    const getRets = (arr) => {
-
-        return arr.map((item) => {
-
-            const {use} = item;
-            const others = _.omit(item, 'use');
-
-            // const {use, ..other} = item
-
-            return Object.assign(
-                {},
-                base,
-                {
-                    loader: ExtractTextPlugin.extract(
-                        mergeLoaders(loaderObj)({
-                            use: use
-                        })
-                    )
-                },
-                others
-            )
-        })
-
-    };
+    // const getRets = (arr) => {
+    //
+    //     return arr.map((item) => {
+    //
+    //         const {use} = item;
+    //         const others = _.omit(item, 'use');
+    //
+    //         // const {use, ..other} = item
+    //
+    //         return Object.assign(
+    //             {},
+    //             base,
+    //             {
+    //                 loader: ExtractTextPlugin.extract(
+    //                     mergeLoaders(loaderObj)({
+    //                         use: use
+    //                     })
+    //                 )
+    //             },
+    //             others
+    //         )
+    //     })
+    //
+    // };
 
 
     const normalLoader = () => {
-        return getRets([{
-            use: [0 , css_loader({
-                importLoaders: 1,
-                minimize: true,
-                sourceMap: false,
-                // sourceMap: shouldUseSourceMap,
-            })]
-        }])
-        /*return [
-            {
-                test: /\.css$/,
-                loader: ExtractTextPlugin.extract(
-                    Object.assign(
-                        {
-                            fallback: style_loader,
-                            use: [
-                                css_loader({
-                                    importLoaders: 1,
-                                    minimize: true,
-                                    sourceMap: false,
-                                    // sourceMap: shouldUseSourceMap,
-                                }),
-                                postcss_loader,
-                            ],
-                        },
-                        extractTextPluginOptions
-                    )
-                ),
-                // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-            }
-        ]*/
+        return [loaderObj]
     };
 
-    const cssModuleLoader = ({exclude, config}) => {
-
-        return exclude ?
-            getRets([
-                {
-                    exclude: exclude,
-                    use: [0,
-                        css_loader(
-                            Object.assign({
-                                importLoaders: 1,
-                                minimize: true,
-                                sourceMap: false,
-                                module: true,
-                                // sourceMap: shouldUseSourceMap,
-                            }, config)
-                        )
-                    ]
-                },
-                {
-                    include: exclude,
-                    use: [0, css_loader({
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: false,
-                        // sourceMap: shouldUseSourceMap,
-                    })]
-                }
-            ]) :
-            getRets([
-                {
-                    use: [0,
-                        css_loader(
-                            Object.assign({
-                                importLoaders: 1,
-                                minimize: true,
-                                sourceMap: false,
-                                module: true,
-                                // sourceMap: shouldUseSourceMap,
-                            }, config)
-                        )]
-                }
-            ])
-
-    };
+    // const cssModuleLoader = ({exclude, config}) => {
+    //
+    //     return exclude ?
+    //         getRets([
+    //             {
+    //                 exclude: exclude,
+    //                 use: [0,
+    //                     css_loader(
+    //                         Object.assign({
+    //                             importLoaders: 1,
+    //                             minimize: true,
+    //                             sourceMap: true,
+    //                             module: true,
+    //                         }, config)
+    //                     )
+    //                 ]
+    //             },
+    //             {
+    //                 include: exclude,
+    //                 use: [0, css_loader({
+    //                     importLoaders: 1,
+    //                     minimize: true,
+    //                     sourceMap: true,
+    //                 })]
+    //             }
+    //         ]) :
+    //         getRets([
+    //             {
+    //                 use: [0,
+    //                     css_loader(
+    //                         Object.assign({
+    //                             importLoaders: 1,
+    //                             minimize: true,
+    //                             sourceMap: true,
+    //                             module: true,
+    //                         }, config)
+    //                     )]
+    //             }
+    //         ])
+    //
+    // };
 
 
     const {
@@ -139,10 +124,12 @@ function cssLoaders(customConfig, extractTextPluginOptions) {
     } = customConfig.cssModule;
 
     return enable ?
-        cssModuleLoader({
-            exclude,
-            config
-        }) :
+        normalLoader() :
+        // todo: 暂时不改造cssModule
+        // cssModuleLoader({
+        //     exclude,
+        //     config
+        // }) :
         normalLoader()
 
 }

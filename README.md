@@ -261,7 +261,9 @@ build/
 
 
 ```
+### .babelrc 替换为 .babel.js
 
+方便根据process.env变量添加不同环境需要的babel配置
 
 
 ---
