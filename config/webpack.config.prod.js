@@ -466,7 +466,10 @@ const newConfig = webpackMerge({
                     newExternals[k] = v;
                     return;
                 }
-                newExternals[k] = _.omit(v, ['entry', 'files'])
+                const opt = _.omit(v, ['entry', 'files']);
+                if (!_.isEmpty(opt)) {
+                    newExternals[k] = opt
+                }
             });
 
             return newExternals
