@@ -3,7 +3,8 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const customConfig = require('../config-user/webpack');
 const imgLoaders = require('../config/imgLoaders/prod');
-
+const babelLoader = require('../config/common/loaders/babel');
+const tsLoader = require('../config/common/loaders/ts');
 
 const CLIENT_PATH = path.resolve('src');
 
@@ -42,7 +43,7 @@ module.exports = {
         __dirname: false // 否则__dirname就会被webpack处理为'/'
     },
     resolve: {
-        extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
+        extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx', '.ts', '.tsx'],
         alias: customConfig.alias
     },
     module: {
@@ -54,11 +55,22 @@ module.exports = {
                     {test: /\.css$/, loader: "ignore-loader"},
                     {test: /\.scss$/, loader: "ignore-loader"},
                     {
+                        test: /\.(ts|tsx)$/,
+                        include: [
+                            CLIENT_PATH
+                        ],
+                        use: tsLoader({
+                                // disable type checker - we will use it in fork plugin
+                                transpileOnly: true,
+                            }
+                        ),
+                    },
+                    {
                         test: /\.(js|jsx)$/,
                         include: [
                             CLIENT_PATH
                         ],
-                        loader: require.resolve('babel-loader'),
+                        loader: babelLoader(),
                     },
                     ...imgLoaders(customConfig),
                     {

@@ -151,7 +151,7 @@ const defaultConfig = {
     // https://github.com/facebookincubator/create-react-app/issues/290
     // `web` extension prefixes have been added for better support
     // for React Native Web.
-    extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
+    extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx', '.ts', '.tsx'],
     alias: customConfig.alias,
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -210,99 +210,8 @@ const defaultConfig = {
           // in the main CSS file.
             // css loader
             ...require('./cssLoaders/prod')(customConfig, extractTextPluginOptions),
-          /*{
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract(
-              Object.assign(
-                {
-                  fallback: require.resolve('style-loader'),
-                  use: [
-                    {
-                      loader: require.resolve('css-loader'),
-                      options: {
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: false
-                        // sourceMap: shouldUseSourceMap,
-                      },
-                    },
-                    {
-                      loader: require.resolve('postcss-loader'),
-                      options: {
-                        // Necessary for external CSS imports to work
-                        // https://github.com/facebookincubator/create-react-app/issues/2677
-                        ident: 'postcss',
-                        plugins: () => [
-                          require('postcss-flexbugs-fixes'),
-                          autoprefixer({
-                            browsers: [
-                              '>1%',
-                              'last 0 versions',
-                              'Firefox ESR',
-                              'not ie < 9', // React doesn't support IE8 anyway
-                            ]
-                          }),
-                        ],
-                      },
-                    },
-                  ],
-                },
-                extractTextPluginOptions
-              )
-            ),
-            // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },*/
           //scss-loader
             ...require('./scssLoaders/prod')(customConfig, extractTextPluginOptions),
-          /*{
-            test: /\.scss$/,
-            loader: ExtractTextPlugin.extract(
-                Object.assign(
-                    {
-                      fallback: require.resolve('style-loader'),
-                      use: [
-                        {
-                          loader: require.resolve('css-loader'),
-                          options: {
-                            importLoaders: 2,
-                            minimize: true,
-                            sourceMap: false,
-                            // sourceMap: shouldUseSourceMap,
-                          },
-                        },
-                        {
-                          loader: require.resolve('postcss-loader'),
-                          options: {
-                            // Necessary for external CSS imports to work
-                            // https://github.com/facebookincubator/create-react-app/issues/2677
-                            ident: 'postcss',
-                            plugins: () => [
-                              require('postcss-flexbugs-fixes'),
-                              autoprefixer({
-                                browsers: [
-                                  '>1%',
-                                  'last 0 versions',
-                                  'Firefox ESR',
-                                  'not ie < 9', // React doesn't support IE8 anyway
-                                ],
-                                // flexbox: 'no-2009',
-                              }),
-                            ],
-                          },
-                        },
-                        {
-                          loader: "sass-loader",
-                          options: {
-                            // includePaths: ["src/"]
-                          }
-                        }
-                      ],
-                    },
-                    extractTextPluginOptions
-                )
-            ),
-            // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
-          },*/
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader don't uses a "test" so it will catch all modules

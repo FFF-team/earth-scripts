@@ -1,20 +1,31 @@
 const paths = require('../../config/paths');
 const isValid = require('./util').isValid;
 const babel_loader = require('../../config/common/loaders/babel');
+const ts_loader = require('../../config/common/loaders/ts');
 
-
-const DEFAULT = [{
-    test: /\.(js|jsx|mjs)$/,
-    include: paths.appSrc,
-    use: [
-        babel_loader({
-            compact: true,
-        }),
-        {
-            loader: require.resolve('webpack-conditional-loader'),
-        }
-    ]
-}];
+const DEFAULT = [
+    {
+        test: /\.(ts|tsx)$/,
+        include: paths.appSrc,
+        use: ts_loader({
+                // disable type checker - we will use it in fork plugin
+                transpileOnly: true,
+            }
+        ),
+    },
+    {
+        test: /\.(js|jsx|mjs)$/,
+        include: paths.appSrc,
+        use: [
+            babel_loader({
+                compact: true,
+            }),
+            {
+                loader: require.resolve('webpack-conditional-loader'),
+            }
+        ]
+    }
+];
 
 /**
  * js相关loader包装
@@ -23,7 +34,7 @@ const DEFAULT = [{
  */
 function jsLoaders(loaders) {
 
-    loaders = isValid(loaders)? loaders : DEFAULT;
+    loaders = isValid(loaders) ? loaders : DEFAULT;
 
     return loaders
 }
