@@ -6,11 +6,16 @@ module.exports = [
     {
         test: /\.(ts|tsx)$/,
         include: paths.appSrc,
-        use: ts_loader({
-                // disable type checker - we will use it in fork plugin
-                transpileOnly: true,
-            }
-        ),
+        use: [
+            babel_loader({
+                compact: true,
+            }),
+            ts_loader({
+                    // disable type checker - we will use it in fork plugin
+                    transpileOnly: true,
+                }
+            )
+        ],
     },
     {
         test: /\.(js|jsx)$/,
