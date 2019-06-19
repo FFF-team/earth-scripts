@@ -7,11 +7,19 @@ const DEFAULT = [
     {
         test: /\.(ts|tsx)$/,
         include: paths.appSrc,
-        use: ts_loader({
-                // disable type checker - we will use it in fork plugin
-                transpileOnly: true,
-            }
-        ),
+        use: [
+            babel_loader({
+                compact: true,
+            }),
+            ts_loader({
+                    // disable type checker - we will use it in fork plugin
+                    transpileOnly: true,
+                }
+            ),
+            {
+                loader: require.resolve('webpack-conditional-loader'),
+            },
+        ],
     },
     {
         test: /\.(js|jsx|mjs)$/,

@@ -59,18 +59,25 @@ module.exports = {
                         include: [
                             CLIENT_PATH
                         ],
-                        use: tsLoader({
-                                // disable type checker - we will use it in fork plugin
-                                transpileOnly: true,
-                            }
-                        ),
+                        use: [
+                            babelLoader({
+                                // compact: true,
+                            }),
+                            tsLoader({
+                                    // disable type checker - we will use it in fork plugin
+                                    transpileOnly: true,
+                                }
+                            )
+                        ],
                     },
                     {
                         test: /\.(js|jsx)$/,
                         include: [
                             CLIENT_PATH
                         ],
-                        loader: babelLoader(),
+                        loader: babelLoader({
+                            compact: true,
+                        }),
                     },
                     ...imgLoaders(customConfig),
                     {
