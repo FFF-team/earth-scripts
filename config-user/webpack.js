@@ -9,7 +9,7 @@ const EARTH_CONFIG_NAME = `config`;
 
 const ENV = process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
 const webpackConfig = (function getCustomConfig() {
-    const customConfigPath = path.resolve(`./${EARTH_CONFIG_NAME}/webpack.config.${ENV}.js`);
+    const customConfigPath = path.resolve(`./${EARTH_CONFIG_NAME}/webpack.client.${ENV}.js`);
     return fs.existsSync(customConfigPath) ? require(customConfigPath) : {}
 })();
 

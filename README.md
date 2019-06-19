@@ -56,12 +56,13 @@ react-ssr 使用`earth-scripts@2.x`版本
 ### 扩展webpack配置
 
 ---
+编译client端代码
 
-在项目下建立config/webpack.config.dev.js 或者 config/webpack.config.prod.js来修改默认webpack配置
+在项目下建立config/webpack.client.dev.js 或者 config/webpack.client.prod.js来修改默认webpack配置
 
 例：
 
-webpack.config.dev.js
+webpack.client.dev.js
 
 ```
 module.exports = {
@@ -98,7 +99,7 @@ module.exports = {
 
 ```
 
-webpack.config.prod.js
+webpack.client.prod.js
 
 ```
 module.exports = {
