@@ -4,7 +4,6 @@ const chalk = require('chalk');
 const fs = require('fs');
 const glob = require('glob');
 
-// todo: 抽取公共tools
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
