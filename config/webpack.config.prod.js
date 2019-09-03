@@ -3,7 +3,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
@@ -14,7 +15,6 @@ const getClientEnvironment = require('./env');
 // const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
 const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
-const glob = require('glob');
 const util = require('./util');
 
 // import customerConfig
@@ -104,10 +104,87 @@ paths.entriesMap['vendor'] = [
     'classnames'
 ];
 
+function getSplitChunks() {
+    let cacheGroups = {
+        // 提取公共库到vendor.js
+        default: false,
+        vendor: {
+            // todo: 自定义配置
+            test: /[\\/]node_modules[\\/](react|react-dom|prop-types|classnames)[\\/]/,
+            chunks: 'initial',
+            name: "vendor",
+            enforce: true
+        }
+    };
+    // todo: 针对每个page提取出一个css文件。
+    // todo: 下面的方法有问题，跟进相关issue
+    // todo: https://github.com/webpack-contrib/mini-css-extract-plugin/issues/220
+    // const allEntryArr = paths.allPages;
+    // allEntryArr.forEach((_entry) => {
+    //     cacheGroups[`${_entry}-style`] = {
+    //         name: `${_entry}-style`,
+    //         // test: /\.s?css$/,
+    //         // test: module => module.constructor.name === 'CssModule',
+    //         test: (m, c, entry = _entry) => {
+    //             // js name is NormalModule
+    //             // css name is CssModule
+    //             return m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry
+    //         },
+    //         chunks: 'all',
+    //         // chunks: chunk => chunk.name.startsWith(_entry),
+    //         enforce: true,
+    //         reuseExistingChunk: false,
+    //         priority: 20,
+    //         // minChunks: 1,
+    //     }
+    // });
+    return cacheGroups
+}
+
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 const defaultConfig = {
+    mode: 'production',
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin({
+                uglifyOptions: {
+                    warnings: false,
+                    compress: {
+                        // Disabled because of an issue with Uglify breaking seemingly valid code:
+                        // https://github.com/facebookincubator/create-react-app/issues/2376
+                        // Pending further investigation:
+                        // https://github.com/mishoo/UglifyJS2/issues/2011
+                        comparisons: false,
+                    },
+                    output: {
+                        comments: false,
+                        // Turned on because emoji and regex is not minified properly using default
+                        // https://github.com/facebookincubator/create-react-app/issues/2488
+                        ascii_only: true,
+                    },
+                    sourceMap: shouldUseSourceMap,
+                    ie8: false
+                },
+
+            })
+        ],
+        splitChunks: {
+            chunks: 'async',
+            minSize: 30000,
+            maxSize: 0,
+            minChunks: 1,
+            maxAsyncRequests: 5,
+            maxInitialRequests: 3,
+            automaticNameDelimiter: '~',
+            name: true,
+            cacheGroups: getSplitChunks()
+        },
+        runtimeChunk: {
+            name: 'runtime'
+        }
+    },
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
@@ -161,9 +238,8 @@ const defaultConfig = {
   module: {
     strictExportPresence: true,
     rules: [
-      // TODO: Disable require.ensure as it's not a standard language feature.
-      // We are waiting for https://github.com/facebookincubator/create-react-app/issues/2176.
-      // { parser: { requireEnsure: false } },
+      // Disable require.ensure as it's not a standard language feature.
+      { parser: { requireEnsure: false } },
 
       // First, run the linter.
       // It's important to do this before Babel processes the JS.
@@ -320,52 +396,31 @@ const defaultConfig = {
   },
   plugins: [
     // cdn配置
-    ...(cdnPaths ? [require('./common/cdnPathWebpackPlugin')(cdnPaths)] : []),
+      // todo: html-webpack-cdn-path-plugin
+      // todo: webpack本身是否能配置，否则自己写插件
+    // ...(cdnPaths ? [require('./common/cdnPathWebpackPlugin')(cdnPaths)] : []),
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     // In production, it will be an empty string unless you specify "homepage"
     // in `package.json`, in which case it will be the pathname of that URL.
-    new InterpolateHtmlPlugin(env.raw),
+      new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
     // Generates an `index.html` file with the <script> injected.
     ...htmlWebpackPluginMap,
     // externals plugin
-    ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
+      // todo: 这个插件需要手动写
+    // ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
     // 将公共包和webpack bootstrap从业务代码总分离
     new webpack.HashedModuleIdsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor"
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "runtime"
-    }),
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV was set to production here.
     // Otherwise React will be compiled in the very slow development mode.
     new webpack.DefinePlugin(env.stringified),
-    // Minify the code.
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-        // Disabled because of an issue with Uglify breaking seemingly valid code:
-        // https://github.com/facebookincubator/create-react-app/issues/2376
-        // Pending further investigation:
-        // https://github.com/mishoo/UglifyJS2/issues/2011
-        comparisons: false,
-      },
-      output: {
-        comments: false,
-        // Turned on because emoji and regex is not minified properly using default
-        // https://github.com/facebookincubator/create-react-app/issues/2488
-        ascii_only: true,
-      },
-      sourceMap: shouldUseSourceMap,
-    }),
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
-    new ExtractTextPlugin({
+    new MiniCssExtractPlugin({
       filename: cssFilename,
-      allChunks: glob.sync(paths.pages).length > 1
+      allChunks: fileNames.cssChunk
     }),
     ...(process.env.ENABLE_BUNDLE_ANALYZE === 'true' ?
           [new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)()] :

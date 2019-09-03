@@ -57,10 +57,61 @@ paths.entriesMap['vendor'] = [
 ];
 
 
+function getCssSplitChunks() {
+    const allEntryArr = paths.allPages;
+    let cacheGroups = {
+        default: false,
+
+        // 提取公共库到vendor.js
+        vendor: {
+            // todo: 自定义配置
+            test: /[\\/]node_modules[\\/](react|react-dom|prop-types|react-router-dom|classnames)[\\/]/,
+            chunks: 'initial',
+            name: "vendor",
+            enforce: true
+        },
+        // commonCss: {
+        //     test: (module, chunks) => module.constructor.name === 'CssModule',
+        //     name: "commons-style",
+        //     chunks: "all",
+        //     enforce: true
+        // }
+        // Merge all the CSS into one file
+        // fooStyles: {
+        //     name: 'foo',
+        //     test: (m, c, entry = 'index') =>
+        //         m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+        //     chunks: 'all',
+        //     enforce: true,
+        // }
+    };
+    allEntryArr.forEach((_entry) => {
+        cacheGroups[`${_entry}-style`] = {
+            name: `${_entry}-style`,
+            // test: /\.s?css$/,
+            // test: module => module.constructor.name === 'CssModule',
+            test: (m, c, entry = _entry) => {
+                // js name is NormalModule
+                // css name is CssModule
+                return m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry
+            },
+            chunks: 'all',
+            // chunks: chunk => chunk.name.startsWith(_entry),
+            // chunks: chunk => chunk.name.startsWith(_entry),
+            enforce: true,
+            reuseExistingChunk: false,
+            priority: 20,
+            // minChunks: 1,
+        }
+    });
+    return cacheGroups
+}
+
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
 const defaultConfig =  {
+    mode: 'development',
     // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
     // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
     devtool: 'cheap-module-source-map',
@@ -115,9 +166,9 @@ const defaultConfig =  {
     module: {
         strictExportPresence: true,
         rules: [
-            // TODO: Disable require.ensure as it's not a standard language feature.
+            // Disable require.ensure as it's not a standard language feature.
             // We are waiting for https://github.com/facebookincubator/create-react-app/issues/2176.
-            // { parser: { requireEnsure: false } },
+            { parser: { requireEnsure: false } },
 
             // First, run the linter.
             // It's important to do this before Babel processes the JS.
@@ -177,27 +228,37 @@ const defaultConfig =  {
             // Make sure to add the new loader(s) before the "file" loader.
         ],
     },
+    optimization: {
+        splitChunks: {
+            chunks: 'async',
+            minSize: 30000,
+            maxSize: 0,
+            minChunks: 1,
+            maxAsyncRequests: 5,
+            maxInitialRequests: 3,
+            automaticNameDelimiter: '~',
+            name: true,
+            cacheGroups: getCssSplitChunks()
+        },
+        runtimeChunk: {
+            name: 'runtime'
+        }
+    },
     plugins: [
         // Makes some environment variables available in index.html.
         // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
         // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
         // In development, this will be an empty string.
-        new InterpolateHtmlPlugin(env.raw),
+        new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
         // Generates an `index.html` file with the <script> injected.
         ...htmlWebpackPluginMap,
         // HtmlWebpackExternalsPlugin
-        ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
+        // TODO: 这个包没有升级webpack4，可以自己写
+        // ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
 
-        new webpack.optimize.CommonsChunkPlugin({
-            name: "vendor"
-        }),
-
-        new webpack.optimize.CommonsChunkPlugin({
-            name: "runtime"
-        }),
 
         // Add module names to factory functions so they appear in browser profiler.
-        new webpack.NamedModulesPlugin(),
+        new webpack.NamedModulesPlugin(paths.appPath),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'development') { ... }. See `./env.js`.
         new webpack.DefinePlugin(env.stringified),

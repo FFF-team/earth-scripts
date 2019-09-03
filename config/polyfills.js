@@ -1,7 +1,7 @@
 'use strict';
 
-require("core-js/es6/map");
-require("core-js/es6/set");
+require("core-js/features/map");
+require("core-js/features/set");
 
 require('raf/polyfill');
 

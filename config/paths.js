@@ -64,6 +64,7 @@ module.exports = {
     entriesMap: entriesMap,
     appPackageJson: resolveApp('package.json'),
     appSrc: resolveApp('src'),
+    appPath: resolveApp('.'),
     yarnLockFile: resolveApp('yarn.lock'),
     testsSetup: resolveApp('src/setupTests.js'),
     appNodeModules: resolveApp('node_modules'),
@@ -75,6 +76,5 @@ module.exports = {
 
     flexibleStr: flexibleStr,
 
-    // todo: 自定义生产环境中build输出位置及cdn地址
     appBuild: resolveApp('build'), // build输出位置
 };
