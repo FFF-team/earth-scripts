@@ -1,0 +1,138 @@
+{
+  "type": "object",
+  "properties": {
+    "externals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "module": {
+            "type": "string"
+          },
+          "entry": {
+            "type": ["string", "array", "object"],
+            "items": {
+              "type": ["string", "object"],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["js", "css"]
+                },
+                "cwpPatternConfig": {
+                  "type": "object",
+                  "default": {}
+                },
+                "attributes": {
+                  "type": "object",
+                  "patternProperties": {
+                    "^.+$": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "default": {}
+                }
+              },
+              "required": ["path"]
+            },
+            "minItems": 1,
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["js", "css"]
+              },
+              "cwpPatternConfig": {
+                "type": "object",
+                "default": {}
+              },
+              "attributes": {
+                "type": "object",
+                "patternProperties": {
+                  "^.+$": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "default": {}
+              }
+            },
+            "required": ["path"]
+          },
+          "global": {
+            "type": ["string", "null"],
+            "default": null
+          },
+          "supplements": {
+            "type": "array",
+            "items": {
+              "type": ["string", "object"],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "cwpPatternConfig": {
+                  "type": "object",
+                  "default": {}
+                }
+              },
+              "required": ["path"]
+            },
+            "default": []
+          },
+          "append": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": ["module", "entry"]
+      },
+      "minItems": 1
+    },
+    "hash": {
+      "type": "boolean",
+      "default": false
+    },
+    "outputPath": {
+      "type": "string",
+      "default": "vendor"
+    },
+    "publicPath": {
+      "type": ["string", "null"],
+      "default": null
+    },
+    "files": {
+      "type": ["string", "array", "null"],
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "default": null
+    },
+    "cwpOptions": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "default": "node_modules/"
+        }
+      },
+      "patternProperties": {
+        "^.+$": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "default": {}
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": ["externals"]
+}

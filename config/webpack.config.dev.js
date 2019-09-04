@@ -253,9 +253,7 @@ const defaultConfig =  {
         // Generates an `index.html` file with the <script> injected.
         ...htmlWebpackPluginMap,
         // HtmlWebpackExternalsPlugin
-        // TODO: 这个包没有升级webpack4，可以自己写
-        // ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
-
+        ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
 
         // Add module names to factory functions so they appear in browser profiler.
         new webpack.NamedModulesPlugin(paths.appPath),
@@ -324,24 +322,6 @@ const newConfig = webpackMerge({
     },
     customizeObject(a, b, key) {
 
-        if (key === 'externals') {
-
-            let newExternals = {};
-            _.forEach(b, (v, k) => {
-                // fix: externals直接传string
-                if (_.isString(v)) {
-                    newExternals[k] = v;
-                    return;
-                }
-                const opt = _.omit(v, ['entry', 'files']);
-                if (!_.isEmpty(opt)) {
-                    newExternals[k] = opt
-                }
-            });
-
-            return newExternals
-        }
-
         if (key === 'output') {
             return _.merge(
                 a,
@@ -354,7 +334,7 @@ const newConfig = webpackMerge({
             )
         }
 
-        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance']
+        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance', 'externals']
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }

@@ -104,10 +104,10 @@ function getCdnPath(webpackConfig) {
             cdnConfig = publicPath;
 
             return {
-                js: cdnConfig.js || defaultPublicPath,
-                css: cdnConfig.css || defaultPublicPath,
-                img: cdnConfig.img || defaultPublicPath,
-                media: cdnConfig.media || defaultPublicPath
+                js: cdnConfig.prodJsCDN || cdnConfig.js || defaultPublicPath,
+                css: cdnConfig.prodCssCDN || cdnConfig.css || defaultPublicPath,
+                img: cdnConfig.prodImgCDN || cdnConfig.img || defaultPublicPath,
+                media: cdnConfig.prodMediaCDN || cdnConfig.media || defaultPublicPath
             }
         }
 
