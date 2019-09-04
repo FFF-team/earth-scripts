@@ -55,6 +55,23 @@ const getExternalsByPage = function (externals) {
  * 为webpack-config添加externals功能，并添加对应的plugin
  * @param externals  customConfig.externals
  * @return {Array}  [plugins..]
+ *
+ * 传递给插件的参数
+ * {
+ *     externals: [
+ *    {
+ *      module: 'antd'，
+ *      entry: {path: '', type: 'js'},
+ *      global: 'antd'
+ *    },
+ *    {
+ *      module: 'jquery'，
+ *      entry: {path: '', type: 'js'},
+ *      global: '$'
+ *    }
+ *   ],
+ *   files: page
+ * }
  */
 const htmlWebpackExternalsPlugin = function (externals) {
     let externalsByPage = getExternalsByPage(externals);

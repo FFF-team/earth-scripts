@@ -1,7 +1,12 @@
 ### 注：
 react v15.x 使用`earth-scripts@0.x`版本
 
-react v16.x 使用`earth-scripts@1.x`版本
+react v16.x 使用`earth-scripts@1.x`版本 (webpack3、babel6、eslint5)
+
+react ssr项目  使用`earth-scripts-ssr@0.x`版本
+
+`earth-scripts@3.x` 已升级至webpack4、babel7、eslint6
+项目内如有webpack3插件或者eslint5相关配置，需要注意升级
 
 ### config
 * polyfill.js
