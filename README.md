@@ -5,8 +5,12 @@ react v16.x 使用`earth-scripts@1.x`版本 (webpack3、babel6、eslint5)
 
 react ssr项目  使用`earth-scripts-ssr@0.x`版本
 
-`earth-scripts@3.x` 已升级至webpack4、babel7、eslint6
-项目内如有webpack3插件或者eslint5相关配置，需要注意升级
+**重要更新**：
+
+**`earth-scripts@3.x` 已升级至webpack4、babel7、eslint6
+项目内如有webpack3插件或者eslint5相关配置，需要注意升级**
+
+**原使用earth-scripts@1.x的项目升级至3.x版本时需要关注doc下的升级指南**
 
 ### config
 * polyfill.js
@@ -76,7 +80,7 @@ module.exports = {
     },
     resolve: {
         alias: {...}
-    }
+    },
     externals: {
         echarts : {
             root: "echarts", // 指向全局变量
@@ -132,13 +136,10 @@ module.exports = {
              img: 'static/img/[name].[hash:8].[ext]',
              media: 'static/media/[name].[hash:8].[ext]'
         }
-    }
-    entry: {
-        vendor: ['immutable'],
     },
     resolve: {
         alias: {...} // 同上
-    }
+    },
     externals: {
         echarts : {
             root: "echarts", // 指向全局变量
