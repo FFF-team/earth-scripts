@@ -3,9 +3,10 @@ const postcss_loader = require('../common/loaders/postcss');
 const css_loader = require('../common/loaders/css');
 const scss_loader = require('../common/loaders/scss');
 const _ = require('lodash');
+const mergeLoaders = require('../util').mergeLoaders;
 
 
-function scssLoaders(customConfig, extractTextPluginOptions) {
+function scssLoaders(customConfig) {
 
 
     const loaderObj = {
@@ -17,12 +18,6 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
                     hmr: false
                 }
             },
-            css_loader({
-                importLoaders: 2,
-                import: true,
-                sourceMap: false,
-                // sourceMap: shouldUseSourceMap,
-            }),
             postcss_loader,
             scss_loader
         ]
@@ -31,8 +26,60 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
 
     const normalLoader = () => {
 
-        return [loaderObj]
+        return mergeLoaders(loaderObj)([
+            {
+                use: [1, css_loader({
+                    importLoaders: 2,
+                    import: true,
+                    sourceMap: false,
+                    // sourceMap: shouldUseSourceMap,
+                })]
+            }
+        ]);
 
+
+    };
+
+    const cssModuleLoader = ({exclude, config}) => {
+        return exclude ? mergeLoaders(loaderObj)([
+            {
+                exclude: exclude,
+                use: [1, css_loader({
+                    importLoaders: 2,
+                    import: true,
+                    sourceMap: false,
+                    // sourceMap: shouldUseSourceMap,
+                })]
+            },
+            {
+                test: exclude,
+                use: [1,
+                    css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )
+                ]
+            }
+        ]) : mergeLoaders(loaderObj)([
+            {
+                use: [1,
+                    css_loader(
+                        Object.assign({
+                            importLoaders: 2,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )
+                ]
+            }
+        ])
     };
 
 
@@ -43,12 +90,10 @@ function scssLoaders(customConfig, extractTextPluginOptions) {
     } = customConfig.cssModule;
 
     return enable ?
-        // todo: 暂不考虑cssModule情况
-        normalLoader() :
-        // cssModuleLoader({
-        //     exclude,
-        //     config
-        // }) :
+        cssModuleLoader({
+            exclude,
+            config
+        }) :
         normalLoader()
 
 

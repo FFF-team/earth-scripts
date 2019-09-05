@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
@@ -116,7 +117,7 @@ function getSplitChunks() {
         //     enforce: true
         // }
     };
-    // todo: 针对每个page提取出一个css文件。
+    // todo: 针对每个page提取出一个css文件。异步加载的文件会导出单独的css文件
     const allEntryArr = paths.allPages;
     allEntryArr.forEach((_entry) => {
         cacheGroups[`${_entry}-style`] = {
@@ -153,7 +154,8 @@ const defaultConfig = {
                     ie8: false
                 },
 
-            })
+            }),
+            new OptimizeCSSAssetsPlugin({})
         ],
         splitChunks: {
             chunks: 'async',

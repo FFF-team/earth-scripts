@@ -13,13 +13,12 @@ const base = {
     ]
 };
 
-
-const normalLoader = () => {
-    return mergeLoaders(base)([
-        {use: [1, css_loader({importLoaders: 1})]}
-    ])
-    /*return [
-        {
+/**
+ *
+ * @return {*}
+ *
+ * [
+ {
             test: /\.css$/,
             use: [
                 style_loader,
@@ -27,7 +26,12 @@ const normalLoader = () => {
                 postcss_loader,
             ],
         }
-    ]*/
+ ]
+ */
+const normalLoader = () => {
+    return mergeLoaders(base)([
+        {use: [1, css_loader({importLoaders: 1})]}
+    ])
 };
 
 
@@ -38,17 +42,18 @@ const cssModuleLoader = ({exclude, config}) => {
             {
                 exclude: exclude,
                 use: [1,
-                    css_loader(
-                        Object.assign({importLoaders: 1, module: true,}, config)
-                    )
-                ]
-            },
-            {
-                include: exclude,
-                use: [1,
                     css_loader({
                         importLoaders: 1,
                     })
+                ]
+            },
+            {
+                test: exclude,
+                use: [1,
+                    css_loader(
+                        Object.assign({importLoaders: 1, module: true,}, config)
+                    )
+
                 ]
             }
         ]) :

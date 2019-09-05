@@ -1,6 +1,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcss_loader = require('../common/loaders/postcss');
 const css_loader = require('../common/loaders/css');
+const mergeLoaders = require('../util').mergeLoaders;
 
 const _ = require('lodash');
 
@@ -18,18 +19,58 @@ function cssLoaders(customConfig) {
                     hmr: true
                 }
             },
-            css_loader({
-                importLoaders: 1,
-                sourceMap: false,
-                import: true
-            }),
             postcss_loader,
         ],
     };
 
 
     const normalLoader = () => {
-        return [loaderObj]
+        return mergeLoaders(loaderObj)([{
+            use: [1, css_loader({
+                importLoaders: 1,
+                sourceMap: false,
+                import: true
+            })]
+        }])
+    };
+
+    const cssModuleLoader = ({exclude, config}) => {
+        return exclude ? mergeLoaders(loaderObj)([
+            {
+                exclude: exclude,
+                use: [1, css_loader({
+                    importLoaders: 1,
+                    sourceMap: false,
+                    import: true
+                })]
+            },
+            {
+                test: exclude,
+                use: [1,
+                    css_loader(
+                        Object.assign({
+                            importLoaders: 1,
+                            minimize: true,
+                            sourceMap: false,
+                            module: true,
+                            // sourceMap: shouldUseSourceMap,
+                        }, config)
+                    )
+                ]
+            }
+        ]) : mergeLoaders(loaderObj)([{
+            use: [1,
+                css_loader(
+                    Object.assign({
+                        importLoaders: 1,
+                        minimize: true,
+                        sourceMap: false,
+                        module: true,
+                        // sourceMap: shouldUseSourceMap,
+                    }, config)
+                )
+            ]
+        }])
     };
 
 
@@ -40,12 +81,10 @@ function cssLoaders(customConfig) {
     } = customConfig.cssModule;
 
     return enable ?
-        normalLoader():
-        // todo: 暂不考虑cssModule情况
-        // cssModuleLoader({
-        //     exclude,
-        //     config
-        // }) :
+        cssModuleLoader({
+            exclude,
+            config
+        }) :
         normalLoader()
 
 }

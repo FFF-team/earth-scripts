@@ -24,19 +24,6 @@ const normalLoader = () => {
         }
     ])
 
-    // return [
-    //     {
-    //         test: /\.scss$/,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ]
-    //     }
-    // ]
 };
 
 const cssModuleLoader = ({exclude, config}) => {
@@ -45,15 +32,15 @@ const cssModuleLoader = ({exclude, config}) => {
         mergeLoaders(base)([
             {
                 exclude: exclude,
-                use: [1, css_loader(
-                    Object.assign({importLoaders: 2, module: true}, config)
-                )]
-            },
-            {
-                include: exclude,
                 use: [1, css_loader({
                     importLoaders: 2,
                 })]
+            },
+            {
+                test: exclude,
+                use: [1, css_loader(
+                        Object.assign({importLoaders: 2, module: true}, config)
+                    )]
             }
         ]) :
         mergeLoaders(base)([
@@ -64,49 +51,7 @@ const cssModuleLoader = ({exclude, config}) => {
             }
         ]);
 
-    // return exclude ? [
-    //     {
-    //         test: /\.scss$/,
-    //         exclude: exclude,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2,
-    //                 module: true,
-    //                 localIdentName: name
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ],
-    //     },
-    //     {
-    //         test: /\.scss$/,
-    //         include: exclude,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2,
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ],
-    //     }
-    // ] : [
-    //     {
-    //         test: /\.scss$/,
-    //         use: [
-    //             style_loader,
-    //             css_loader({
-    //                 importLoaders: 2,
-    //                 module: true,
-    //                 localIdentName: name
-    //             }),
-    //             postcss_loader,
-    //             scss_loader
-    //         ],
-    //     }
-    // ]
-}
+};
 
 
 function scssLoaders(customConfig) {
