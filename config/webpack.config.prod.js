@@ -376,12 +376,6 @@ const defaultConfig = {
 const newConfig = webpackMerge({
 
     customizeArray(a, b, key) {
-        if (key === 'entry.vendor') {
-            if (_.isArray(b)) {
-                return _.uniq([...a, ...b])
-            }
-            return a
-        }
 
         if (key === 'plugins') {
             let uniques = [
@@ -421,7 +415,7 @@ const newConfig = webpackMerge({
             )
         }
 
-        let frozenKeys = ['resolve', 'module', 'node', 'bail', 'devtool', 'externals'];
+        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'bail', 'devtool', 'externals'];
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }
