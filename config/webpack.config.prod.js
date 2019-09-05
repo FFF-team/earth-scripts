@@ -2,8 +2,8 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
@@ -12,7 +12,6 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
-// const CdnPathWebpackPlugin = require("html-webpack-cdn-path-plugin");
 const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const util = require('./util');
@@ -45,18 +44,9 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 const fileNames = customConfig.filenames;
 // import cnd path
 const cdnPaths = customConfig.cdnPath;
-
-// Note: defined here because it will be used more than once.
+// import css filenames
 const cssFilename = fileNames.css;
 
-// ExtractTextPlugin expects the build output to be flat.
-// (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
-// However, our output is structured with css, js and media folders.
-// To have this structure working with relative paths, we have to use custom options.
-const extractTextPluginOptions = shouldUseRelativeAssetPaths
-    ? // Making sure that the publicPath goes back to to build folder.
-    {publicPath: Array(cssFilename.split('/').length).join('../')}
-    : {};
 
 // media option
 const mediaOption = cdnPaths && cdnPaths.media ?
@@ -104,40 +94,39 @@ paths.entriesMap['vendor'] = [
     'classnames'
 ];
 
+function recursiveIssuer(m) {
+    if (m.issuer) {
+        return recursiveIssuer(m.issuer);
+    } else if (m.name) {
+        return m.name;
+    } else {
+        return false;
+    }
+}
+
 function getSplitChunks() {
     let cacheGroups = {
         // 提取公共库到vendor.js
-        default: false,
-        vendor: {
-            // todo: 自定义配置
-            test: /[\\/]node_modules[\\/](react|react-dom|prop-types|classnames)[\\/]/,
-            chunks: 'initial',
-            name: "vendor",
-            enforce: true
-        }
+        // default: false,
+        // vendor: {
+        //     // todo: 自定义配置
+        //     test: /[\\/]node_modules[\\/](react|react-dom|prop-types|classnames)[\\/]/,
+        //     chunks: 'initial',
+        //     name: "vendor",
+        //     enforce: true
+        // }
     };
     // todo: 针对每个page提取出一个css文件。
-    // todo: 下面的方法有问题，跟进相关issue
-    // todo: https://github.com/webpack-contrib/mini-css-extract-plugin/issues/220
-    // const allEntryArr = paths.allPages;
-    // allEntryArr.forEach((_entry) => {
-    //     cacheGroups[`${_entry}-style`] = {
-    //         name: `${_entry}-style`,
-    //         // test: /\.s?css$/,
-    //         // test: module => module.constructor.name === 'CssModule',
-    //         test: (m, c, entry = _entry) => {
-    //             // js name is NormalModule
-    //             // css name is CssModule
-    //             return m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry
-    //         },
-    //         chunks: 'all',
-    //         // chunks: chunk => chunk.name.startsWith(_entry),
-    //         enforce: true,
-    //         reuseExistingChunk: false,
-    //         priority: 20,
-    //         // minChunks: 1,
-    //     }
-    // });
+    const allEntryArr = paths.allPages;
+    allEntryArr.forEach((_entry) => {
+        cacheGroups[`${_entry}-style`] = {
+            name: `${_entry}`,
+            test: (m, c, entry = `${_entry}`) =>
+                m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
+            chunks: 'all',
+            enforce: true,
+        }
+    });
     return cacheGroups
 }
 
@@ -277,9 +266,9 @@ const defaultConfig = {
                     // use the "style" loader inside the async code so CSS from them won't be
                     // in the main CSS file.
                     // css loader
-                    ...require('./cssLoaders/prod')(customConfig, extractTextPluginOptions),
+                    ...require('./cssLoaders/prod')(customConfig),
                     //scss-loader
-                    ...require('./scssLoaders/prod')(customConfig, extractTextPluginOptions),
+                    ...require('./scssLoaders/prod')(customConfig),
                     // "file" loader makes sure assets end up in the `build` folder.
                     // When you `import` an asset, you get its filename.
                     // This loader don't uses a "test" so it will catch all modules
@@ -324,7 +313,7 @@ const defaultConfig = {
         // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
         new MiniCssExtractPlugin({
             filename: cssFilename,
-            allChunks: fileNames.cssChunk
+            // allChunks: fileNames.cssChunk
         }),
         ...(process.env.ENABLE_BUNDLE_ANALYZE === 'true' ?
             [new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)()] :
@@ -399,7 +388,6 @@ const newConfig = webpackMerge({
                 'HtmlWebpackPlugin',
                 'HtmlWebpackExternalsPlugin',
                 'HashedModuleIdsPlugin',
-                'CommonsChunkPlugin',
                 'DefinePlugin',
                 'BundleAnalyzerPlugin'
             ];

@@ -76,5 +76,6 @@ module.exports = {
 
     flexibleStr: flexibleStr,
 
+    proxySetup: resolveApp('src/setupProxy.js'), // 接口代理配置
     appBuild: resolveApp('build'), // build输出位置
 };
