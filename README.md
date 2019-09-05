@@ -116,7 +116,7 @@ webpack.config.prod.js
 
 ```
 module.exports = {
-    // todo: 支持output，entry.vendor, plugins，其他的字段都会被忽略
+    // todo: 支持output, plugins，其他的字段都会被忽略
     output: {
         // 字符串形式。
         // 资源用统一的cdn路径。

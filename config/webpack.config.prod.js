@@ -88,12 +88,12 @@ const htmlWebpackPluginMap = (function () {
 
 })();
 
-paths.entriesMap['vendor'] = [
-    require.resolve('./polyfills'),
-    'react', 'react-dom', 'prop-types',
-    'react-router-dom',
-    'classnames'
-];
+// paths.entriesMap['vendor'] = [
+//     require.resolve('./polyfills'),
+//     'react', 'react-dom', 'prop-types',
+//     'react-router-dom',
+//     'classnames'
+// ];
 
 function recursiveIssuer(m) {
     if (m.issuer) {
@@ -109,13 +109,13 @@ function getSplitChunks() {
     let cacheGroups = {
         // 提取公共库到vendor.js
         // default: false,
-        // vendor: {
-        //     // todo: 自定义配置
-        //     test: /[\\/]node_modules[\\/](react|react-dom|prop-types|classnames)[\\/]/,
-        //     chunks: 'initial',
-        //     name: "vendor",
-        //     enforce: true
-        // }
+        vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            chunks: "all",
+            priority: 10,
+            name: "vendor",
+            enforce: true
+        }
     };
     // todo: 针对每个page提取出一个css文件。异步加载的文件会导出单独的css文件
     const allEntryArr = paths.allPages;
