@@ -8,6 +8,7 @@ react ssr项目  使用`earth-scripts-ssr@0.x`版本
 **重要更新**：
 
 **`earth-scripts@3.x` 已升级至webpack4、babel7、eslint6
+
 项目内如有webpack3插件或者eslint5相关配置，需要注意升级**
 
 **原使用earth-scripts@1.x的项目升级至3.x版本时需要关注doc下的升级指南**
