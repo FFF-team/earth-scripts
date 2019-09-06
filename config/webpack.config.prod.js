@@ -88,12 +88,12 @@ const htmlWebpackPluginMap = (function () {
 
 })();
 
-// paths.entriesMap['vendor'] = [
-//     require.resolve('./polyfills'),
-//     'react', 'react-dom', 'prop-types',
-//     'react-router-dom',
-//     'classnames'
-// ];
+paths.entriesMap['vendor'] = [
+    require.resolve('./polyfills'),
+    'react', 'react-dom', 'prop-types',
+    'react-router-dom',
+    'classnames'
+];
 
 function recursiveIssuer(m) {
     if (m.issuer) {
@@ -107,12 +107,37 @@ function recursiveIssuer(m) {
 
 function getSplitChunks() {
     let cacheGroups = {
-        // 提取公共库到vendor.js
+        // 提取公共业务代码到default~AchunkName~BchunkName.js
         // default: false,
+        default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+        },
+        // 提取entry.vendor中配置的module到vendor
         vendor: {
-            test: /[\\/]node_modules[\\/]/,
+            test: function(module, chunk) {
+
+                const entryArr = Object.keys(paths.entriesMap || {}) || [];
+                const vendorArr = paths.entriesMap.vendor || [];
+                const allEntryRegexp = new RegExp(entryArr.join('|'));
+                const allVendorRegexp = new RegExp(vendorArr.join('|'));
+
+                for (const chunk of module.chunksIterable) {        //所有chunks的迭代
+                    // 如果一个module在entry中用到，并且是node_modules包，这些包都会打包到vendor中
+                    if (chunk.name && allEntryRegexp.test(chunk.name)) { //chunk的名称
+                        // 把entry.vendor配置的module都打到vendor里
+                        if (module.resource && allVendorRegexp.test(module.resource)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+
+            },
             chunks: "all",
-            priority: 10,
+            minChunks: 1,
+            priority: -10,
             name: "vendor",
             enforce: true
         }
@@ -305,14 +330,14 @@ const defaultConfig = {
 
         // externals plugin
         ...require('./common/htmlWebpackExternalsPlugin')(customConfig.externals),
-        // 将公共包和webpack bootstrap从业务代码总分离
+        // HashedModuleIdsPlugin
         new webpack.HashedModuleIdsPlugin(),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
         // It is absolutely essential that NODE_ENV was set to production here.
         // Otherwise React will be compiled in the very slow development mode.
         new webpack.DefinePlugin(env.stringified),
-        // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
+        // 提取css
         new MiniCssExtractPlugin({
             filename: cssFilename,
             // allChunks: fileNames.cssChunk
@@ -377,6 +402,13 @@ const newConfig = webpackMerge({
 
     customizeArray(a, b, key) {
 
+        if (key === 'entry.vendor') {
+            if (_.isArray(b)) {
+                return _.uniq([...a, ...b])
+            }
+            return a
+        }
+
         if (key === 'plugins') {
             let uniques = [
                 'CdnPathWebpackPlugin',
@@ -400,6 +432,10 @@ const newConfig = webpackMerge({
     },
     customizeObject(a, b, key) {
 
+        if (key === 'externals') {
+
+            return customConfig.parseExternals(b)
+        }
 
         if (key === 'output') {
             let newOutput = _.omit(b, 'filenames', 'publicPath');
@@ -415,7 +451,7 @@ const newConfig = webpackMerge({
             )
         }
 
-        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'bail', 'devtool', 'externals'];
+        let frozenKeys = ['resolve', 'module', 'node', 'bail', 'devtool'];
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }

@@ -43,7 +43,6 @@ function HtmlWebpackExternalsPlugin(config) {
     // webpack config 里的externals，两种格式
     // ['react', 'react-dom']
     // [{"react": "react", 'reactDom': 'react-dom'}]
-    this.externals = []; // webpack config用的externals配置
     this.assetsToCopy = [];
     this.assetsToAppend = [];
     this.assetsToPrepend = [];
@@ -59,10 +58,6 @@ function HtmlWebpackExternalsPlugin(config) {
 
     // 初始化externals
     externals.forEach(({ module, entry, global, supplements, append }) => {
-
-        if (global) {
-            this.externals.push(global ? { [module]: global } : module);
-        }
 
         const localEntries = [];
 
@@ -103,15 +98,6 @@ function HtmlWebpackExternalsPlugin(config) {
 HtmlWebpackExternalsPlugin.prototype.apply = function (compiler) {
     if (!this.enabled) {
         return
-    }
-
-
-    if (!compiler.options.externals) {
-        compiler.options.externals = this.externals
-    } else if (Array.isArray(compiler.options.externals)) {
-        compiler.options.externals = [...compiler.options.externals, ...this.externals]
-    } else {
-        compiler.options.externals = [compiler.options.externals, ...this.externals]
     }
 
 

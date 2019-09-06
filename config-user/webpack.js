@@ -241,6 +241,26 @@ function getCssModuleConfig(webpackConfig) {
     }
 }
 
+function parseExternals(fullConfig) {
+
+    let newExternals = {};
+
+    _.forEach(fullConfig, (v, k) => {
+        if (_.isString(v)) {
+            newExternals[k] = v;
+            return;
+        }
+        const opt = _.omit(v, ['entry', 'files']);
+        if (!_.isEmpty(opt)) {
+            if (opt.root) {
+                newExternals[k] = opt.root
+            }
+        }
+    });
+
+    return newExternals
+
+}
 
 
 
@@ -255,5 +275,6 @@ module.exports = {
     cdnPath: getCdnPath(webpackConfig),
     alias: getAliasConfig(webpackConfig),
     cssModule: getCssModuleConfig(webpackConfig),
-    externals: webpackConfig.externals
+    externals: webpackConfig.externals || {},
+    parseExternals
 };

@@ -322,6 +322,11 @@ const newConfig = webpackMerge({
     },
     customizeObject(a, b, key) {
 
+        if (key === 'externals') {
+
+            return customConfig.parseExternals(b)
+        }
+
         if (key === 'output') {
             return _.merge(
                 a,
@@ -334,7 +339,7 @@ const newConfig = webpackMerge({
             )
         }
 
-        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance', 'externals']
+        let frozenKeys = ['resolve', 'entry', 'module', 'node', 'performance']
         if (frozenKeys.indexOf(key) >= 0) {
             return a
         }

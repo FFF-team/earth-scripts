@@ -17,27 +17,8 @@
                 "modules": false
             }],
             "react-app"
-        ],
-        "plugins": [
-            [
-                "import",
-                {
-                    "libraryName": "antd",
-                    "libraryDirectory": "lib",
-                    "style": "css"
-                },
-                "ant"
-            ],
-            [
-                "import",
-                {
-                    "libraryName": "antd-mobile",
-                    "libraryDirectory": "lib",
-                    "style": "css"
-                },
-                "antd-mobile"
-            ]
         ]
     };
     
     ```
+    > 这里删除了babel-plugin-import插件，原因是加上该插件打包体积会更大，详见各种[issue](https://github.com/ant-design/babel-plugin-import/issues)
