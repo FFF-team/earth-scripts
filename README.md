@@ -246,3 +246,23 @@ http://localhost:3000/index.html/[browerRouter内容]
 </Router>
 
 ```
+
+### 单元测试
+
+ * 在src目录下创建__test__ 文件夹，在该文件下编写测试用例, 测试用例文件名为 .*.test.js（实际上在src目录下任何地方都可以编写）。
+ 
+ * 如若修改或添加jest配置, 可以在项目跟目录下config 目录下可以配置jest.config.js文件，内容如下：
+
+    ```javascript
+     module.exports = defaultConfig => {
+                console.log('defaultConfig', defaultConfig);
+                return defaultConfig;
+           }
+    ```
+    
+    defaultConfig可以查看所有的默认配置，这里可以更改所有的jest配置。  
+    jest 配置文档 https://jestjs.io/docs/en/configuration。
+    
+ * 项目文件引入会使用webpack中的alias功能，在jest配置文件中也会默认使用config/alias.js中的文件映射，具体配置可以查看defaultConfig.moduleNameMapper。
+
+ * 支持ts tsx。

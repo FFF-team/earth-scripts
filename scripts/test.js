@@ -16,12 +16,17 @@ process.on('unhandledRejection', err => {
 require('../config/env');
 
 const jest = require('jest');
-const argv = process.argv.slice(2);
+const path = require('path');
 
-// Watch unless on CI or in coverage mode
-if (!process.env.CI && argv.indexOf('--coverage') < 0) {
-  argv.push('--watch');
-}
 
+const createJestConfig = require('../config/jest/defaultConfig');
+const paths = require('../config/paths');
+
+let argv = process.argv.slice(2);
+
+const resolve = relativePath => path.resolve(__dirname, '..', relativePath);
+const rootDir = path.resolve(paths.appSrc, '..')
+
+argv.push('--config', JSON.stringify(createJestConfig(resolve, rootDir)));
 
 jest.run(argv);
