@@ -25,8 +25,11 @@ const paths = require('../config/paths');
 let argv = process.argv.slice(2);
 
 const resolve = relativePath => path.resolve(__dirname, '..', relativePath);
-const rootDir = path.resolve(paths.appSrc, '..')
+const rootDir = path.resolve(paths.appSrc, '..');
+// 兼容package.json中的写法
+const packageJsonTest = require(paths.appPackageJson).jest || null;
 
-argv.push('--config', JSON.stringify(createJestConfig(resolve, rootDir)));
+argv.push('--config', JSON.stringify(packageJsonTest || createJestConfig(resolve, rootDir)));
+argv.push('--watch');
 
 jest.run(argv);
