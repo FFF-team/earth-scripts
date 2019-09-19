@@ -4,33 +4,32 @@ const paths = require('../paths');
 const fs = require('fs');
 const path = require('path');
 
+const { alias } = require('../../config-user/webpack');
+
 const fileExists = path => {
     return fs.existsSync(path);
 }
 
 // 获取alias配置
 const getAliasConfig = config => {
-    const aliasPath = path.resolve(paths.appPath, 'config/alias.js');
-    const isAliasPathExists = fileExists(aliasPath);
-
-    if(!isAliasPathExists) {
+    if(!alias) {
         return config;
     }
 
-    const aliasConfig = require(aliasPath);
     try {
         const aliasConfigMap = {};
-        for (let key in aliasConfig) {
+        for (let key in alias) {
             const mapKey = `^${key}/(.*)$`;
-            aliasConfigMap[mapKey] = path.resolve(aliasConfig[key], '$1');
+            aliasConfigMap[mapKey] = path.resolve(alias[key], '$1');
         }
 
         config.moduleNameMapper = {
             ...config.moduleNameMapper,
             ...aliasConfigMap
         }
+
         return config;
-    }catch (e) {
+    } catch (e) {
         return config;
     }
 }
