@@ -137,9 +137,15 @@ function getSplitChunks() {
             },
             chunks: "all",
             minChunks: 1,
-            priority: -10,
+            priority: 10,
             name: "vendor",
             enforce: true
+        },
+        common: {
+            name: "common",
+            chunks: "initial",
+            priority: 0,
+            minChunks: 2
         }
     };
     // todo: 针对每个page提取出一个css文件。异步加载的文件会导出单独的css文件
