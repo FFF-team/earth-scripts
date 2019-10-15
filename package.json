@@ -1,6 +1,6 @@
 {
   "name": "earth-scripts",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "earth for node script",
   "bin": {
     "earth-scripts": "./index.js"
@@ -19,8 +19,6 @@
     "@babel/preset-env": "7.4.5",
     "@babel/runtime": "7.4.5",
     "@testing-library/jest-dom": "4.1.0",
-    "@typescript-eslint/eslint-plugin": "2.1.0",
-    "@typescript-eslint/parser": "2.1.0",
     "ajv": "^6.10.2",
     "autoprefixer": "7.1.2",
     "babel-eslint": "10.0.1",
@@ -39,7 +37,7 @@
     "enzyme": "3.10.0",
     "enzyme-adapter-react-16": "1.14.0",
     "eslint": "6.3.0",
-    "eslint-config-react-app": "5.0.1",
+    "eslint-config-react-app": "5.0.2",
     "eslint-loader": "3.0.0",
     "eslint-plugin-flowtype": "4.3.0",
     "eslint-plugin-import": "2.18.2",
