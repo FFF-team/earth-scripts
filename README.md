@@ -11,7 +11,7 @@ react ssr项目  使用`earth-scripts-ssr@0.x`版本
 
 **项目内如有webpack3插件或者eslint5相关配置，需要注意升级**
 
-**原使用earth-scripts@1.x的项目升级至3.x版本时需要关注doc下的3.x升级指南**
+**原使用earth-scripts@1.x的项目升级至3.x版本时需要关注[doc下的3.x升级指南](https://github.com/FFF-team/earth-scripts/tree/master/doc/3.x%E5%8D%87%E7%BA%A7%E6%8C%87%E5%8D%97)**
 
 ### config
 * polyfill.js
@@ -197,7 +197,7 @@ BROWSER_ROUTER=true // 是否使用BrowserRouter
 
 prod环境下配置：
 ENABLE_BUNDLE_ANALYZE=true // 在npm run build后会启用js包分析工具
-
+GENERATE_SOURCEMAP=false // 不打包出sourcemap文件
 ```
 
 ### mock server

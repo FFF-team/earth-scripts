@@ -181,10 +181,9 @@ const defaultConfig = {
                         // https://github.com/facebookincubator/create-react-app/issues/2488
                         ascii_only: true,
                     },
-                    sourceMap: shouldUseSourceMap,
                     ie8: false
                 },
-
+                sourceMap: shouldUseSourceMap,
             }),
             new OptimizeCSSAssetsPlugin({})
         ],
