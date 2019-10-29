@@ -261,7 +261,7 @@ const defaultConfig = {
             // First, run the linter.
             // It's important to do this before Babel processes the JS.
             {
-                test: /\.(js|jsx)$/,
+                test: /\.(js|ts|jsx)$/,
                 enforce: 'pre',
                 use: [
                     {
