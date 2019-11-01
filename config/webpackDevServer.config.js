@@ -11,11 +11,14 @@ const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 const host = process.env.HOST || '0.0.0.0';
 const isBrowserRouter = process.env.BROWSER_ROUTER === 'true';
 
-let historyMiddleware = null;
 
-if (isBrowserRouter) {
-    const history = require('connect-history-api-fallback');
+function BrowserPathRewrite (req, res, next) {
+    const url = require('url');
+    const parsedUrl = url.parse(req.url);
 
+    // BrowserRouter情况
+    // page例如为 user.html
+    // 访问二级路由时 /user/getname，刷新页面为了避免404，将页面指向user.html
     const getRewritesByPages = (pages) => {
         let rewrites = [];
         pages.map((page) => {
@@ -31,10 +34,18 @@ if (isBrowserRouter) {
         return rewrites
     };
 
-    historyMiddleware = history({
-        rewrites: getRewritesByPages(paths.allPages),
-        verbose: false // logger
-    })
+    const rewrites = getRewritesByPages(paths.allPages);
+
+    for (let i = 0; i < rewrites.length; i ++) {
+        const rewrite = rewrites[i];
+        const match = parsedUrl.pathname.match(rewrite.from);
+        if (match !== null) {
+            req.url = rewrite.to;
+            return next();
+        }
+    }
+
+    next();
 }
 
 
@@ -111,6 +122,11 @@ module.exports = function (proxy, allowedHost) {
         proxy,
         setup(app, server) {
 
+            if (isBrowserRouter) {
+                // delete "connect-history-api-fallback"
+                app.use(BrowserPathRewrite())
+            }
+
             if (fs.existsSync(paths.proxySetup)) {
                 // This registers user provided middleware for proxy reasons
                 require(paths.proxySetup)(app);
@@ -127,7 +143,6 @@ module.exports = function (proxy, allowedHost) {
             // https://github.com/facebookincubator/create-react-app/issues/2272#issuecomment-302832432
             app.use(noopServiceWorkerMiddleware());
 
-            historyMiddleware && app.use(historyMiddleware)
         },
     };
 };
