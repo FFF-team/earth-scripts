@@ -124,7 +124,7 @@ module.exports = function (proxy, allowedHost) {
 
             if (isBrowserRouter) {
                 // delete "connect-history-api-fallback"
-                app.use(BrowserPathRewrite())
+                app.use(BrowserPathRewrite)
             }
 
             if (fs.existsSync(paths.proxySetup)) {
