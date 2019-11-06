@@ -4,6 +4,11 @@ const chalk = require('chalk');
 const fs = require('fs');
 const glob = require('glob');
 
+const pageEntry = {
+    SINGLE: 'src/{index.js,index.ts,index.tsx,index.jsx}',
+    MULTI: (page) => `src/pages/${page}/{index.js,index.ts,index.tsx,index.jsx}`
+};
+
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
@@ -13,7 +18,9 @@ const checkPagesRequired = (allPagesName) => {
         page = allPagesName[i];
         if (!checkRequiredFiles([
                 resolveApp(`public/${page}.html`),
-                isSinglePage() ? getClientEntryFile('src/index.*') : getClientEntryFile(`src/pages/${page}/index.*`)
+                isSinglePage() ?
+                    getClientEntryFile(pageEntry.SINGLE) :
+                    getClientEntryFile(pageEntry.MULTI(page))
             ])
         ) {
             return false
@@ -64,5 +71,6 @@ module.exports = {
     resolveApp,
     getLocalMockPort,
     isSinglePage,
-    getClientEntryFile
+    getClientEntryFile,
+    pageEntry
 };

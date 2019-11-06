@@ -5,6 +5,7 @@ const fs = require('fs');
 const url = require('url');
 const glob = require('glob');
 const ensureSlash = require('./util').ensureSlash;
+const pageEntry = require('../tools').pageEntry;
 const getClientEntryFile = require('../tools').getClientEntryFile;
 const isSinglePage = require('../tools').isSinglePage;
 const resolveApp = require('../tools').resolveApp;
@@ -13,7 +14,7 @@ const resolveApp = require('../tools').resolveApp;
 // https://github.com/facebookincubator/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
 const pagesPath = 'src/pages/*';
-const singlePagePath = 'src/index.*';
+const singlePagePath = pageEntry.SINGLE;
 
 const envPublicUrl = process.env.PUBLIC_URL;
 
@@ -27,7 +28,7 @@ const entriesFunc = function(globPath) {
         // basename = path.basename(entry, '.js');
         // entries[path.join(dirname, basename)] = './' + entry;
         basename = path.basename(entry);
-        entries[basename] = getClientEntryFile(entry + '/index.*');
+        entries[basename] = getClientEntryFile(pageEntry.MULTI(basename));
     }
     return entries;
 };
