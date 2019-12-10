@@ -48,7 +48,7 @@ function HtmlWebpackExternalsPlugin(config) {
     this.assetsToPrepend = [];
 
 
-    const { externals, hash, outputPath, publicPath, files, enabled, cwpOptions } = config
+    const { externals, hash, outputPath, publicPath, files, enabled, cwpOptions } = config;
     this.hash = hash;
     this.outputPath = outputPath;
     this.publicPath = publicPath;
@@ -113,16 +113,20 @@ HtmlWebpackExternalsPlugin.prototype.apply = function (compiler) {
 
     const pluginsToApply = [];
 
-    pluginsToApply.push(
-        new CopyWebpackPlugin(
-            this.assetsToCopy.map(({ path, cwpPatternConfig }) => ({
-                from: path,
-                to: `${this.outputPath}/${path}`,
-                ...cwpPatternConfig,
-            })),
-            this.cwpOptions
+    const needCopyFiles = this.assetsToCopy.map(({ path, cwpPatternConfig }) => ({
+        from: path,
+        to: `${this.outputPath}/${path}`,
+        ...cwpPatternConfig,
+    }));
+
+    if (needCopyFiles && needCopyFiles.length) {
+        pluginsToApply.push(
+            new CopyWebpackPlugin(
+                needCopyFiles,
+                this.cwpOptions
+            )
         )
-    );
+    }
 
 
     const createAssetsPlugin = (assets, append) => {
