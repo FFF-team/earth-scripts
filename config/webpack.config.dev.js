@@ -35,6 +35,7 @@ const htmlWebpackPluginMap = (function(){
     let map = [];
     for(let k in paths.entriesMap){
         paths.entriesMap[k] = [
+            require.resolve('./polyfills'),
             require.resolve('react-dev-utils/webpackHotDevClient'),
             paths.entriesMap[k]
         ];
@@ -44,7 +45,8 @@ const htmlWebpackPluginMap = (function(){
                 flexibleStr: paths.flexibleStr,
                 filename: `${k}.html`,
                 template: paths.resolveApp(`public/${k}.html`),
-                chunks: ['runtime', 'vendor', k]
+                chunks: ['runtime', 'vendor', k],
+                chunksSortMode: "manual"
             })
         );
     }
@@ -52,60 +54,12 @@ const htmlWebpackPluginMap = (function(){
 })();
 
 paths.entriesMap['vendor'] = [
-    require.resolve('./polyfills'),
+    // todo: remove to entry, cannot auto execute polyfills
+    // require.resolve('./polyfills'),
     require.resolve('react-error-overlay'),
 ];
 
 
-function getCssSplitChunks() {
-    const allEntryArr = paths.allPages;
-    let cacheGroups = {
-        default: false,
-
-        // 提取公共库到vendor.js
-        vendor: {
-            // todo: 自定义配置
-            test: /[\\/]node_modules[\\/](react|react-dom|prop-types|react-router-dom|classnames)[\\/]/,
-            chunks: 'initial',
-            name: "vendor",
-            enforce: true
-        },
-        // commonCss: {
-        //     test: (module, chunks) => module.constructor.name === 'CssModule',
-        //     name: "commons-style",
-        //     chunks: "all",
-        //     enforce: true
-        // }
-        // Merge all the CSS into one file
-        // fooStyles: {
-        //     name: 'foo',
-        //     test: (m, c, entry = 'index') =>
-        //         m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
-        //     chunks: 'all',
-        //     enforce: true,
-        // }
-    };
-    allEntryArr.forEach((_entry) => {
-        cacheGroups[`${_entry}-style`] = {
-            name: `${_entry}-style`,
-            // test: /\.s?css$/,
-            // test: module => module.constructor.name === 'CssModule',
-            test: (m, c, entry = _entry) => {
-                // js name is NormalModule
-                // css name is CssModule
-                return m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry
-            },
-            chunks: 'all',
-            // chunks: chunk => chunk.name.startsWith(_entry),
-            // chunks: chunk => chunk.name.startsWith(_entry),
-            enforce: true,
-            reuseExistingChunk: false,
-            priority: 20,
-            // minChunks: 1,
-        }
-    });
-    return cacheGroups
-}
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -238,7 +192,7 @@ const defaultConfig =  {
             maxInitialRequests: 3,
             automaticNameDelimiter: '~',
             name: true,
-            cacheGroups: getCssSplitChunks()
+            cacheGroups: util.getSplitChunks(paths)
         },
         runtimeChunk: {
             name: 'runtime'

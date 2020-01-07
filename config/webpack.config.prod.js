@@ -61,6 +61,10 @@ const mediaOption = cdnPaths && cdnPaths.media ?
 const htmlWebpackPluginMap = (function () {
     let map = [];
     for (let k in paths.entriesMap) {
+        paths.entriesMap[k] = [
+            require.resolve('./polyfills'),
+            paths.entriesMap[k]
+        ];
         map.push(
             new HtmlWebpackPlugin({
                 inject: true,
@@ -68,6 +72,7 @@ const htmlWebpackPluginMap = (function () {
                 filename: `${k}.html`,
                 template: paths.resolveApp(`public/${k}.html`),
                 chunks: ['runtime', 'vendor', k],
+                chunksSortMode: "manual",
                 minify: {
                     removeComments: true,
                     collapseWhitespace: true,
@@ -89,78 +94,11 @@ const htmlWebpackPluginMap = (function () {
 })();
 
 paths.entriesMap['vendor'] = [
-    require.resolve('./polyfills'),
+    // todo: remove to entry, cannot auto execute polyfills
     'react', 'react-dom', 'prop-types',
     'react-router-dom',
     'classnames'
 ];
-
-function recursiveIssuer(m) {
-    if (m.issuer) {
-        return recursiveIssuer(m.issuer);
-    } else if (m.name) {
-        return m.name;
-    } else {
-        return false;
-    }
-}
-
-function getSplitChunks() {
-    let cacheGroups = {
-        // 提取公共业务代码到default~AchunkName~BchunkName.js
-        // default: false,
-        default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-        },
-        // 提取entry.vendor中配置的module到vendor
-        vendor: {
-            test: function(module, chunk) {
-
-                const entryArr = Object.keys(paths.entriesMap || {}) || [];
-                const vendorArr = paths.entriesMap.vendor || [];
-                const allEntryRegexp = new RegExp(entryArr.join('|'));
-                const allVendorRegexp = new RegExp(vendorArr.join('|'));
-
-                for (const chunk of module.chunksIterable) {        //所有chunks的迭代
-                    // 如果一个module在entry中用到，并且是node_modules包，这些包都会打包到vendor中
-                    if (chunk.name && allEntryRegexp.test(chunk.name)) { //chunk的名称
-                        // 把entry.vendor配置的module都打到vendor里
-                        if (module.resource && allVendorRegexp.test(module.resource)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-
-            },
-            chunks: "all",
-            minChunks: 1,
-            priority: 10,
-            name: "vendor",
-            enforce: true
-        },
-        common: {
-            name: "common",
-            chunks: "initial",
-            priority: 0,
-            minChunks: 2
-        }
-    };
-    // todo: 针对每个page提取出一个css文件。异步加载的文件会导出单独的css文件
-    const allEntryArr = paths.allPages;
-    allEntryArr.forEach((_entry) => {
-        cacheGroups[`${_entry}-style`] = {
-            name: `${_entry}`,
-            test: (m, c, entry = `${_entry}`) =>
-                m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
-            chunks: 'all',
-            enforce: true,
-        }
-    });
-    return cacheGroups
-}
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -196,7 +134,7 @@ const defaultConfig = {
             maxInitialRequests: 3,
             automaticNameDelimiter: '~',
             name: true,
-            cacheGroups: getSplitChunks()
+            cacheGroups: util.getSplitChunks(paths)
         },
         runtimeChunk: {
             name: 'runtime'
