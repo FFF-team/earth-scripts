@@ -110,16 +110,17 @@ function getSplitChunks(paths) {
         }
     };
     // todo: 针对每个page提取出一个css文件。异步加载的文件会导出单独的css文件
-    const allEntryArr = paths.allPages;
-    allEntryArr.forEach((_entry) => {
-        cacheGroups[`${_entry}-style`] = {
-            name: `${_entry}`,
-            test: (m, c, entry = `${_entry}`) =>
-                m.constructor.name === 'CssModule' && _recursiveIssuer(m) === entry,
-            chunks: 'all',
-            enforce: true,
-        }
-    });
+    // todo: https://github.com/webpack-contrib/mini-css-extract-plugin/issues/257
+    // const allEntryArr = paths.allPages;
+    // allEntryArr.forEach((_entry) => {
+    //     cacheGroups[`${_entry}-style`] = {
+    //         name: `${_entry}`,
+    //         test: (m, c, entry = `${_entry}`) =>
+    //             m.constructor.name === 'CssModule' && _recursiveIssuer(m) === entry,
+    //         chunks: 'all',
+    //         enforce: true,
+    //     }
+    // });
     return cacheGroups
 }
 
