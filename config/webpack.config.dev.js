@@ -13,6 +13,7 @@ const paths = require('./paths');
 const webpackMerge = require('webpack-merge');
 const _ = require('lodash');
 const util = require('./util');
+const fs = require('fs');
 
 // import customerConfig
 const customConfig = require('../config-user/webpack');
@@ -303,4 +304,9 @@ const newConfig = webpackMerge({
     }
 })(defaultConfig, _.omit(customConfig.webpackConfig, 'cssModule'));
 
-module.exports = newConfig;
+const webpackConfig = (function getCustomConfig() {
+    const customConfigPath = path.resolve(`./config/webpack.change.dev.js`);
+    return fs.existsSync(customConfigPath) ? require(customConfigPath)(newConfig) : newConfig
+})();
+
+module.exports = webpackConfig;
